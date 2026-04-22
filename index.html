@@ -9,143 +9,359 @@
     <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-database-compat.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
     <style>
-        :root { --bg: #0f1117; --surface: #1a1d27; --surface2: #22263a; --border: #2e3350; --accent: #5ee7c8; --loss: #ff6b6b; --text: #e8eaf0; --text2: #8b90a7; --text3: #5a5f78; --nav-h: 64px; }
+        :root {
+            --bg: #0f1117; --surface: #1a1d27; --surface2: #22263a; --border: #2e3350;
+            --accent: #5ee7c8; --loss: #ff6b6b; --text: #e8eaf0; --text2: #8b90a7;
+            --text3: #5a5f78; --nav-h: 64px;
+        }
+
         * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
         body { font-family: sans-serif; background: var(--bg); color: var(--text); height: 100vh; overflow: hidden; }
-        #auth-overlay { position: fixed; inset: 0; background: var(--bg); z-index: 9999; display: flex; align-items: center; justify-content: center; padding: 20px; }
-        .auth-card { background: var(--surface); border: 1px solid var(--border); border-radius: 24px; padding: 30px; width: 100%; max-width: 400px; text-align: center; }
-        .header { height: 80px; background: var(--surface); border-bottom: 1px solid var(--border); display: flex; flex-direction: column; align-items: center; justify-content: center; }
-        .header-title { font-size: 28px; font-weight: 700; color: var(--accent); cursor: pointer; border: none; background: transparent; text-align: center; width: 100%; outline: none; }
+
+        /* 登入遮罩 */
+        #auth-overlay {
+            position: fixed; inset: 0; background: var(--bg); z-index: 9999;
+            display: flex; align-items: center; justify-content: center; padding: 20px;
+        }
+        .auth-card {
+            background: var(--surface); border: 1px solid var(--border);
+            border-radius: 24px; padding: 30px; width: 100%; max-width: 400px; text-align: center;
+        }
+
+        /* 主標題樣式 */
+        .header {
+            height: 80px; background: var(--surface); border-bottom: 1px solid var(--border);
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+        }
+        .header-title {
+            font-size: 28px; font-weight: 700; color: var(--accent); cursor: pointer;
+            border: none; background: transparent; text-align: center; width: 100%; outline: none;
+        }
+
         .app { display: none; flex-direction: column; height: 100%; }
         .scroll-area { flex: 1; overflow-y: auto; padding: 16px; padding-bottom: 100px; }
+
+        /* 卡片設計 */
         .card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 16px; margin-bottom: 12px; }
         .form-group { margin-bottom: 12px; }
         label { display: block; font-size: 12px; color: var(--text2); margin-bottom: 6px; }
-        input, select { width: 100%; background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; color: var(--text); padding: 12px; font-size: 16px; outline: none; }
+
+        input, select {
+            width: 100%; background: var(--surface2); border: 1px solid var(--border);
+            border-radius: 10px; color: var(--text); padding: 12px; font-size: 16px; outline: none;
+        }
+
+        /* 按鈕設計 */
         .btn { width: 100%; padding: 14px; border-radius: 12px; border: none; font-weight: 600; cursor: pointer; margin-top: 5px; }
         .btn-primary { background: var(--accent); color: var(--bg); }
         .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text2); }
         .btn-edit { background: #74b9ff; color: #000; width: 44px; height: 34px; border-radius: 8px; font-size: 12px; }
         .btn-del { background: var(--loss); color: #fff; width: 44px; height: 34px; border-radius: 8px; font-size: 12px; }
+
+        /* 分類按鈕 */
+        .cat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 12px; }
+        .cat-btn {
+            background: var(--surface2); border: 1px solid var(--border);
+            border-radius: 10px; padding: 10px 4px; text-align: center; font-size: 11px; color: var(--text2);
+        }
+        .cat-btn.selected { border-color: var(--accent); background: rgba(94,231,200,0.1); color: var(--accent); }
+
+        /* 清單明細 */
+        .exp-item { display: flex; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--border); }
+        .exp-info { flex: 1; margin-right: 10px; }
+        .exp-name { font-weight: 600; font-size: 15px; }
+        .exp-meta { font-size: 11px; color: var(--text3); margin-top: 2px; }
+
+        /* 導航 */
         .bottom-nav { position: fixed; bottom: 0; width: 100%; height: var(--nav-h); background: var(--surface); border-top: 1px solid var(--border); display: flex; z-index: 100; }
         .nav-tab { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--text3); font-size: 11px; }
         .nav-tab.active { color: var(--accent); }
-        .exp-item { display: flex; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--border); }
-        .cat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 12px; }
-        .cat-btn { background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 10px 4px; text-align: center; font-size: 11px; color: var(--text2); }
-        .cat-btn.selected { border-color: var(--accent); background: rgba(94,231,200,0.1); color: var(--accent); }
+
         .page { display: none; }
         .page.active { display: block; }
     </style>
 </head>
 <body>
-<div id="auth-overlay"><div class="auth-card"><h1>🍧</h1><h2 id="auth-title" style="color:var(--accent); margin:20px 0;">系統登入</h2><input type="email" id="login-email" placeholder="Email" style="margin-bottom:10px;"><input type="password" id="login-pw" placeholder="密碼" style="margin-bottom:10px;"><button class="btn btn-primary" onclick="handleAuth('login')">登入</button><button class="btn btn-outline" onclick="handleAuth('signup')">註冊</button><button class="btn btn-outline" onclick="handleAuth('reset')" style="font-size:12px;">忘記密碼</button><p id="auth-error" style="color:var(--loss); font-size:12px; margin-top:10px;"></p></div></div>
-<div class="app" id="main-app">
-    <div class="header"><input type="text" class="header-title" id="app-title" onchange="updateTitle()"></div>
-    <div class="scroll-area">
-        <div id="page-home" class="page active"><div class="card" style="text-align:center;"><div style="font-size:12px;color:var(--text3)">本月損益</div><div id="h-profit" style="font-size:32px;font-weight:700;">$0</div><div id="h-margin" style="color:var(--accent)">毛利率 0%</div></div></div>
-        <div id="page-entry" class="page">
-            <div class="card"><h3>📟 收入</h3><input type="date" id="rev-date"><input type="number" id="rev-amount" placeholder="金額"><button class="btn btn-primary" onclick="saveData('revenue')">儲存</button></div>
-            <div class="card"><h3>💸 支出</h3><input type="date" id="exp-date"><div class="cat-grid" id="cat-grid">
-                <button class="cat-btn selected" data-cat="food">🥭 食材原料</button><button class="cat-btn" data-cat="staff">👥 人事/孝親</button><button class="cat-btn" data-cat="utility">💡 水電/網路</button><button class="cat-btn" data-cat="rent">🛠️ 設備維修</button><button class="cat-btn" data-cat="supply">📦 耗材包材</button><button class="cat-btn" data-cat="other">📌 其他雜費</button>
-            </div><input type="text" id="exp-name" placeholder="項目明細"><input type="number" id="exp-amount" placeholder="金額"><button class="btn btn-primary" onclick="saveData('expense')">儲存</button></div>
-        </div>
-        <div id="page-list" class="page"><select id="list-month" onchange="renderList()" style="margin-bottom:10px;"></select><div id="records-container"></div></div>
-        <div id="page-more" class="page"><div class="card"><h3>📥 匯出 CSV</h3><input type="date" id="csv-start"><input type="date" id="csv-end"><button class="btn btn-primary" onclick="exportCSV()">下載</button></div><button class="btn btn-outline" onclick="firebase.auth().signOut()">登出</button></div>
-    </div>
-    <nav class="bottom-nav"><div class="nav-tab active" onclick="showPage('home')">📊<span>總覽</span></div><div class="nav-tab" onclick="showPage('entry')">✏️<span>記帳</span></div><div class="nav-tab" onclick="showPage('list')">📋<span>明細</span></div><div class="nav-tab" onclick="showPage('more')">⚙️<span>設定</span></div></nav>
-</div>
-<script>
-const firebaseConfig = { apiKey: "AIzaSyBVp9cEW4maC1oLdJGnduD8Gnpct2FvIaY", authDomain: "ice-shop-account.firebaseapp.com", projectId: "ice-shop-account", storageBucket: "ice-shop-account.firebasestorage.app", messagingSenderId: "115443037159", appId: "1:115443037159:web:3748852558c426e7acc342" };
-firebase.initializeApp(firebaseConfig);
-const auth = firebase.auth(); const db = firebase.database();
-let userRef = null; let currentData = { title: "🍧 冰店記帳", revenues: [], expenses: [] };
-const catMap = { food: "食材原料", staff: "人事支出/孝親費", utility: "水電費/網路電話費", rent: "設備採買或維修", supply: "耗材包材", other: "其他雜費" };
 
+<div id="auth-overlay">
+    <div class="auth-card">
+        <h1>🍧</h1>
+        <h2 id="auth-title" style="color:var(--accent); margin:20px 0;">系統登入</h2>
+        <input type="email" id="login-email" placeholder="請輸入 Email" style="margin-bottom:10px;">
+        <input type="password" id="login-pw" placeholder="請輸入密碼" style="margin-bottom:10px;">
+        <button class="btn btn-primary" onclick="handleAuth('login')">登入</button>
+        <button class="btn btn-outline" onclick="handleAuth('signup')">第一次使用 (註冊)</button>
+        <button class="btn btn-outline" onclick="handleAuth('reset')" style="font-size:12px; border:none;">忘記密碼？</button>
+        <p id="auth-error" style="color:var(--loss); font-size:12px; margin-top:10px;"></p>
+    </div>
+</div>
+
+<div class="app" id="main-app">
+    <div class="header">
+        <input type="text" class="header-title" id="app-title" onchange="updateTitle()">
+    </div>
+
+    <div class="scroll-area">
+        <div id="page-home" class="page active">
+            <div class="card" style="text-align:center;">
+                <div style="font-size:12px;color:var(--text3)">本月損益</div>
+                <div id="h-profit" style="font-size:32px;font-weight:700;">$0</div>
+                <div id="h-margin" style="color:var(--accent)">毛利率 0%</div>
+            </div>
+            <div class="card">
+                <canvas id="mainChart" style="max-height:200px;"></canvas>
+            </div>
+        </div>
+
+        <div id="page-entry" class="page">
+            <div class="card">
+                <h3>📟 營業額收入</h3>
+                <div class="form-group"><label>日期</label><input type="date" id="rev-date"></div>
+                <div class="form-group"><label>金額</label><input type="number" id="rev-amount" placeholder="輸入收入"></div>
+                <button class="btn btn-primary" onclick="saveData('revenue')">儲存收入</button>
+            </div>
+            <div class="card">
+                <h3>💸 支出項目</h3>
+                <div class="form-group"><label>日期</label><input type="date" id="exp-date"></div>
+                <div class="cat-grid" id="cat-grid">
+                    <button class="cat-btn selected" data-cat="food">🥭 食材原料</button>
+                    <button class="cat-btn" data-cat="staff">👥 人事支出/孝親費</button>
+                    <button class="cat-btn" data-cat="utility">💡 水電費/網路電話費</button>
+                    <button class="cat-btn" data-cat="rent">🛠️ 設備採買或維修</button>
+                    <button class="cat-btn" data-cat="supply">📦 耗材包材</button>
+                    <button class="cat-btn" data-cat="other">📌 其他雜費</button>
+                </div>
+                <div class="form-group"><label>明細內容</label><input type="text" id="exp-name" placeholder="例如：芒果補貨"></div>
+                <div class="form-group"><label>支出金額</label><input type="number" id="exp-amount" placeholder="輸入金額"></div>
+                <button class="btn btn-primary" onclick="saveData('expense')">新增支出</button>
+            </div>
+        </div>
+
+        <div id="page-list" class="page">
+            <div class="form-group">
+                <label>選擇月份查看</label>
+                <select id="list-month" onchange="renderList()"></select>
+            </div>
+            <div id="records-container"></div>
+        </div>
+
+        <div id="page-more" class="page">
+            <div class="card">
+                <h3>📥 匯出 CSV 報表</h3>
+                <div class="form-group"><label>起始日期</label><input type="date" id="csv-start"></div>
+                <div class="form-group"><label>結束日期</label><input type="date" id="csv-end"></div>
+                <button class="btn btn-primary" onclick="exportCSV()">下載 CSV 檔案</button>
+            </div>
+            <button class="btn btn-outline" onclick="firebase.auth().signOut()">登出帳號</button>
+        </div>
+    </div>
+
+    <nav class="bottom-nav">
+        <div class="nav-tab active" onclick="showPage('home')">📊<span>總覽</span></div>
+        <div class="nav-tab" onclick="showPage('entry')">✏️<span>記帳</span></div>
+        <div class="nav-tab" onclick="showPage('list')">📋<span>明細</span></div>
+        <div class="nav-tab" onclick="showPage('more')">⚙️<span>設定</span></div>
+    </nav>
+</div>
+
+<script>
+// --- Firebase 設定 (使用你提供的 Config) ---
+const firebaseConfig = {
+    apiKey: "AIzaSyBVp9cEW4maC1oLdJGnduD8Gnpct2FvIaY",
+    authDomain: "ice-shop-account.firebaseapp.com",
+    projectId: "ice-shop-account",
+    storageBucket: "ice-shop-account.firebasestorage.app",
+    messagingSenderId: "115443037159",
+    appId: "1:115443037159:web:3748852558c426e7acc342"
+};
+firebase.initializeApp(firebaseConfig);
+
+const auth = firebase.auth();
+const db = firebase.database();
+let userRef = null;
+let currentData = { title: "🍧 冰店記帳", revenues: [], expenses: [] };
+
+const catMap = {
+    food: "食材原料",
+    staff: "人事支出/孝親費",
+    utility: "水電費/網路電話費",
+    rent: "設備採買或維修",
+    supply: "耗材包材",
+    other: "其他雜費"
+};
+
+// --- 登入邏輯 ---
 auth.onAuthStateChanged(user => {
-    if(user) {
+    if (user) {
         document.getElementById('auth-overlay').style.display = 'none';
         document.getElementById('main-app').style.display = 'flex';
         userRef = db.ref('users/' + user.uid);
         userRef.on('value', snap => {
-            if(snap.val()) currentData = snap.val();
+            if (snap.val()) currentData = snap.val();
             document.getElementById('app-title').value = currentData.title || "🍧 冰店記帳";
             updateUI();
         });
-    } else { document.getElementById('auth-overlay').style.display = 'flex'; }
+    } else {
+        document.getElementById('auth-overlay').style.display = 'flex';
+        document.getElementById('main-app').style.display = 'none';
+    }
 });
 
-function handleAuth(t) {
-    const e = document.getElementById('login-email').value, p = document.getElementById('login-pw').value;
-    if(t==='login') auth.signInWithEmailAndPassword(e,p).catch(err=>alert(err.message));
-    else if(t==='signup') auth.createUserWithEmailAndPassword(e,p).then(()=>alert("註冊成功")).catch(err=>alert(err.message));
-    else auth.sendPasswordResetEmail(e).then(()=>alert("郵件已寄出"));
+function handleAuth(type) {
+    const email = document.getElementById('login-email').value;
+    const pw = document.getElementById('login-pw').value;
+    const errorMsg = document.getElementById('auth-error');
+    if (!email || !pw && type !== 'reset') { alert("請填寫 Email 與密碼"); return; }
+
+    if (type === 'login') {
+        auth.signInWithEmailAndPassword(email, pw).catch(e => errorMsg.innerText = e.message);
+    } else if (type === 'signup') {
+        auth.createUserWithEmailAndPassword(email, pw).then(() => alert("註冊成功！")).catch(e => errorMsg.innerText = e.message);
+    } else {
+        auth.sendPasswordResetEmail(email).then(() => alert("重設信已寄出，請檢查信箱")).catch(e => errorMsg.innerText = e.message);
+    }
 }
 
+// --- 分類按鈕選取 ---
+document.querySelectorAll('.cat-btn').forEach(btn => {
+    btn.onclick = () => {
+        document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('selected'));
+        btn.classList.add('selected');
+    };
+});
+
+// --- 頁面切換 ---
 function showPage(id) {
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
     document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
-    document.getElementById('page-'+id).classList.add('active');
+    document.getElementById('page-' + id).classList.add('active');
     event.currentTarget.classList.add('active');
-    if(id === 'list') renderList();
+    if (id === 'list') renderList();
 }
 
+// --- 儲存資料 ---
 function saveData(type) {
-    const date = document.getElementById(type==='revenue'?'rev-date':'exp-date').value;
-    const amount = parseFloat(document.getElementById(type==='revenue'?'rev-amount':'exp-amount').value);
-    if(!date || isNaN(amount)) return alert("請填寫正確");
-    if(type==='revenue') {
-        const idx = (currentData.revenues||[]).findIndex(r=>r.date===date);
-        if(idx>-1) currentData.revenues[idx].amount = amount;
-        else (currentData.revenues = currentData.revenues||[]).push({date, amount});
+    const date = document.getElementById(type === 'revenue' ? 'rev-date' : 'exp-date').value;
+    const amount = parseFloat(document.getElementById(type === 'revenue' ? 'rev-amount' : 'exp-amount').value);
+    if (!date || isNaN(amount)) { alert("請填寫正確日期與金額"); return; }
+
+    if (type === 'revenue') {
+        const revs = currentData.revenues || [];
+        const idx = revs.findIndex(r => r.date === date);
+        if (idx > -1) revs[idx].amount = amount;
+        else revs.push({ date, amount });
+        currentData.revenues = revs;
     } else {
-        const name = document.getElementById('exp-name').value, cat = document.querySelector('.cat-btn.selected').dataset.cat;
-        (currentData.expenses = currentData.expenses||[]).push({id:Date.now(), date, amount, name, category:cat});
+        const name = document.getElementById('exp-name').value;
+        const category = document.querySelector('.cat-btn.selected').dataset.cat;
+        if (!name) { alert("請輸入明細內容"); return; }
+        const exps = currentData.expenses || [];
+        exps.push({ id: Date.now(), date, amount, name, category });
+        currentData.expenses = exps;
     }
-    userRef.set(currentData); alert("儲存成功");
+    userRef.set(currentData);
+    alert("儲存成功！");
+    document.getElementById(type + '-amount').value = "";
 }
 
+// --- 渲染明細清單 ---
 function renderList() {
-    const m = document.getElementById('list-month').value, cont = document.getElementById('records-container');
-    const items = (currentData.expenses||[]).filter(e=>e.date.startsWith(m)).sort((a,b)=>b.date.localeCompare(a.date));
-    cont.innerHTML = items.map(e => `
+    const month = document.getElementById('list-month').value;
+    const container = document.getElementById('records-container');
+    const expenses = (currentData.expenses || []).filter(e => e.date.startsWith(month));
+    expenses.sort((a, b) => b.date.localeCompare(a.date));
+
+    container.innerHTML = expenses.map(e => `
         <div class="exp-item">
-            <div style="flex:1"><b>${e.name}</b><br><small>${e.date} | ${catMap[e.category]}</small></div>
-            <div style="text-align:right"><span style="color:var(--loss)">-$${e.amount}</span><br>
-            <button class="btn-edit" onclick="editItem(${e.id})">改</button><button class="btn-del" onclick="delItem(${e.id})">刪</button></div>
-        </div>`).join('');
+            <div class="exp-info">
+                <div class="exp-name">${e.name}</div>
+                <div class="exp-meta">${e.date} | ${catMap[e.category]}</div>
+            </div>
+            <div style="text-align:right">
+                <div style="color:var(--loss); font-weight:700;">-$${e.amount}</div>
+                <div style="margin-top:5px">
+                    <button class="btn-edit" onclick="editExpense(${e.id})">改</button>
+                    <button class="btn-del" onclick="deleteExpense(${e.id})">刪</button>
+                </div>
+            </div>
+        </div>
+    `).join('');
 }
 
-function editItem(id) {
-    if(prompt("請輸入密碼")!=="9527") return alert("錯誤");
-    const item = currentData.expenses.find(e=>e.id===id);
-    const val = prompt("新金額", item.amount);
-    if(val) { item.amount = parseFloat(val); userRef.set(currentData); }
+// --- 編輯功能 (密碼 9527) ---
+function editExpense(id) {
+    const pw = prompt("請輸入編輯權限密碼：");
+    if (pw !== "9527") { alert("密碼錯誤，無法編輯！"); return; }
+    
+    const item = currentData.expenses.find(e => e.id === id);
+    const newAmount = prompt("請輸入新的金額：", item.amount);
+    if (newAmount !== null) {
+        item.amount = parseFloat(newAmount);
+        userRef.set(currentData);
+    }
 }
 
-function delItem(id) { if(confirm("確定刪除?")) { currentData.expenses = currentData.expenses.filter(e=>e.id!==id); userRef.set(currentData); } }
+// --- 刪除功能 ---
+function deleteExpense(id) {
+    if (confirm("確定要刪除這筆明細嗎？")) {
+        currentData.expenses = currentData.expenses.filter(e => e.id !== id);
+        userRef.set(currentData);
+    }
+}
 
+// --- CSV 匯出功能修正 ---
 function exportCSV() {
-    const s = document.getElementById('csv-start').value, e = document.getElementById('csv-end').value;
-    let rows = [["日期","項目","分類","金額"]];
-    (currentData.revenues||[]).filter(r=>r.date>=s&&r.date<=e).forEach(r=>rows.push([r.date,"營業額","收入",r.amount]));
-    (currentData.expenses||[]).filter(x=>x.date>=s&&x.date<=e).forEach(x=>rows.push([x.date,x.name,catMap[x.category],x.amount]));
-    const blob = new Blob(["\uFEFF"+rows.map(r=>r.join(",")).join("\n")], {type:'text/csv'});
-    const a = document.createElement("a"); a.href=URL.createObjectURL(blob); a.download=`export.csv`; a.click();
+    const start = document.getElementById('csv-start').value;
+    const end = document.getElementById('csv-end').value;
+    if (!start || !end) { alert("請選擇起始與結束日期"); return; }
+
+    let rows = [["日期", "類型", "明細/項目", "分類", "金額"]];
+    
+    (currentData.revenues || []).forEach(r => {
+        if (r.date >= start && r.date <= end) rows.push([r.date, "收入", "營業額", "收入", r.amount]);
+    });
+    (currentData.expenses || []).forEach(e => {
+        if (e.date >= start && e.date <= end) rows.push([e.date, "支出", e.name, catMap[e.category], e.amount]);
+    });
+
+    rows.sort((a, b) => a[0].localeCompare(b[0]));
+    const csvContent = "\uFEFF" + rows.map(r => r.join(",")).join("\n");
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = `冰店記帳_${start}_至_${end}.csv`;
+    link.click();
 }
 
+// --- 介面同步更新 ---
 function updateUI() {
-    const m = new Date().toISOString().slice(0,7);
-    const tr = (currentData.revenues||[]).filter(r=>r.date.startsWith(m)).reduce((a,b)=>a+b.amount,0);
-    const tx = (currentData.expenses||[]).filter(e=>e.date.startsWith(m)).reduce((a,b)=>a+b.amount,0);
-    document.getElementById('h-profit').textContent = `$${tr-tx}`;
-    document.getElementById('h-margin').textContent = `毛利率 ${tr?(((tr-tx)/tr)*100).toFixed(1):0}%`;
-    const months = [...new Set([...(currentData.revenues||[]).map(r=>r.date.slice(0,7)),...(currentData.expenses||[]).map(e=>e.date.slice(0,7))])].sort().reverse();
-    document.getElementById('list-month').innerHTML = (months.length?months:[m]).map(x=>`<option value="${x}">${x}</option>`).join('');
+    const todayMonth = new Date().toISOString().slice(0, 7);
+    const revs = (currentData.revenues || []).filter(r => r.date.startsWith(todayMonth)).reduce((a, b) => a + b.amount, 0);
+    const exps = (currentData.expenses || []).filter(e => e.date.startsWith(todayMonth)).reduce((a, b) => a + b.amount, 0);
+    
+    document.getElementById('h-profit').innerText = `$${revs - exps}`;
+    document.getElementById('h-margin').innerText = `毛利率 ${revs ? (((revs - exps) / revs) * 100).toFixed(1) : 0}%`;
+
+    const months = [...new Set([
+        ...(currentData.revenues || []).map(r => r.date.slice(0, 7)),
+        ...(currentData.expenses || []).map(e => e.date.slice(0, 7))
+    ])].sort().reverse();
+
+    const monthSelect = document.getElementById('list-month');
+    monthSelect.innerHTML = (months.length ? months : [todayMonth]).map(m => `<option value="${m}">${m}</option>`).join('');
 }
-function updateTitle(){ currentData.title = document.getElementById('app-title').value; userRef.set(currentData); }
-document.querySelectorAll('.cat-btn').forEach(b=>b.onclick=()=>{document.querySelectorAll('.cat-btn').forEach(x=>x.classList.remove('selected'));b.classList.add('selected')});
-document.getElementById('rev-date').value = document.getElementById('exp-date').value = new Date().toISOString().slice(0,10);
+
+function updateTitle() {
+    currentData.title = document.getElementById('app-title').value;
+    userRef.set(currentData);
+}
+
+// 初始化日期
+document.getElementById('rev-date').value = new Date().toISOString().slice(0, 10);
+document.getElementById('exp-date').value = new Date().toISOString().slice(0, 10);
+document.getElementById('csv-start').value = new Date().toISOString().slice(0, 7) + "-01";
+document.getElementById('csv-end').value = new Date().toISOString().slice(0, 10);
+
 </script>
 </body>
 </html>
