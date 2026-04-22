@@ -800,83 +800,344 @@ function closeModal(id) { document.getElementById(id).classList.remove('open'); 
 </body>
 </html>
 <script>
-// ── 強制補齊編輯與 9527 邏輯 (掛載到 window 確保覆蓋) ──
-const EDIT_PW = '9527';
 
-// 修正明細分頁：加入編輯按鈕與資料顯示
-window.renderRecords = async function() {
+// ====== 可編輯分類 ======
+let categories = [
+  { key:'food', label:'食材原料', icon:'🥭' },
+  { key:'staff', label:'人事支出/孝親費', icon:'👥' },
+  { key:'utility', label:'水電費/網路電話費', icon:'💡' },
+  { key:'rent', label:'設備採買或維修', icon:'🔧' },
+  { key:'supply', label:'耗材包材', icon:'📦' },
+  { key:'other', label:'其他雜費', icon:'📌' }
+];
+
+function renderCategoryButtons() {
+  const wrap = document.querySelector('.cat-grid');
+  wrap.innerHTML = '';
+
+  categories.forEach((cat,i)=>{
+    wrap.innerHTML += `
+      <div style="position:relative">
+        <button class="cat-btn ${i===0?'selected':''}"
+          data-cat="${cat.key}"
+          onclick="selectCat(this)">
+          <span class="cat-icon">${cat.icon}</span>
+          <span class="cat-name">${cat.label}</span>
+        </button>
+
+        <button
+          onclick="editCategory('${cat.key}')"
+          style="
+            position:absolute;
+            top:-5px;
+            right:-5px;
+            border:none;
+            background:#5ee7c8;
+            color:#000;
+            border-radius:50%;
+            width:22px;
+            height:22px;
+            font-size:11px;">
+          ✏️
+        </button>
+      </div>
+    `;
+  });
+}
+
+function editCategory(key){
+  const cat = categories.find(c=>c.key===key);
+  if(!cat) return;
+
+  const pw = prompt('請輸入密碼');
+  if(pw !== '9527'){
+    showToast('密碼錯誤', true);
+    return;
+  }
+
+  const newLabel = prompt('修改分類名稱', cat.label);
+
+  if(newLabel){
+    cat.label = newLabel;
+    renderCategoryButtons();
+    renderRecords();
+    renderTodayBanner();
+  }
+}
+
+// ====== 今日支出明細 ======
+async function renderTodayExpenseList() {
   const data = await loadData();
-  const m = document.getElementById('filter-month').value;
-  const cat = document.getElementById('filter-cat').value;
-  let list = [...data.revenues.map(r=>({...r,type:'rev',category:'revenue'})), ...data.expenses.map(e=>({...e,type:'exp'}))];
-  list = list.filter(i => i.date.startsWith(m) && (cat==='all' || i.category===cat));
-  list.sort((a,b) => b.date.localeCompare(a.date));
+  const d = today();
 
-  const listEl = document.getElementById('records-list');
-  if(listEl) {
-    listEl.innerHTML = list.map(i => `
+  const list = data.expenses.filter(x=>x.date===d);
+
+  const wrap = document.getElementById('today-exp-list');
+
+  if(list.length===0){
+    wrap.innerHTML = '<div style="color:var(--text3)">今天尚無支出</div>';
+    return;
+  }
+
+  wrap.innerHTML = '';
+
+  list.forEach(item=>{
+    wrap.innerHTML += `
       <div class="exp-item">
         <div class="exp-item-top">
-          <span class="exp-icon">${i.type==='rev'?'💰':(window.catIcon?catIcon(i.category):'📌')}</span>
+          <div class="exp-icon">${catIcon(item.category)}</div>
+
           <div class="exp-info">
-            <div class="exp-name">${i.type==='rev'?'營業收入':i.name}</div>
-            <div class="exp-meta">${i.date}${i.detail?' | '+i.detail:''}</div>
+            <div class="exp-name">${item.name}</div>
+            <div class="exp-meta">${item.date}</div>
           </div>
-          <div class="exp-amount" style="color:${i.type==='rev'?'#5ee7c8':'#ff6b6b'}">
-            ${i.type==='rev'?'+':'-'}$${Number(i.amount).toLocaleString()}
+
+          <div class="exp-amount">$${fmt(item.amount)}</div>
+
+          <div class="exp-actions">
+            <button class="act-btn act-edit"
+              onclick="requestEdit('${item.id}')">
+              編輯
+            </button>
+
+            <button class="act-btn act-del"
+              onclick="deleteExpense('${item.id}')">
+              刪除
+            </button>
           </div>
-          <button class="act-btn act-edit" onclick="askEdit('${i.id}', '${i.type}')">編輯</button>
         </div>
       </div>
-    `).join('');
-  }
-};
-
-// 密碼驗證邏輯
-window.askEdit = function(id, type) {
-  window._editingItem = { id, type };
-  document.getElementById('pw-input').value = '';
-  document.getElementById('pw-err').textContent = '';
-  openModal('pw-modal');
-};
-
-window.checkPw = function() {
-  if (document.getElementById('pw-input').value === EDIT_PW) {
-    closeModal('pw-modal');
-    const type = window._editingItem.type;
-    const item = type === 'exp' ? _cache.expenses.find(x=>x.id===window._editingItem.id) : _cache.revenues.find(x=>x.id===window._editingItem.id);
-    if (type === 'exp') {
-      document.getElementById('edit-id').value = item.id;
-      document.getElementById('edit-name').value = item.name;
-      document.getElementById('edit-detail').value = item.detail || '';
-      document.getElementById('edit-amount').value = item.amount;
-      openModal('edit-modal');
-    } else {
-      document.getElementById('edit-rev-id').value = item.id;
-      document.getElementById('edit-rev-amount').value = item.amount;
-      openModal('edit-rev-modal');
-    }
-  } else { document.getElementById('pw-err').textContent = '密碼錯誤'; }
-};
-
-// 修正存檔邏輯 (補上原本漏掉的欄位)
-const originalSaveExpense = window.saveExpense;
-window.saveExpense = async function() {
-  const detail = document.getElementById('exp-detail-input') ? document.getElementById('exp-detail-input').value : '';
-  // 如果原本的函數存在，我們需要手動重寫以確保 detail 有存進去
-  const date = document.getElementById('exp-date').value;
-  const catEl = document.querySelector('.cat-btn.selected');
-  const category = catEl ? catEl.dataset.cat : 'other';
-  const name = document.getElementById('exp-name').value;
-  const amount = parseFloat(document.getElementById('exp-amount').value);
-  if (!name || isNaN(amount)) return alert('請輸入完整資訊');
-  
-  await window._fbFns.setDoc(window._fbFns.doc(window._fbFns.collection(window._db, 'users', window._uid, 'expenses')), { 
-    date, category, name, detail, amount, uid: window._uid 
+    `;
   });
-  alert('儲存成功');
-  _cache.ts = 0; await loadData(true); renderHome();
+}
+
+// ====== 明細頁 ======
+async function renderRecords() {
+
+  const data = await loadData();
+
+  const month = document.getElementById('filter-month').value;
+  const cat = document.getElementById('filter-cat').value;
+
+  let rows = [];
+
+  data.expenses.forEach(e=>{
+    rows.push({
+      type:'expense',
+      ...e
+    });
+  });
+
+  data.revenues.forEach(r=>{
+    rows.push({
+      type:'revenue',
+      ...r
+    });
+  });
+
+  rows = rows.filter(r=>r.date.startsWith(month));
+
+  if(cat !== 'all'){
+    if(cat==='revenue'){
+      rows = rows.filter(r=>r.type==='revenue');
+    } else {
+      rows = rows.filter(r=>r.category===cat);
+    }
+  }
+
+  rows.sort((a,b)=>b.date.localeCompare(a.date));
+
+  const wrap = document.getElementById('records-list');
+
+  if(rows.length===0){
+    wrap.innerHTML = '沒有資料';
+    return;
+  }
+
+  wrap.innerHTML = '';
+
+  rows.forEach(item=>{
+
+    const isRevenue = item.type==='revenue';
+
+    wrap.innerHTML += `
+      <div class="exp-item">
+
+        <div class="exp-item-top">
+
+          <div class="exp-icon">
+            ${isRevenue ? '💰' : catIcon(item.category)}
+          </div>
+
+          <div class="exp-info">
+            <div class="exp-name">${item.name || '營業額'}</div>
+            <div class="exp-meta">${item.date}</div>
+          </div>
+
+          <div class="exp-amount">
+            ${isRevenue ? '+' : '-'}$${fmt(item.amount)}
+          </div>
+
+          <div class="exp-actions">
+
+            <button class="act-btn act-edit"
+              onclick="${isRevenue ? `editRevenue('${item.id}')` : `requestEdit('${item.id}')`}">
+              編輯
+            </button>
+
+            ${
+              !isRevenue
+              ? `<button class="act-btn act-del"
+                    onclick="deleteExpense('${item.id}')">
+                    刪除
+                 </button>`
+              : ''
+            }
+
+          </div>
+
+        </div>
+
+      </div>
+    `;
+  });
+}
+
+// ====== 編輯密碼 ======
+let pendingEditId = null;
+
+function requestEdit(id){
+  pendingEditId = id;
+  document.getElementById('pw-input').value = '';
+  openModal('pw-modal');
+}
+
+async function checkPw(){
+
+  const pw = document.getElementById('pw-input').value;
+
+  if(pw !== '9527'){
+    document.getElementById('pw-err').textContent = '密碼錯誤';
+    document.getElementById('pw-err').style.display='block';
+    return;
+  }
+
+  closeModal('pw-modal');
+
+  const data = await loadData();
+  const item = data.expenses.find(x=>x.id===pendingEditId);
+
+  if(!item) return;
+
+  document.getElementById('edit-id').value = item.id;
+  document.getElementById('edit-date').value = item.date;
+  document.getElementById('edit-category').value = item.category;
+  document.getElementById('edit-name').value = item.name;
+  document.getElementById('edit-detail').value = item.detail || '';
+  document.getElementById('edit-amount').value = item.amount;
+  document.getElementById('edit-note').value = item.note || '';
+
+  openModal('edit-modal');
+}
+
+// ====== 儲存修改 ======
+async function saveEdit(){
+
+  const id = document.getElementById('edit-id').value;
+
+  const payload = {
+    date: document.getElementById('edit-date').value,
+    category: document.getElementById('edit-category').value,
+    name: document.getElementById('edit-name').value,
+    detail: document.getElementById('edit-detail').value,
+    amount: parseFloat(document.getElementById('edit-amount').value),
+    note: document.getElementById('edit-note').value,
+    uid: uid()
+  };
+
+  await window._fbFns.setDoc(
+    window._fbFns.doc(expCol(), id),
+    payload
+  );
+
+  closeModal('edit-modal');
+
+  _cache.ts = 0;
+
+  await loadData(true);
+
+  renderTodayBanner();
+  renderTodayExpenseList();
+  renderRecords();
+
+  showToast('修改成功');
+}
+
+// ====== 刪除 ======
+async function deleteExpense(id){
+
+  const pw = prompt('請輸入密碼');
+
+  if(pw !== '9527'){
+    showToast('密碼錯誤', true);
+    return;
+  }
+
+  if(!confirm('確定刪除？')) return;
+
+  await window._fbFns.deleteDoc(
+    window._fbFns.doc(expCol(), id)
+  );
+
+  _cache.ts = 0;
+
+  await loadData(true);
+
+  renderTodayBanner();
+  renderTodayExpenseList();
+  renderRecords();
+
+  showToast('已刪除');
+}
+
+// ====== 修正今天頁 ======
+async function renderTodayBanner() {
+
+  const data = await loadData();
+
+  const d = today();
+
+  const r = data.revenues.find(x=>x.date===d);
+  const exps = data.expenses.filter(x=>x.date===d);
+
+  const tExp = exps.reduce((s,e)=>s+e.amount,0);
+
+  document.getElementById('tb-rev').textContent =
+    r ? `$${fmt(r.amount)}` : '未記錄';
+
+  document.getElementById('tb-exp').textContent =
+    `$${fmt(tExp)}`;
+
+  const pnl = (r?.amount || 0) - tExp;
+
+  document.getElementById('tb-pnl').textContent =
+    `$${fmt(pnl)}`;
+
+  renderTodayExpenseList();
+}
+
+// ====== 啟動 ======
+const oldInit = window.appInit;
+
+window.appInit = async function(){
+
+  await oldInit();
+
+  renderCategoryButtons();
+  renderTodayExpenseList();
+  renderRecords();
 };
+
 </script>
 
 
