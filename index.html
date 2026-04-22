@@ -3,13 +3,15 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>🍧 冰店記帳</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { getFirestore, collection, doc, setDoc, getDoc, getDocs, deleteDoc, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendPasswordResetEmail, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getFirestore, collection, doc, setDoc, getDoc, getDocs, deleteDoc, query, where, orderBy } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBVp9cEW4maC1oLdJGnduD8Gnpct2FvIaY",
@@ -17,7 +19,8 @@ const firebaseConfig = {
   projectId: "ice-shop-account",
   storageBucket: "ice-shop-account.firebasestorage.app",
   messagingSenderId: "115443037159",
-  appId: "1:115443037159:web:3748852558c426e7acc342"
+  appId: "1:115443037159:web:3748852558c426e7acc342",
+  measurementId: "G-QSLQ3YQ14H"
 };
 
 const app = initializeApp(firebaseConfig);
@@ -26,15 +29,18 @@ const db = getFirestore(app);
 
 window._auth = auth;
 window._db = db;
-window._fbFns = { signInWithEmailAndPassword, signOut, onAuthStateChanged, collection, doc, setDoc, getDoc, getDocs, deleteDoc, query, orderBy };
+window._fbFns = { createUserWithEmailAndPassword, signInWithEmailAndPassword, sendPasswordResetEmail, signOut, onAuthStateChanged, collection, doc, setDoc, getDoc, getDocs, deleteDoc, query, where, orderBy };
 
 onAuthStateChanged(auth, user => {
   if (user) {
     window._uid = user.uid;
+    window._userEmail = user.email;
     document.getElementById('auth-screen').style.display = 'none';
     document.getElementById('main-app').style.display = 'flex';
+    document.getElementById('header-email').textContent = user.email;
     window.appInit();
   } else {
+    window._uid = null;
     document.getElementById('auth-screen').style.display = 'flex';
     document.getElementById('main-app').style.display = 'none';
   }
@@ -42,8 +48,8 @@ onAuthStateChanged(auth, user => {
 </script>
 
 <style>
-/* 這裡嚴格保留你原本的所有 CSS 樣式，不做任何縮減 */
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=DM+Mono:wght@400;500&display=swap');
+
 :root {
   --bg: #0b0e18; --surface: #141824; --surface2: #1e2235; --border: #2a3050;
   --accent: #5ee7c8; --loss: #ff6b6b; --warn: #ffd93d; --purple: #a29bfe;
@@ -55,204 +61,335 @@ html, body { height: 100%; overflow: hidden; font-family: 'Noto Sans TC', sans-s
 
 #auth-screen { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; padding: 24px 20px; background: var(--bg); }
 .auth-card { width: 100%; max-width: 380px; background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 28px 24px; }
-.auth-input-wrap { margin-bottom: 14px; }
-.auth-input-wrap input { width: 100%; background: var(--surface2); border: 1px solid var(--border); border-radius: 12px; color: var(--text); padding: 13px 14px; font-size: 16px; outline: none; }
-.auth-btn { width: 100%; padding: 14px; border-radius: 12px; border: none; background: var(--accent); color: #0b0e18; font-weight: 700; cursor: pointer; }
+.auth-tabs { display: flex; gap: 6px; margin-bottom: 22px; }
+.auth-tab { flex: 1; padding: 9px; border-radius: 10px; border: none; cursor: pointer; font-size: 13px; font-weight: 600; background: var(--surface2); color: var(--text2); }
+.auth-tab.active { background: var(--accent); color: #0b0e18; }
+.auth-form { display: none; }
+.auth-form.active { display: block; }
+.auth-input-wrap { position: relative; margin-bottom: 14px; }
+.auth-input-wrap input { width: 100%; background: var(--surface2); border: 1px solid var(--border); border-radius: 12px; color: var(--text); padding: 13px 14px 13px 42px; font-size: 16px; outline: none; }
+.auth-icon { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); }
+.auth-btn { width: 100%; padding: 14px; border-radius: 12px; border: none; cursor: pointer; background: var(--accent); color: #0b0e18; font-weight: 700; }
+.auth-err { background: rgba(255,107,107,.1); color: var(--loss); padding: 10px; border-radius: 10px; margin-bottom: 14px; display: none; }
 
 #main-app { display: none; flex-direction: column; height: 100%; }
-.header { padding-top: var(--safe-top); background: var(--surface); border-bottom: 1px solid var(--border); flex-shrink: 0; }
+.header { padding-top: var(--safe-top); background: var(--surface); border-bottom: 1px solid var(--border); }
 .header-inner { display: flex; align-items: center; justify-content: space-between; padding: 10px 16px; }
-.shop-title { font-size: 20px; font-weight: 900; color: var(--accent); }
+.shop-title { font-size: 22px; font-weight: 900; color: var(--accent); text-align: center; cursor: pointer; }
+.logout-btn { background: transparent; border: 1px solid var(--border); color: var(--text2); border-radius: 8px; padding: 6px 10px; font-size: 11px; }
 
 .scroll-area { flex: 1; overflow-y: auto; padding: 14px; padding-bottom: calc(var(--nav-h) + var(--safe-bottom) + 20px); }
-.card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 16px; margin-bottom: 12px; }
-.card-head { font-size: 12px; font-weight: 600; color: var(--text3); margin-bottom: 12px; text-transform: uppercase; }
+.bottom-nav { height: calc(var(--nav-h) + var(--safe-bottom)); background: var(--surface); border-top: 1px solid var(--border); display: flex; position: fixed; bottom: 0; width: 100%; z-index: 50; }
+.nav-tab { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--text3); font-size: 10px; cursor: pointer; }
+.nav-tab.active { color: var(--accent); }
+.nav-tab .icon { font-size: 22px; }
+
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 14px 16px; margin-bottom: 12px; }
+.card-head { font-size: 12px; font-weight: 600; color: var(--text3); text-transform: uppercase; margin-bottom: 12px; display: flex; justify-content: space-between; }
+.profit-card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 16px; margin-bottom: 12px; display: flex; justify-content: space-between; }
+.profit-card .value { font-family: 'DM Mono', monospace; font-size: 28px; font-weight: 700; color: var(--accent); }
 
 .form-group { margin-bottom: 12px; }
 label { display: block; font-size: 12px; color: var(--text2); margin-bottom: 5px; }
 input, select { width: 100%; background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; color: var(--text); padding: 12px 14px; font-size: 16px; outline: none; }
-
-.btn { width: 100%; padding: 14px; border-radius: 12px; border: none; cursor: pointer; font-weight: 600; }
+.btn { width: 100%; padding: 14px; border-radius: 12px; border: none; cursor: pointer; font-size: 15px; font-weight: 600; }
 .btn-primary { background: var(--accent); color: #0b0e18; }
+.act-btn { padding: 5px 10px; border-radius: 7px; font-size: 11px; border: 1px solid; cursor: pointer; }
+.act-edit { color: var(--accent); border-color: var(--accent); background: rgba(94,231,200,.07); }
 
-.exp-item { padding: 12px 0; border-bottom: 1px solid rgba(42,48,80,.5); display: flex; justify-content: space-between; align-items: center; }
-.exp-info { flex: 1; }
-.exp-name { font-size: 15px; font-weight: 500; }
-.exp-meta { font-size: 11px; color: var(--text3); margin-top: 2px; }
-.exp-amount { color: var(--loss); font-family: 'DM Mono', monospace; font-weight: 500; }
-.act-edit { margin-left: 10px; padding: 4px 8px; font-size: 11px; color: var(--accent); border: 1px solid var(--accent); border-radius: 4px; background: transparent; cursor: pointer; }
+.cat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 12px; }
+.cat-btn { background: var(--surface2); border: 2px solid var(--border); border-radius: 10px; padding: 10px 4px; text-align: center; cursor: pointer; }
+.cat-btn.selected { border-color: var(--accent); background: rgba(94,231,200,.1); }
+.cat-icon { font-size: 20px; display: block; }
+.cat-name { font-size: 10px; color: var(--text2); }
 
-.bottom-nav { height: calc(var(--nav-h) + var(--safe-bottom)); background: var(--surface); border-top: 1px solid var(--border); display: flex; position: fixed; bottom: 0; width: 100%; }
-.nav-tab { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 10px; color: var(--text3); cursor: pointer; }
-.nav-tab.active { color: var(--accent); }
+.exp-item { padding: 11px 0; border-bottom: 1px solid rgba(42,48,80,.5); }
+.exp-item-top { display: flex; align-items: center; gap: 8px; }
+.exp-info { flex: 1; min-width: 0; }
+.exp-name { font-size: 14px; }
+.exp-meta { font-size: 11px; color: var(--text3); }
+.exp-amount { font-family: 'DM Mono', monospace; font-size: 14px; }
 
-.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.8); display: none; align-items: center; justify-content: center; z-index: 1000; padding: 20px; }
+.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.7); display: none; align-items: flex-end; justify-content: center; z-index: 200; backdrop-filter: blur(4px); }
 .modal-overlay.open { display: flex; }
-.modal-sheet { background: var(--surface); border-radius: 16px; padding: 20px; width: 100%; max-width: 400px; border: 1px solid var(--border); }
+.modal-sheet { background: var(--surface); border-radius: 20px 20px 0 0; padding: 20px; width: 100%; max-width: 480px; border-top: 1px solid var(--border); }
+.modal-btns { display: flex; gap: 10px; margin-top: 20px; }
+
+.toast { position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%); background: var(--accent); color: #0b0e18; padding: 10px 20px; border-radius: 20px; font-size: 13px; opacity: 0; transition: 0.3s; z-index: 999; }
+.toast.show { opacity: 1; }
+.loading-screen { position: fixed; inset: 0; background: var(--bg); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 500; }
 </style>
 </head>
 <body>
 
-<div id="auth-screen">
+<div class="loading-screen" id="loading-screen">
+  <div style="font-size:13px;color:var(--text3)">載入中...</div>
+</div>
+
+<div id="auth-screen" style="display:none">
   <div class="auth-card">
-    <h1 style="color:var(--accent); text-align:center; margin-bottom:20px;">🍧 冰店記帳登入</h1>
-    <div class="auth-input-wrap"><input type="email" id="login-email" placeholder="Email"></div>
-    <div class="auth-input-wrap"><input type="password" id="login-pw" placeholder="Password"></div>
-    <button class="auth-btn" onclick="doLogin()">登入</button>
+    <div class="auth-tabs">
+      <button class="auth-tab active" onclick="switchAuthTab('login')">登入</button>
+      <button class="auth-tab" onclick="switchAuthTab('register')">註冊</button>
+    </div>
+    <div id="auth-login" class="auth-form active">
+      <div class="auth-err" id="login-err"></div>
+      <div class="auth-input-wrap"><span class="auth-icon">✉️</span><input type="email" id="login-email" placeholder="電子郵件"></div>
+      <div class="auth-input-wrap"><span class="auth-icon">🔒</span><input type="password" id="login-pw" placeholder="密碼"></div>
+      <button class="auth-btn" onclick="doLogin()">登入</button>
+    </div>
+    <div id="auth-register" class="auth-form">
+      <div class="auth-err" id="reg-err"></div>
+      <div class="auth-input-wrap"><input type="email" id="reg-email" placeholder="電子郵件"></div>
+      <div class="auth-input-wrap"><input type="password" id="reg-pw" placeholder="密碼"></div>
+      <button class="auth-btn" onclick="doRegister()">建立帳號</button>
+    </div>
   </div>
 </div>
 
-<div id="main-app">
-  <div class="header"><div class="header-inner"><div class="shop-title">🍧 冰店記帳</div><button onclick="window._fbFns.signOut(window._auth)" style="background:none; border:1px solid var(--border); color:var(--text3); padding:4px 8px; border-radius:6px; font-size:11px;">登出</button></div></div>
+<div id="main-app" style="display:none;">
+  <div class="header">
+    <div class="header-inner">
+      <button class="logout-btn" onclick="doLogout()">登出</button>
+      <div class="shop-title" id="shop-title" onclick="editShopTitle()">🍧 冰店記帳</div>
+      <div id="header-email" style="font-size:10px; color:var(--text3)"></div>
+    </div>
+  </div>
 
   <div class="scroll-area">
     <div id="page-home" class="page active">
-      <div class="card"><div class="card-head">本月支出總計</div><div id="m-exp" style="font-size:32px; font-weight:900; color:var(--loss)">$0</div></div>
-      <div class="card"><div class="card-head">最近支出</div><div id="recent-list"></div></div>
+      <div class="profit-card"><div><div class="label">本月損益</div><div class="value" id="m-profit">$0</div></div><div id="m-month" class="label"></div></div>
+      <div class="card"><div class="card-head">最近 7 天支出</div><div id="recent-list"></div></div>
     </div>
 
     <div id="page-entry" class="page" style="display:none">
       <div class="card">
+        <div class="card-head">📟 輸入營業額</div>
+        <input type="date" id="rev-date">
+        <input type="number" id="rev-amount" placeholder="金額" style="margin-top:10px">
+        <button class="btn btn-primary" style="margin-top:10px" onclick="saveRevenue()">儲存</button>
+      </div>
+      <div class="card">
         <div class="card-head">💸 新增支出</div>
-        <div class="form-group"><label>日期</label><input type="date" id="exp-date"></div>
-        <div class="form-group"><label>項目名稱</label><input type="text" id="exp-name" placeholder="例如：芒果補貨"></div>
-        <div class="form-group"><label>明細說明</label><input type="text" id="exp-detail-input" placeholder="例如：愛文芒果 30 斤"></div>
-        <div class="form-group"><label>金額</label><input type="number" id="exp-amount" inputmode="numeric"></div>
-        <button class="btn btn-primary" onclick="saveExpense()">儲存支出</button>
+        <input type="date" id="exp-date">
+        <div class="cat-grid">
+            <button class="cat-btn selected" data-cat="food" onclick="selectCat(this)"><span class="cat-icon">🥭</span><span class="cat-name">食材</span></button>
+            <button class="cat-btn" data-cat="staff" onclick="selectCat(this)"><span class="cat-icon">👥</span><span class="cat-name">人事</span></button>
+            <button class="cat-btn" data-cat="utility" onclick="selectCat(this)"><span class="cat-icon">💡</span><span class="cat-name">水電</span></button>
+        </div>
+        <input type="text" id="exp-name" placeholder="項目名稱">
+        <input type="text" id="exp-detail-input" placeholder="明細內容 (例如:愛文芒果30斤)" style="margin-top:10px">
+        <input type="number" id="exp-amount" placeholder="金額" style="margin-top:10px">
+        <button class="btn btn-primary" style="margin-top:10px" onclick="saveExpense()">儲存</button>
       </div>
     </div>
 
     <div id="page-records" class="page" style="display:none">
-      <div class="card"><div class="card-head">所有明細</div><div id="records-list"></div></div>
+      <div style="display:flex; gap:10px; margin-bottom:12px;">
+        <input type="month" id="filter-month" onchange="renderRecords()">
+        <select id="filter-cat" onchange="renderRecords()">
+            <option value="all">全部</option>
+            <option value="revenue">收入</option>
+            <option value="food">食材</option>
+        </select>
+      </div>
+      <div class="card" id="records-list"></div>
     </div>
   </div>
 
   <nav class="bottom-nav">
-    <div class="nav-tab active" onclick="showPage('home')">📊 總覽</div>
-    <div class="nav-tab" onclick="showPage('entry')">✏️ 記帳</div>
-    <div class="nav-tab" onclick="showPage('records')">📋 明細</div>
+    <div class="nav-tab active" id="tab-home" onclick="showPage('home')"><span class="icon">📊</span>總覽</div>
+    <div class="nav-tab" id="tab-entry" onclick="showPage('entry')"><span class="icon">✏️</span>記帳</div>
+    <div class="nav-tab" id="tab-records" onclick="showPage('records')"><span class="icon">📋</span>明細</div>
   </nav>
 </div>
 
-<div class="modal-overlay" id="pwd-modal">
+<div class="modal-overlay" id="pw-modal">
   <div class="modal-sheet">
-    <h3 style="margin-bottom:15px">🔐 權限驗證</h3>
-    <input type="password" id="admin-pwd" placeholder="請輸入密碼" style="text-align:center; font-size:20px; letter-spacing:4px;">
-    <div style="display:flex; gap:10px; margin-top:15px;">
-      <button class="btn" onclick="closeModal('pwd-modal')">取消</button>
-      <button class="btn btn-primary" onclick="verifyPwd()">確認</button>
+    <div class="card-head">🔐 請輸入編輯密碼</div>
+    <input type="password" id="pw-input" placeholder="密碼" style="text-align:center; font-size:20px;">
+    <div id="pw-err" style="color:var(--loss); font-size:12px; margin-top:5px;"></div>
+    <div class="modal-btns">
+      <button class="btn" onclick="closeModal('pw-modal')">取消</button>
+      <button class="btn btn-primary" onclick="checkPw()">確認</button>
     </div>
   </div>
 </div>
 
 <div class="modal-overlay" id="edit-modal">
   <div class="modal-sheet">
-    <h3 style="margin-bottom:15px">✏️ 修改支出</h3>
+    <div class="card-head">✏️ 修改明細</div>
     <input type="hidden" id="edit-id">
-    <div class="form-group"><label>名稱</label><input type="text" id="ed-name"></div>
-    <div class="form-group"><label>金額</label><input type="number" id="ed-amount"></div>
-    <button class="btn btn-primary" onclick="saveEdit()">儲存修改</button>
-    <button class="btn" style="margin-top:10px; color:var(--loss)" onclick="deleteItem()">刪除</button>
-    <button class="btn" style="margin-top:10px" onclick="closeModal('edit-modal')">取消</button>
+    <input type="text" id="edit-name" placeholder="名稱">
+    <input type="text" id="edit-detail" placeholder="明細" style="margin-top:10px">
+    <input type="number" id="edit-amount" placeholder="金額" style="margin-top:10px">
+    <div class="modal-btns">
+      <button class="btn" onclick="closeModal('edit-modal')">取消</button>
+      <button class="btn btn-primary" onclick="saveEdit()">儲存修改</button>
+    </div>
   </div>
 </div>
 
+<div class="toast" id="toast"></div>
+
 <script>
-let _cache = [];
-let _pendingId = null;
+const EDIT_PW = '9527';
+const fmt = n => Number(n).toLocaleString();
+const today = () => new Date().toISOString().slice(0,10);
+const thisMonth = () => new Date().toISOString().slice(0,7);
+
+const catIcon = c => ({food:'🥭',staff:'👥',utility:'💡'})[c]||'📌';
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2000);
+}
+
+function switchAuthTab(tab) {
+  document.getElementById('auth-login').classList.toggle('active', tab==='login');
+  document.getElementById('auth-register').classList.toggle('active', tab==='register');
+}
 
 async function doLogin() {
   const email = document.getElementById('login-email').value;
   const pw = document.getElementById('login-pw').value;
-  try { await window._fbFns.signInWithEmailAndPassword(window._auth, email, pw); }
+  try { await window._fbFns.signInWithEmailAndPassword(window._auth, email, pw); } 
   catch(e) { alert('登入失敗'); }
 }
 
+async function doLogout() { await window._fbFns.signOut(window._auth); }
+
+let _cache = { revenues: [], expenses: [], ts: 0 };
+
+async function loadData(force=false) {
+  if (!force && _cache.ts && (Date.now() - _cache.ts) < 5000) return _cache;
+  const rSnap = await window._fbFns.getDocs(window._fbFns.collection(window._db, 'users', window._uid, 'revenues'));
+  const eSnap = await window._fbFns.getDocs(window._fbFns.collection(window._db, 'users', window._uid, 'expenses'));
+  _cache.revenues = rSnap.docs.map(d=>({id:d.id, ...d.data()}));
+  _cache.expenses = eSnap.docs.map(d=>({id:d.id, ...d.data()}));
+  _cache.ts = Date.now();
+  return _cache;
+}
+
 window.appInit = async function() {
-  document.getElementById('exp-date').value = new Date().toISOString().slice(0,10);
-  await refreshData();
+  document.getElementById('loading-screen').style.display='none';
+  document.getElementById('rev-date').value = today();
+  document.getElementById('exp-date').value = today();
+  document.getElementById('filter-month').value = thisMonth();
+  await renderHome();
+};
+
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p=>p.style.display='none');
+  document.getElementById('page-'+id).style.display='block';
+  document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('tab-'+id).classList.add('active');
+  if (id==='home') renderHome();
+  if (id==='records') renderRecords();
 }
 
-async function refreshData() {
-  const q = window._fbFns.query(window._fbFns.collection(window._db, "users", window._uid, "expenses"), window._fbFns.orderBy("date", "desc"));
-  const snap = await window._fbFns.getDocs(q);
-  _cache = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-  renderUI();
+function selectCat(el) {
+  document.querySelectorAll('.cat-btn').forEach(b=>b.classList.remove('selected'));
+  el.classList.add('selected');
 }
 
-function renderUI() {
-  const total = _cache.reduce((s, v) => s + Number(v.amount), 0);
-  document.getElementById('m-exp').textContent = `$${total.toLocaleString()}`;
-  
-  const listHtml = _cache.map(item => `
-    <div class="exp-item">
-      <div class="exp-info">
-        <div class="exp-name">${item.name}</div>
-        <div class="exp-meta">${item.date} | ${item.detail || ''}</div>
-      </div>
-      <div class="exp-amount">-$${Number(item.amount).toLocaleString()}</div>
-      <button class="act-edit" onclick="checkAuth('${item.id}')">編輯</button>
-    </div>
-  `).join('');
-  
-  document.getElementById('recent-list').innerHTML = listHtml;
-  document.getElementById('records-list').innerHTML = listHtml;
+async function saveRevenue() {
+  const amount = parseFloat(document.getElementById('rev-amount').value);
+  const date = document.getElementById('rev-date').value;
+  if(!amount) return;
+  await window._fbFns.setDoc(window._fbFns.doc(window._fbFns.collection(window._db, 'users', window._uid, 'revenues')), { amount, date });
+  showToast('已儲存收入');
+  await loadData(true); renderHome();
 }
 
 async function saveExpense() {
-  const data = {
-    date: document.getElementById('exp-date').value,
-    name: document.getElementById('exp-name').value,
-    detail: document.getElementById('exp-detail-input').value,
-    amount: Number(document.getElementById('exp-amount').value)
-  };
-  if(!data.name || !data.amount) return alert('請填寫完整');
-  await window._fbFns.setDoc(window._fbFns.doc(window._fbFns.collection(window._db, "users", window._uid, "expenses")), data);
-  alert('已儲存');
-  await refreshData();
-  showPage('home');
+  const name = document.getElementById('exp-name').value;
+  const detail = document.getElementById('exp-detail-input').value;
+  const amount = parseFloat(document.getElementById('exp-amount').value);
+  const date = document.getElementById('exp-date').value;
+  const category = document.querySelector('.cat-btn.selected').dataset.cat;
+  if(!name || !amount) return;
+  await window._fbFns.setDoc(window._fbFns.doc(window._fbFns.collection(window._db, 'users', window._uid, 'expenses')), { name, detail, amount, date, category });
+  showToast('已儲存支出');
+  document.getElementById('exp-name').value='';
+  document.getElementById('exp-detail-input').value='';
+  document.getElementById('exp-amount').value='';
+  await loadData(true); renderHome();
 }
 
-function checkAuth(id) {
-  _pendingId = id;
-  document.getElementById('admin-pwd').value = '';
-  document.getElementById('pwd-modal').classList.add('open');
+async function renderHome() {
+  const data = await loadData();
+  const m = thisMonth();
+  const tRev = data.revenues.filter(r=>r.date.startsWith(m)).reduce((s,r)=>s+r.amount,0);
+  const tExp = data.expenses.filter(e=>e.date.startsWith(m)).reduce((s,e)=>s+e.amount,0);
+  document.getElementById('m-profit').textContent = `$${fmt(tRev - tExp)}`;
+  document.getElementById('m-month').textContent = m;
+
+  const last7 = [...data.expenses].sort((a,b)=>b.date.localeCompare(a.date)).slice(0,7);
+  document.getElementById('recent-list').innerHTML = last7.map(i=>`
+    <div class="exp-item"><div class="exp-item-top"><span>${catIcon(i.category)}</span><div class="exp-info"><div>${i.name}</div><div class="exp-meta">${i.date}</div></div><div class="exp-amount">-$${fmt(i.amount)}</div></div></div>
+  `).join('');
 }
 
-function verifyPwd() {
-  if(document.getElementById('admin-pwd').value === '9527') {
-    closeModal('pwd-modal');
-    const item = _cache.find(x => x.id === _pendingId);
-    document.getElementById('edit-id').value = _pendingId;
-    document.getElementById('ed-name').value = item.name;
-    document.getElementById('ed-amount').value = item.amount;
-    document.getElementById('edit-modal').classList.add('open');
-  } else { alert('密碼錯誤'); }
+async function renderRecords() {
+  const data = await loadData();
+  const m = document.getElementById('filter-month').value;
+  const list = [
+    ...data.revenues.map(r=>({...r, type:'rev'})),
+    ...data.expenses.map(e=>({...e, type:'exp'}))
+  ].filter(i=>i.date.startsWith(m)).sort((a,b)=>b.date.localeCompare(a.date));
+
+  document.getElementById('records-list').innerHTML = list.map(i=>`
+    <div class="exp-item">
+      <div class="exp-item-top">
+        <div class="exp-info">
+          <div class="exp-name">${i.name || '營業收入'}</div>
+          <div class="exp-meta">${i.date} ${i.detail?' | '+i.detail:''}</div>
+        </div>
+        <div class="exp-amount" style="color:${i.type==='rev'?'var(--accent)':'var(--loss)'}">${i.type==='rev'?'+':'-'}$${fmt(i.amount)}</div>
+        <button class="act-btn act-edit" onclick="askEdit('${i.id}', '${i.type}')">編輯</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+let _editingItem = null;
+function askEdit(id, type) {
+  _editingItem = { id, type };
+  document.getElementById('pw-input').value = '';
+  document.getElementById('pw-err').textContent = '';
+  openModal('pw-modal');
+}
+
+function checkPw() {
+  if (document.getElementById('pw-input').value === EDIT_PW) {
+    closeModal('pw-modal');
+    const item = (_editingItem.type==='exp' ? _cache.expenses : _cache.revenues).find(x=>x.id===_editingItem.id);
+    document.getElementById('edit-id').value = item.id;
+    document.getElementById('edit-name').value = item.name || '營業收入';
+    document.getElementById('edit-detail').value = item.detail || '';
+    document.getElementById('edit-amount').value = item.amount;
+    openModal('edit-modal');
+  } else { document.getElementById('pw-err').textContent='密碼錯誤'; }
 }
 
 async function saveEdit() {
   const id = document.getElementById('edit-id').value;
-  const item = _cache.find(x => x.id === id);
-  const updated = { ...item, name: document.getElementById('ed-name').value, amount: Number(document.getElementById('ed-amount').value) };
-  await window._fbFns.setDoc(window._fbFns.doc(window._db, "users", window._uid, "expenses", id), updated);
-  closeModal('edit-modal');
-  refreshData();
+  const col = _editingItem.type==='exp' ? 'expenses' : 'revenues';
+  const item = (_editingItem.type==='exp' ? _cache.expenses : _cache.revenues).find(x=>x.id===id);
+  const updated = {
+    ...item,
+    name: document.getElementById('edit-name').value,
+    detail: document.getElementById('edit-detail').value,
+    amount: parseFloat(document.getElementById('edit-amount').value)
+  };
+  await window._fbFns.setDoc(window._fbFns.doc(window._db, 'users', window._uid, col, id), updated);
+  closeModal('edit-modal'); showToast('已更新');
+  await loadData(true); renderRecords();
 }
 
-async function deleteItem() {
-  if(!confirm('確定刪除？')) return;
-  await window._fbFns.deleteDoc(window._fbFns.doc(window._db, "users", window._uid, "expenses", document.getElementById('edit-id').value));
-  closeModal('edit-modal');
-  refreshData();
-}
-
-function showPage(p) {
-  document.querySelectorAll('.page').forEach(el => el.style.display = 'none');
-  document.getElementById('page-' + p).style.display = 'block';
-  document.querySelectorAll('.nav-tab').forEach(el => el.classList.remove('active'));
-  event.currentTarget.classList.add('active');
-}
-
+function openModal(id) { document.getElementById(id).classList.add('open'); }
 function closeModal(id) { document.getElementById(id).classList.remove('open'); }
 </script>
 </body>
