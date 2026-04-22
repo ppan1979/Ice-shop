@@ -594,30 +594,41 @@ select option { background: #141824; }
 
 <div class="toast" id="toast"></div>
 
+
 <script>
 // ── Constants & helpers ───────────────────────────────────────
 const EDIT_PW = '9527';
-const fmt = n => Number(n).toLocaleString('zh-TW');
+const fmt = n => Number(n || 0).toLocaleString('zh-TW');
 const today = () => new Date().toISOString().slice(0,10);
 const thisMonth = () => new Date().toISOString().slice(0,7);
 
-const catLabel = c => ({
-  food:'食材原料', staff:'人事支出/孝親費',
-  utility:'水電費/網路電話費', rent:'設備採買或維修',
-  supply:'耗材包材', other:'其他雜費'
-})[c] || c;
-const catIcon = c => ({food:'🥭',staff:'👥',utility:'💡',rent:'🔧',supply:'📦',other:'📌'})[c]||'📌';
-const catBadge = c => ({food:'badge-food',staff:'badge-staff',utility:'badge-utility',rent:'badge-rent',supply:'badge-supply',other:'badge-other'})[c]||'badge-other';
+let trendChart = null;
+let pieChart = null;
+let selectedCat = 'food';
+let pendingEditId = null;
+
+const categories = [
+  { key:'food', label:'食材原料', icon:'🥭' },
+  { key:'staff', label:'人事支出/孝親費', icon:'👥' },
+  { key:'utility', label:'水電費/網路電話費', icon:'💡' },
+  { key:'rent', label:'設備採買或維修', icon:'🔧' },
+  { key:'supply', label:'耗材包材', icon:'📦' },
+  { key:'other', label:'其他雜費', icon:'📌' }
+];
+
+const catLabel = c => (categories.find(x=>x.key===c)?.label || c);
+const catIcon = c => (categories.find(x=>x.key===c)?.icon || '📌');
 
 function showToast(msg, err=false) {
   const t = document.getElementById('toast');
   t.textContent = msg;
-  t.className = 'toast show' + (err?' err':'');
+  t.className = 'toast show' + (err ? ' err' : '');
   clearTimeout(t._t);
-  t._t = setTimeout(() => t.className='toast'+(err?' err':''), 2500);
+  t._t = setTimeout(() => {
+    t.className = 'toast' + (err ? ' err' : '');
+  }, 2200);
 }
 
-// ── Auth UI ───────────────────────────────────────────────────
 function switchAuthTab(tab) {
   ['login','register','reset'].forEach(t => {
     document.getElementById('auth-'+t).classList.toggle('active', t===tab);
@@ -629,11 +640,18 @@ async function doLogin() {
   const pw = document.getElementById('login-pw').value;
   const err = document.getElementById('login-err');
   err.style.display='none';
-  if (!email||!pw) { err.textContent='請填寫電子郵件和密碼'; err.style.display='block'; return; }
+
+  if (!email || !pw) {
+    err.textContent='請填寫電子郵件和密碼';
+    err.style.display='block';
+    return;
+  }
+
   try {
     await window._fbFns.signInWithEmailAndPassword(window._auth, email, pw);
   } catch(e) {
-    err.textContent = fbErrMsg(e.code); err.style.display='block';
+    err.textContent = fbErrMsg(e.code);
+    err.style.display='block';
   }
 }
 
@@ -643,12 +661,24 @@ async function doRegister() {
   const pw2 = document.getElementById('reg-pw2').value;
   const err = document.getElementById('reg-err');
   err.style.display='none';
-  if (!email||!pw) { err.textContent='請填寫所有欄位'; err.style.display='block'; return; }
-  if (pw !== pw2) { err.textContent='兩次密碼不一致'; err.style.display='block'; return; }
+
+  if (!email || !pw) {
+    err.textContent='請填寫所有欄位';
+    err.style.display='block';
+    return;
+  }
+
+  if (pw !== pw2) {
+    err.textContent='兩次密碼不一致';
+    err.style.display='block';
+    return;
+  }
+
   try {
     await window._fbFns.createUserWithEmailAndPassword(window._auth, email, pw);
   } catch(e) {
-    err.textContent = fbErrMsg(e.code); err.style.display='block';
+    err.textContent = fbErrMsg(e.code);
+    err.style.display='block';
   }
 }
 
@@ -656,378 +686,299 @@ async function doReset() {
   const email = document.getElementById('reset-email').value.trim();
   const err = document.getElementById('reset-err');
   const ok = document.getElementById('reset-ok');
-  err.style.display='none'; ok.style.display='none';
-  if (!email) { err.textContent='請輸入電子郵件'; err.style.display='block'; return; }
+
+  err.style.display='none';
+  ok.style.display='none';
+
+  if (!email) {
+    err.textContent='請輸入電子郵件';
+    err.style.display='block';
+    return;
+  }
+
   try {
     await window._fbFns.sendPasswordResetEmail(window._auth, email);
-    ok.textContent = '✅ 重設郵件已發送'; ok.style.display='block';
+    ok.textContent='重設信已寄出';
+    ok.style.display='block';
   } catch(e) {
-    err.textContent = fbErrMsg(e.code); err.style.display='block';
+    err.textContent = fbErrMsg(e.code);
+    err.style.display='block';
   }
 }
 
 async function doLogout() {
-  if (!confirm('確定要登出？')) return;
+  if (!confirm('確定登出？')) return;
   await window._fbFns.signOut(window._auth);
 }
 
 function fbErrMsg(code) {
   const map = {
-    'auth/user-not-found': '找不到帳號',
-    'auth/wrong-password': '密碼錯誤',
-    'auth/email-already-in-use': '郵件已被使用',
-    'auth/invalid-credential': '帳號或密碼錯誤',
+    'auth/user-not-found':'找不到帳號',
+    'auth/wrong-password':'密碼錯誤',
+    'auth/email-already-in-use':'郵件已被使用',
+    'auth/invalid-credential':'帳號或密碼錯誤'
   };
-  return map[code] || `錯誤 (${code})`;
+  return map[code] || code;
 }
 
-// ── Firestore helpers ─────────────────────────────────────────
 function uid() { return window._uid; }
 function db() { return window._db; }
 function revCol() { return window._fbFns.collection(db(), 'users', uid(), 'revenues'); }
 function expCol() { return window._fbFns.collection(db(), 'users', uid(), 'expenses'); }
 function metaDoc() { return window._fbFns.doc(db(), 'users', uid(), 'meta', 'settings'); }
 
-let _cache = { revenues: [], expenses: [], ts: 0 };
+let _cache = { revenues: [], expenses: [] };
 
 async function loadData(force=false) {
-  if (!force && _cache.ts && (Date.now() - _cache.ts) < 30000) return _cache;
+  if (!force && (_cache.revenues.length || _cache.expenses.length)) {
+    return _cache;
+  }
+
   const [revSnap, expSnap] = await Promise.all([
     window._fbFns.getDocs(revCol()),
     window._fbFns.getDocs(expCol())
   ]);
+
   _cache.revenues = revSnap.docs.map(d=>({id:d.id,...d.data()}));
   _cache.expenses = expSnap.docs.map(d=>({id:d.id,...d.data()}));
-  _cache.ts = Date.now();
+
   return _cache;
 }
 
-// ── App Logic ────────────────────────────────────────────────
 window.appInit = async function() {
   document.getElementById('loading-screen').style.display='none';
-  const t = today(), m = thisMonth();
+
+  const t = today();
+  const m = thisMonth();
+
   document.getElementById('rev-date').value = t;
   document.getElementById('exp-date').value = t;
   document.getElementById('filter-month').value = m;
   document.getElementById('report-month').value = m;
-  
-  try {
-    const snap = await window._fbFns.getDoc(metaDoc());
-    if (snap.exists() && snap.data().shopTitle) {
-      document.getElementById('shop-title').textContent = snap.data().shopTitle;
-    }
-  } catch(e) {}
+
+  await loadData(true);
 
   await renderHome();
-  renderTodayBanner();
+  await renderTodayBanner();
+  await renderRecords();
 };
 
-function showPage(id) {
+async function showPage(id) {
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
+
   document.getElementById('page-'+id).classList.add('active');
   document.getElementById('tab-'+id).classList.add('active');
-  if (id==='home') renderHome();
-  if (id==='entry') renderTodayBanner();
-  if (id==='records') renderRecords();
-  if (id==='report') renderReport();
+
+  if (id === 'home') await renderHome();
+  if (id === 'entry') await renderTodayBanner();
+  if (id === 'records') await renderRecords();
 }
 
 function selectCat(el) {
   document.querySelectorAll('.cat-btn').forEach(b=>b.classList.remove('selected'));
   el.classList.add('selected');
+  selectedCat = el.dataset.cat;
 }
 
 async function saveRevenue() {
   const date = document.getElementById('rev-date').value;
   const amount = parseFloat(document.getElementById('rev-amount').value);
   const note = document.getElementById('rev-note').value.trim();
-  if (!date || isNaN(amount)) { showToast('請填寫完整資訊', true); return; }
-  try {
-    const id = `rev_${date}`;
-    await window._fbFns.setDoc(window._fbFns.doc(revCol(), id), { date, amount, note, uid: uid() });
-    _cache.ts = 0; await loadData(true);
-    showToast('✅ 已儲存營業額');
-    renderTodayBanner();
-  } catch(e) { showToast('❌ 儲存失敗', true); }
+
+  if (!date || isNaN(amount)) {
+    showToast('請填寫完整資訊', true);
+    return;
+  }
+
+  const id = `rev_${date}`;
+  const payload = { date, amount, note, uid: uid() };
+
+  await window._fbFns.setDoc(window._fbFns.doc(revCol(), id), payload);
+
+  const idx = _cache.revenues.findIndex(x=>x.id===id);
+  if (idx >= 0) _cache.revenues[idx] = {id,...payload};
+  else _cache.revenues.push({id,...payload});
+
+  showToast('營業額已儲存');
+  await renderHome();
+  await renderTodayBanner();
 }
 
 async function saveExpense() {
   const date = document.getElementById('exp-date').value;
-  const category = document.querySelector('.cat-btn.selected').dataset.cat;
   const name = document.getElementById('exp-name').value.trim();
   const amount = parseFloat(document.getElementById('exp-amount').value);
-  if (!date || !name || isNaN(amount)) { showToast('請填寫完整資訊', true); return; }
-  try {
-    const id = `exp_${Date.now()}`;
-    await window._fbFns.setDoc(window._fbFns.doc(expCol(), id), { date, category, name, amount, uid: uid() });
-    _cache.ts = 0; await loadData(true);
-    showToast('✅ 已儲存支出');
-    renderTodayBanner();
-  } catch(e) { showToast('❌ 儲存失敗', true); }
+  const detail = document.getElementById('exp-detail-input').value.trim();
+  const note = document.getElementById('exp-note').value.trim();
+
+  if (!date || !name || isNaN(amount)) {
+    showToast('請填寫完整資訊', true);
+    return;
+  }
+
+  const id = `exp_${Date.now()}`;
+  const payload = {
+    date,
+    category: selectedCat,
+    name,
+    amount,
+    detail,
+    note,
+    uid: uid()
+  };
+
+  await window._fbFns.setDoc(window._fbFns.doc(expCol(), id), payload);
+
+  _cache.expenses.unshift({id,...payload});
+
+  document.getElementById('exp-name').value='';
+  document.getElementById('exp-amount').value='';
+  document.getElementById('exp-detail-input').value='';
+  document.getElementById('exp-note').value='';
+
+  showToast('支出已新增');
+
+  await renderHome();
+  await renderTodayBanner();
+  await renderRecords();
 }
 
 async function renderHome() {
   const data = await loadData();
   const m = thisMonth();
+
   const revs = data.revenues.filter(r=>r.date.startsWith(m));
   const exps = data.expenses.filter(e=>e.date.startsWith(m));
-  const tRev = revs.reduce((s,r)=>s+r.amount,0);
-  const tExp = exps.reduce((s,e)=>s+e.amount,0);
-  
-  document.getElementById('m-profit').textContent = `$${fmt(tRev - tExp)}`;
-  document.getElementById('m-rev').textContent = `$${fmt(tRev)}`;
-  document.getElementById('m-exp').textContent = `$${fmt(tExp)}`;
+
+  const rev = revs.reduce((s,r)=>s+r.amount,0);
+  const exp = exps.reduce((s,e)=>s+e.amount,0);
+
+  document.getElementById('m-profit').textContent = `$${fmt(rev-exp)}`;
+  document.getElementById('m-rev').textContent = `$${fmt(rev)}`;
+  document.getElementById('m-exp').textContent = `$${fmt(exp)}`;
   document.getElementById('m-month').textContent = m;
 }
 
 async function renderTodayBanner() {
   const data = await loadData();
   const d = today();
-  const r = data.revenues.find(x=>x.date===d);
+
+  const rev = data.revenues.find(x=>x.date===d);
   const exps = data.expenses.filter(x=>x.date===d);
-  const tExp = exps.reduce((s,e)=>s+e.amount,0);
-  
-  document.getElementById('tb-rev').textContent = r ? `$${fmt(r.amount)}` : '未記錄';
-  document.getElementById('tb-exp').textContent = `$${fmt(tExp)}`;
-}
 
-function openModal(id) { document.getElementById(id).classList.add('open'); }
-function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+  const totalExp = exps.reduce((s,e)=>s+e.amount,0);
+  const pnl = (rev?.amount || 0) - totalExp;
 
-// 基礎功能初始化與頁面切換等邏輯已包含
-</script>
-</body>
-</html>
-<script>
+  document.getElementById('tb-rev').textContent = rev ? `$${fmt(rev.amount)}` : '未記錄';
+  document.getElementById('tb-exp').textContent = `$${fmt(totalExp)}`;
+  document.getElementById('tb-pnl').textContent = `$${fmt(pnl)}`;
 
-// ====== 可編輯分類 ======
-let categories = [
-  { key:'food', label:'食材原料', icon:'🥭' },
-  { key:'staff', label:'人事支出/孝親費', icon:'👥' },
-  { key:'utility', label:'水電費/網路電話費', icon:'💡' },
-  { key:'rent', label:'設備採買或維修', icon:'🔧' },
-  { key:'supply', label:'耗材包材', icon:'📦' },
-  { key:'other', label:'其他雜費', icon:'📌' }
-];
+  let html = '';
 
-function renderCategoryButtons() {
-  const wrap = document.querySelector('.cat-grid');
-  wrap.innerHTML = '';
+  exps.sort((a,b)=>b.date.localeCompare(a.date));
 
-  categories.forEach((cat,i)=>{
-    wrap.innerHTML += `
-      <div style="position:relative">
-        <button class="cat-btn ${i===0?'selected':''}"
-          data-cat="${cat.key}"
-          onclick="selectCat(this)">
-          <span class="cat-icon">${cat.icon}</span>
-          <span class="cat-name">${cat.label}</span>
-        </button>
-
-        <button
-          onclick="editCategory('${cat.key}')"
-          style="
-            position:absolute;
-            top:-5px;
-            right:-5px;
-            border:none;
-            background:#5ee7c8;
-            color:#000;
-            border-radius:50%;
-            width:22px;
-            height:22px;
-            font-size:11px;">
-          ✏️
-        </button>
-      </div>
-    `;
-  });
-}
-
-function editCategory(key){
-  const cat = categories.find(c=>c.key===key);
-  if(!cat) return;
-
-  const pw = prompt('請輸入密碼');
-  if(pw !== '9527'){
-    showToast('密碼錯誤', true);
-    return;
-  }
-
-  const newLabel = prompt('修改分類名稱', cat.label);
-
-  if(newLabel){
-    cat.label = newLabel;
-    renderCategoryButtons();
-    renderRecords();
-    renderTodayBanner();
-  }
-}
-
-// ====== 今日支出明細 ======
-async function renderTodayExpenseList() {
-  const data = await loadData();
-  const d = today();
-
-  const list = data.expenses.filter(x=>x.date===d);
-
-  const wrap = document.getElementById('today-exp-list');
-
-  if(list.length===0){
-    wrap.innerHTML = '<div style="color:var(--text3)">今天尚無支出</div>';
-    return;
-  }
-
-  wrap.innerHTML = '';
-
-  list.forEach(item=>{
-    wrap.innerHTML += `
+  exps.forEach(item=>{
+    html += `
       <div class="exp-item">
         <div class="exp-item-top">
           <div class="exp-icon">${catIcon(item.category)}</div>
-
           <div class="exp-info">
             <div class="exp-name">${item.name}</div>
-            <div class="exp-meta">${item.date}</div>
+            <div class="exp-meta">${item.detail || item.date}</div>
           </div>
-
           <div class="exp-amount">$${fmt(item.amount)}</div>
-
           <div class="exp-actions">
-            <button class="act-btn act-edit"
-              onclick="requestEdit('${item.id}')">
-              編輯
-            </button>
-
-            <button class="act-btn act-del"
-              onclick="deleteExpense('${item.id}')">
-              刪除
-            </button>
+            <button class="act-btn act-edit" onclick="requestEdit('${item.id}')">編輯</button>
+            <button class="act-btn act-del" onclick="deleteExpense('${item.id}')">刪除</button>
           </div>
         </div>
       </div>
     `;
   });
+
+  document.getElementById('today-exp-list').innerHTML = html || '今天沒有支出';
 }
 
-// ====== 明細頁 ======
 async function renderRecords() {
-
   const data = await loadData();
-
   const month = document.getElementById('filter-month').value;
   const cat = document.getElementById('filter-cat').value;
 
   let rows = [];
 
-  data.expenses.forEach(e=>{
-    rows.push({
-      type:'expense',
-      ...e
-    });
-  });
-
   data.revenues.forEach(r=>{
-    rows.push({
-      type:'revenue',
-      ...r
-    });
+    rows.push({ type:'revenue', ...r });
   });
 
-  rows = rows.filter(r=>r.date.startsWith(month));
+  data.expenses.forEach(e=>{
+    rows.push({ type:'expense', ...e });
+  });
 
-  if(cat !== 'all'){
-    if(cat==='revenue'){
-      rows = rows.filter(r=>r.type==='revenue');
-    } else {
-      rows = rows.filter(r=>r.category===cat);
-    }
+  if (month) {
+    rows = rows.filter(r=>r.date.startsWith(month));
+  }
+
+  if (cat !== 'all') {
+    rows = rows.filter(r=>{
+      if (cat === 'revenue') return r.type === 'revenue';
+      return r.category === cat;
+    });
   }
 
   rows.sort((a,b)=>b.date.localeCompare(a.date));
 
-  const wrap = document.getElementById('records-list');
-
-  if(rows.length===0){
-    wrap.innerHTML = '沒有資料';
-    return;
-  }
-
-  wrap.innerHTML = '';
+  let html = '';
 
   rows.forEach(item=>{
+    const isRevenue = item.type === 'revenue';
 
-    const isRevenue = item.type==='revenue';
-
-    wrap.innerHTML += `
+    html += `
       <div class="exp-item">
-
         <div class="exp-item-top">
-
-          <div class="exp-icon">
-            ${isRevenue ? '💰' : catIcon(item.category)}
-          </div>
-
+          <div class="exp-icon">${isRevenue ? '💰' : catIcon(item.category)}</div>
           <div class="exp-info">
             <div class="exp-name">${item.name || '營業額'}</div>
             <div class="exp-meta">${item.date}</div>
           </div>
-
-          <div class="exp-amount">
-            ${isRevenue ? '+' : '-'}$${fmt(item.amount)}
-          </div>
-
+          <div class="exp-amount">${isRevenue ? '+' : '-'}$${fmt(item.amount)}</div>
+          ${!isRevenue ? `
           <div class="exp-actions">
-
-            <button class="act-btn act-edit"
-              onclick="${isRevenue ? `editRevenue('${item.id}')` : `requestEdit('${item.id}')`}">
-              編輯
-            </button>
-
-            ${
-              !isRevenue
-              ? `<button class="act-btn act-del"
-                    onclick="deleteExpense('${item.id}')">
-                    刪除
-                 </button>`
-              : ''
-            }
-
-          </div>
-
+            <button class="act-btn act-edit" onclick="requestEdit('${item.id}')">編輯</button>
+            <button class="act-btn act-del" onclick="deleteExpense('${item.id}')">刪除</button>
+          </div>` : ''}
         </div>
-
       </div>
     `;
   });
+
+  document.getElementById('records-list').innerHTML = html || '沒有資料';
 }
 
-// ====== 編輯密碼 ======
-let pendingEditId = null;
-
-function requestEdit(id){
+function requestEdit(id) {
   pendingEditId = id;
-  document.getElementById('pw-input').value = '';
   openModal('pw-modal');
 }
 
-async function checkPw(){
-
+function checkPw() {
   const pw = document.getElementById('pw-input').value;
 
-  if(pw !== '9527'){
-    document.getElementById('pw-err').textContent = '密碼錯誤';
+  if (pw !== EDIT_PW) {
     document.getElementById('pw-err').style.display='block';
+    document.getElementById('pw-err').textContent='密碼錯誤';
     return;
   }
 
+  document.getElementById('pw-input').value='';
   closeModal('pw-modal');
+  openEdit();
+}
 
+async function openEdit() {
   const data = await loadData();
   const item = data.expenses.find(x=>x.id===pendingEditId);
 
-  if(!item) return;
+  if (!item) return;
 
   document.getElementById('edit-id').value = item.id;
   document.getElementById('edit-date').value = item.date;
@@ -1040,9 +991,7 @@ async function checkPw(){
   openModal('edit-modal');
 }
 
-// ====== 儲存修改 ======
-async function saveEdit(){
-
+async function saveEdit() {
   const id = document.getElementById('edit-id').value;
 
   const payload = {
@@ -1055,89 +1004,47 @@ async function saveEdit(){
     uid: uid()
   };
 
-  await window._fbFns.setDoc(
-    window._fbFns.doc(expCol(), id),
-    payload
-  );
+  await window._fbFns.setDoc(window._fbFns.doc(expCol(), id), payload);
+
+  const idx = _cache.expenses.findIndex(x=>x.id===id);
+  if (idx >= 0) _cache.expenses[idx] = {id,...payload};
 
   closeModal('edit-modal');
 
-  _cache.ts = 0;
+  await renderHome();
+  await renderTodayBanner();
+  await renderRecords();
 
-  await loadData(true);
-
-  renderTodayBanner();
-  renderTodayExpenseList();
-  renderRecords();
-
-  showToast('修改成功');
+  showToast('修改完成');
 }
 
-// ====== 刪除 ======
-async function deleteExpense(id){
-
+async function deleteExpense(id) {
   const pw = prompt('請輸入密碼');
 
-  if(pw !== '9527'){
+  if (pw !== EDIT_PW) {
     showToast('密碼錯誤', true);
     return;
   }
 
-  if(!confirm('確定刪除？')) return;
+  await window._fbFns.deleteDoc(window._fbFns.doc(expCol(), id));
 
-  await window._fbFns.deleteDoc(
-    window._fbFns.doc(expCol(), id)
-  );
+  _cache.expenses = _cache.expenses.filter(x=>x.id!==id);
 
-  _cache.ts = 0;
-
-  await loadData(true);
-
-  renderTodayBanner();
-  renderTodayExpenseList();
-  renderRecords();
+  await renderHome();
+  await renderTodayBanner();
+  await renderRecords();
 
   showToast('已刪除');
 }
 
-// ====== 修正今天頁 ======
-async function renderTodayBanner() {
-
-  const data = await loadData();
-
-  const d = today();
-
-  const r = data.revenues.find(x=>x.date===d);
-  const exps = data.expenses.filter(x=>x.date===d);
-
-  const tExp = exps.reduce((s,e)=>s+e.amount,0);
-
-  document.getElementById('tb-rev').textContent =
-    r ? `$${fmt(r.amount)}` : '未記錄';
-
-  document.getElementById('tb-exp').textContent =
-    `$${fmt(tExp)}`;
-
-  const pnl = (r?.amount || 0) - tExp;
-
-  document.getElementById('tb-pnl').textContent =
-    `$${fmt(pnl)}`;
-
-  renderTodayExpenseList();
+function openModal(id) {
+  document.getElementById(id).classList.add('open');
 }
 
-// ====== 啟動 ======
-const oldInit = window.appInit;
-
-window.appInit = async function(){
-
-  await oldInit();
-
-  renderCategoryButtons();
-  renderTodayExpenseList();
-  renderRecords();
-};
-
+function closeModal(id) {
+  document.getElementById(id).classList.remove('open');
+}
 </script>
 
-
+</body>
+</html>
