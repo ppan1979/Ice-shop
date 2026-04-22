@@ -763,7 +763,12 @@ window.appInit = async function() {
   await renderRecords();
 };
 
+let currentPage = '';
+
 async function showPage(id) {
+  if (currentPage === id) return;
+  currentPage = id;
+
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
 
@@ -812,7 +817,7 @@ async function saveExpense() {
   const detail = document.getElementById('exp-detail-input').value.trim();
   const note = document.getElementById('exp-note').value.trim();
 
-  if (!date || !name || isNaN(amount)) {
+  if (!date || isNaN(amount)) {
     showToast('請填寫完整資訊', true);
     return;
   }
@@ -878,13 +883,15 @@ async function renderTodayBanner() {
 
   exps.sort((a,b)=>b.date.localeCompare(a.date));
 
-  exps.forEach(item=>{
+  const limited = exps.slice(0,30);
+
+  limited.forEach(item=>{
     html += `
       <div class="exp-item">
         <div class="exp-item-top">
           <div class="exp-icon">${catIcon(item.category)}</div>
           <div class="exp-info">
-            <div class="exp-name">${item.name}</div>
+            <div class="exp-name">${item.name || '未命名項目'}</div>
             <div class="exp-meta">${item.detail || item.date}</div>
           </div>
           <div class="exp-amount">$${fmt(item.amount)}</div>
@@ -927,6 +934,7 @@ async function renderRecords() {
   }
 
   rows.sort((a,b)=>b.date.localeCompare(a.date));
+  rows = rows.slice(0,50);
 
   let html = '';
 
