@@ -107,7 +107,7 @@ html,body{height:100%;overflow:hidden;font-family:"Noto Sans TC",sans-serif;back
 .a-iw{display:flex;align-items:center;gap:10px;background:var(--sf2);border:1px solid var(--bd);border-radius:11px;padding:0 14px;margin-bottom:12px;transition:border-color .15s}
 .a-iw:focus-within{border-color:var(--ac)}
 .a-iw .ico{font-size:17px;flex-shrink:0;line-height:1;display:flex;align-items:center}
-.a-iw input{flex:1;background:transparent;border:none;color:var(--tx);padding:14px 0;font-family:inherit;font-size:16px;outline:none;-webkit-appearance:none;min-width:0}
+.a-iw input{flex:1;background:transparent;border:none;border-radius:0;color:var(--tx);padding:14px 0;font-family:inherit;font-size:16px;outline:none;-webkit-appearance:none;min-width:0;box-shadow:none}
 .a-iw input::placeholder{color:var(--tx3)}
 .a-btn{width:100%;padding:14px;border-radius:11px;border:none;cursor:pointer;font-family:inherit;font-size:15px;font-weight:700;background:var(--ac);color:#0b0e18;margin-top:4px;transition:all .15s}
 .a-btn:active{filter:brightness(.87);transform:scale(.98)}
@@ -164,6 +164,12 @@ input[type=password],input[type=email],select,textarea{
   outline:none;transition:border-color .15s;-webkit-appearance:none;appearance:none
 }
 input:focus,select:focus{border-color:var(--ac)}
+/* auth inputs inside flex wrapper - override global styles */
+.a-iw input[type=email],.a-iw input[type=password]{
+  width:auto;background:transparent;border:none;border-radius:0;
+  padding:14px 0;box-shadow:none
+}
+.a-iw input[type=email]:focus,.a-iw input[type=password]:focus{border-color:transparent}
 select{
   background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%235a5f78' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
   background-repeat:no-repeat;background-position:right 13px center;padding-right:34px
