@@ -20,12 +20,12 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const cfg = {
-apiKey: "AIzaSyBVp9cEW4maC1oLdJGnduD8Gnpct2FvIaY",
-authDomain: "ice-shop-account.firebaseapp.com",
-projectId: "ice-shop-account",
-storageBucket: "ice-shop-account.firebasestorage.app",
-messagingSenderId: "115443037159",
-appId: "1:115443037159:web:3748852558c426e7acc342"
+  apiKey: "AIzaSyBVp9cEW4maC1oLdJGnduD8Gnpct2FvIaY",
+  authDomain: "ice-shop-account.firebaseapp.com",
+  projectId: "ice-shop-account",
+  storageBucket: "ice-shop-account.firebasestorage.app",
+  messagingSenderId: "115443037159",
+  appId: "1:115443037159:web:3748852558c426e7acc342"
 };
 
 const fbApp  = initializeApp(cfg);
@@ -33,30 +33,30 @@ const fbAuth = getAuth(fbApp);
 const fbDb   = getFirestore(fbApp);
 
 window.FB = {
-auth: fbAuth, db: fbDb,
-createUser: createUserWithEmailAndPassword,
-signIn:     signInWithEmailAndPassword,
-resetPw:    sendPasswordResetEmail,
-signOut,
-col: collection, doc, setDoc, getDoc,
-deleteDoc, onSnapshot
+  auth: fbAuth, db: fbDb,
+  createUser: createUserWithEmailAndPassword,
+  signIn:     signInWithEmailAndPassword,
+  resetPw:    sendPasswordResetEmail,
+  signOut,
+  col: collection, doc, setDoc, getDoc,
+  deleteDoc, onSnapshot
 };
 
 onAuthStateChanged(fbAuth, user => {
-if (user) {
-window.UID = user.uid;
-document.getElementById("loading-wrap").style.display = "none";
-document.getElementById("auth-wrap").style.display   = "none";
-document.getElementById("app-wrap").style.display    = "flex";
-document.getElementById("hdr-email").textContent     = user.email;
-window.appBoot();
-} else {
-window.UID = null;
-document.getElementById("loading-wrap").style.display = "none";
-document.getElementById("auth-wrap").style.display    = "flex";
-document.getElementById("app-wrap").style.display     = "none";
-if (window.stopListeners) window.stopListeners();
-}
+  if (user) {
+    window.UID = user.uid;
+    document.getElementById("loading-wrap").style.display = "none";
+    document.getElementById("auth-wrap").style.display   = "none";
+    document.getElementById("app-wrap").style.display    = "flex";
+    document.getElementById("hdr-email").textContent     = user.email;
+    window.appBoot();
+  } else {
+    window.UID = null;
+    document.getElementById("loading-wrap").style.display = "none";
+    document.getElementById("auth-wrap").style.display    = "flex";
+    document.getElementById("app-wrap").style.display     = "none";
+    if (window.stopListeners) window.stopListeners();
+  }
 });
 </script>
 
@@ -324,6 +324,7 @@ select option{background:#141824}
   </div>
 
   <div class="scr" id="scr">
+
     <div id="pg-home" class="pg on">
       <div class="pcard">
         <div>
@@ -357,6 +358,7 @@ select option{background:#141824}
         <div class="tc"><div class="tcl">今日支出</div><div class="tcv" style="color:var(--rd)" id="tb-exp">$0</div></div>
         <div class="tc"><div class="tcl">今日損益</div><div class="tcv" id="tb-pnl" style="color:var(--tx2)">--</div></div>
       </div>
+
       <div class="card">
         <div class="ch">📟 輸入營收</div>
         <div class="fg"><label>營收類別</label>
@@ -371,6 +373,7 @@ select option{background:#141824}
         <div class="fg"><label>備註（選填）</label><input type="text" id="rev-note" placeholder="例：假日、活動..."></div>
         <button class="btn btn-p" id="save-rev-btn" onclick="saveRev()">儲存營收</button>
       </div>
+
       <div class="card">
         <div class="ch">💸 新增支出</div>
         <div class="fg"><label>日期</label><input type="date" id="exp-date"></div>
@@ -390,6 +393,7 @@ select option{background:#141824}
         <div class="fg"><label>備註（選填）</label><input type="text" id="exp-note" placeholder="例：向OO廠商採購"></div>
         <button class="btn btn-p" id="save-exp-btn" onclick="saveExp()">新增支出</button>
       </div>
+
       <div class="card">
         <div class="ch">今日支出明細</div>
         <div id="today-list"></div>
@@ -434,6 +438,7 @@ select option{background:#141824}
         <button class="btn btn-p" onclick="exportCSV()">📥 下載 CSV（可用 Excel 開啟）</button>
       </div>
     </div>
+
   </div>
 
   <nav class="bnav">
@@ -476,7 +481,7 @@ select option{background:#141824}
     <div class="mhd"></div>
     <div class="mt">✏️ 修改營收</div>
     <input type="hidden" id="mr-id">
-    <div class="fg"><label>營營類別</label>
+    <div class="fg"><label>營收類別</label>
       <select id="mr-cat">
         <option value="pos">POS 收款</option>
         <option value="delivery">外送平台</option>
@@ -956,24 +961,37 @@ function resetRecords() {
 }
 
 function buildRecordsRows() {
-  const m  =$("f-month").value;
-  const cat=$("f-cat").value;
-  _recRows=[];
+  const rawM = $("f-month").value;
+  let m = rawM;
+  const isoMatch = rawM.match(/(\d{4})-(\d{2})/);
+  if (isoMatch) {
+    m = isoMatch[1]+"-"+isoMatch[2];
+  } else {
+    m = monthStr();
+    $("f-month").value = m;
+  }
+
+  const cat = $("f-cat").value;
+  _recRows = [];
 
   const diagEl = $("rec-diag");
   if (diagEl) {
-    diagEl.textContent = "快取：營收 "+C.revs.length+" 筆 / 支出 "+C.exps.length+" 筆";
+    const mRevs = C.revs.filter(r=>r.date && r.date.startsWith(m));
+    const mExps = C.exps.filter(e=>e.date && e.date.startsWith(m));
+    diagEl.textContent = "當前月份：" + m + " | 營收 " + mRevs.length + " 筆 / 支出 " + mExps.length + " 筆";
   }
 
-  if (cat==="all"||cat==="revenue") {
-    C.revs.filter(r=>r.date.startsWith(m)).forEach(r=>_recRows.push({...r,_type:"rev"}));
+  if (cat==="all" || cat==="revenue") {
+    C.revs
+      .filter(r => r.date && r.date.startsWith(m))
+      .forEach(r => _recRows.push({...r, _type:"rev"}));
   }
-  if (cat!=="revenue") {
+  if (cat !== "revenue") {
     C.exps
-      .filter(e=>e.date.startsWith(m) && (cat==="all"||e.category===cat))
-      .forEach(e=>_recRows.push({...e,_type:"exp"}));
+      .filter(e => e.date && e.date.startsWith(m) && (cat==="all" || e.category===cat))
+      .forEach(e => _recRows.push({...e, _type:"exp"}));
   }
-  _recRows.sort((a,b)=>b.date.localeCompare(a.date));
+  _recRows.sort((a,b) => b.date.localeCompare(a.date));
 }
 
 function renderRecordsPage() {
@@ -1041,12 +1059,13 @@ function renderRecordsPage() {
 }
 
 function loadMoreRecords() { renderRecordsPage(); }
-function renderRecords() { resetRecords(); }
 
 function renderReport() {
-  const m   =$("rpt-month").value;
-  const revs=C.revs.filter(r=>r.date.startsWith(m));
-  const exps=C.exps.filter(e=>e.date.startsWith(m));
+  const rawM = $("rpt-month").value;
+  const isoMatch = rawM.match(/(\d{4})-(\d{2})/);
+  const m = isoMatch ? isoMatch[1]+"-"+isoMatch[2] : monthStr();
+  const revs=C.revs.filter(r=>r.date && r.date.startsWith(m));
+  const exps=C.exps.filter(e=>e.date && e.date.startsWith(m));
   const totR=revs.reduce((s,r)=>s+r.amount,0);
   const totE=exps.reduce((s,e)=>s+e.amount,0);
   const pnl =totR-totE;
