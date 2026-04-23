@@ -77,7 +77,7 @@ html,body{height:100%;overflow:hidden;font-family:"Noto Sans TC",sans-serif;back
 .spin{width:36px;height:36px;border:3px solid var(--bd);border-top-color:var(--ac);border-radius:50%;animation:spin .8s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
 
-/* auth */
+/* auth - simple top-down flow, no centering that causes overlap */
 #auth-wrap{
   display:none;
   flex-direction:column;
@@ -103,6 +103,7 @@ html,body{height:100%;overflow:hidden;font-family:"Noto Sans TC",sans-serif;back
 .a-tab.on{background:var(--ac);color:#0b0e18}
 .a-form{display:none}
 .a-form.on{display:block}
+/* auth input wrapper - flexbox, no absolute positioning */
 .a-iw{display:flex;align-items:center;gap:10px;background:var(--sf2);border:1px solid var(--bd);border-radius:11px;padding:0 14px;margin-bottom:12px;transition:border-color .15s}
 .a-iw:focus-within{border-color:var(--ac)}
 .a-iw .ico{font-size:17px;flex-shrink:0;line-height:1;display:flex;align-items:center}
@@ -163,6 +164,7 @@ input[type=password],input[type=email],select,textarea{
   outline:none;transition:border-color .15s;-webkit-appearance:none;appearance:none
 }
 input:focus,select:focus{border-color:var(--ac)}
+/* auth inputs inside flex wrapper - override global styles */
 .a-iw input[type=email],.a-iw input[type=password]{
   width:auto;background:transparent;border:none;border-radius:0;
   padding:14px 0;box-shadow:none
@@ -479,7 +481,7 @@ select option{background:#141824}
     <div class="mhd"></div>
     <div class="mt">✏️ 修改營收</div>
     <input type="hidden" id="mr-id">
-    <div class="fg"><label>營營類別</label>
+    <div class="fg"><label>營收類別</label>
       <select id="mr-cat">
         <option value="pos">POS 收款</option>
         <option value="delivery">外送平台</option>
@@ -525,14 +527,17 @@ select option{background:#141824}
 <div class="toast" id="toast"></div>
 
 <script>
+// ─── 常數 ─────────────────────────────────────────────────────
 const EDIT_PW  = "9527";
 const PAGE_SIZE = 30;
 
+// ─── 工具函式 ─────────────────────────────────────────────────
 const $       = id => document.getElementById(id);
 const fmt     = n  => Number(n).toLocaleString("zh-TW");
 const todayStr  = () => new Date().toISOString().slice(0,10);
 const monthStr  = () => new Date().toISOString().slice(0,7);
 
+// 分類標籤
 const CAT_LABEL = {
   food:"食材原料", staff:"人事支出/孝親費",
   utility:"水電費/網路電話", rent:"設備採買或維修",
@@ -556,12 +561,14 @@ function toast(msg, err=false) {
   t._t = setTimeout(() => { t.className = "toast" + (err ? " err" : ""); }, 2600);
 }
 
+// ─── Modal ────────────────────────────────────────────────────
 function openMov(id)  { $(id).classList.add("on"); }
 function closeMov(id) { $(id).classList.remove("on"); }
 document.querySelectorAll(".mov").forEach(m => {
   m.addEventListener("click", e => { if (e.target === m) m.classList.remove("on"); });
 });
 
+// ─── Auth UI ──────────────────────────────────────────────────
 function authTab(tab) {
   ["login","register","reset"].forEach(t => {
     $("af-"+t).classList.toggle("on", t===tab);
@@ -625,10 +632,12 @@ async function doLogout() {
   await FB.signOut(FB.auth);
 }
 
+// ─── Firestore refs ───────────────────────────────────────────
 const rCol = () => FB.col(FB.db,"users",UID,"revenues");
 const eCol = () => FB.col(FB.db,"users",UID,"expenses");
 const mDoc = () => FB.doc(FB.db,"users",UID,"meta","settings");
 
+// ─── 本地快取（由 onSnapshot 即時填入） ──────────────────────
 let C = { revs:[], exps:[] };
 let _bootDone = false;
 let _unsub = [];
@@ -641,6 +650,7 @@ window.stopListeners = function() {
 };
 
 function startListeners() {
+  _listenersReady = 0;
   let revReady = false, expReady = false;
 
   const unsub1 = FB.onSnapshot(rCol(), snap => {
@@ -664,6 +674,7 @@ function startListeners() {
   _unsub = [unsub1, unsub2];
 }
 
+// Called on every subsequent update after boot
 function onCacheUpdate() {
   const active = document.querySelector(".pg.on");
   if (!active) return;
@@ -673,6 +684,7 @@ function onCacheUpdate() {
   if (id==="records") resetRecords();
 }
 
+// ─── App Boot ─────────────────────────────────────────────────
 window.appBoot = async function() {
   _bootDone = false;
   const t=todayStr(), m=monthStr();
@@ -680,6 +692,7 @@ window.appBoot = async function() {
   $("f-month").value=m; $("rpt-month").value=m;
   $("csv-from").value=m+"-01"; $("csv-to").value=t;
 
+  // load meta（店名）
   try {
     const snap = await FB.getDoc(mDoc());
     if (snap.exists()) {
@@ -690,9 +703,11 @@ window.appBoot = async function() {
     }
   } catch(e) {}
 
+  // 啟動即時監聽，資料到齊後自動觸發 onDataReady()
   startListeners();
 };
 
+// ─── 導覽 ─────────────────────────────────────────────────────
 function goPg(id) {
   document.querySelectorAll(".pg").forEach(p=>p.classList.remove("on"));
   document.querySelectorAll(".ntab").forEach(t=>t.classList.remove("on"));
@@ -705,6 +720,7 @@ function goPg(id) {
   if (id==="report")  { $("rpt-month").value=monthStr(); renderReport(); }
 }
 
+// ─── 分類選擇 ─────────────────────────────────────────────────
 function selCat(el) {
   document.querySelectorAll(".cb").forEach(b=>b.classList.remove("on"));
   el.classList.add("on");
@@ -714,6 +730,7 @@ function getCat() {
   return s ? s.dataset.cat : "food";
 }
 
+// ─── 店名 ─────────────────────────────────────────────────────
 function openTitleModal() {
   $("title-inp").value = $("shop-title").textContent;
   openMov("m-title");
@@ -725,12 +742,14 @@ async function saveTitleModal() {
   try { await FB.setDoc(mDoc(),{shopTitle:val},{merge:true}); } catch(e) {}
 }
 
+// ─── 營收 CRUD ────────────────────────────────────────────────
 async function saveRev() {
   const cat  = $("rev-cat").value;
   const date = $("rev-date").value;
   const amt  = parseFloat($("rev-amt").value);
   const note = $("rev-note").value.trim();
   if (!date||isNaN(amt)||amt<0) { toast("請填寫日期與金額",true); return; }
+  // find existing entry same date+cat
   const ex = C.revs.find(r=>r.date===date && (r.revCat||"pos")===cat);
   if (ex && !confirm(date+" 已有 "+catLabel(cat)+" 記錄（"+fmt(ex.amount)+" 元），確定覆蓋？")) return;
   const btn=$("save-rev-btn"); btn.disabled=true;
@@ -769,6 +788,7 @@ async function deleteRev(id) {
   catch(e) { toast("刪除失敗",true); }
 }
 
+// ─── 支出 CRUD ────────────────────────────────────────────────
 async function saveExp() {
   const date=$("exp-date").value;
   const cat= getCat();
@@ -814,6 +834,7 @@ async function deleteExp(id) {
   catch(e) { toast("刪除失敗",true); }
 }
 
+// ─── 密碼驗證 ─────────────────────────────────────────────────
 let _pwQ = null;
 function requirePw(action) {
   _pwQ = action;
@@ -829,6 +850,7 @@ function checkPw() {
   if (_pwQ) { _pwQ(); _pwQ=null; }
 }
 
+// ─── 今日記帳 banner ──────────────────────────────────────────
 function renderTodayBanner() {
   const d    = todayStr();
   const revs = C.revs.filter(x=>x.date===d);
@@ -846,6 +868,7 @@ function renderTodayBanner() {
   if (pnl!==null) { tbP.textContent="$"+fmt(pnl); tbP.style.color=pnl>=0?"var(--ac)":"var(--rd)"; }
   else { tbP.textContent="--"; tbP.style.color="var(--tx2)"; }
 
+  // 今日支出清單（僅顯示，無修改/刪除按鈕）
   const list=$("today-list");
   if (!exps.length) { list.innerHTML="<div class=\"empty\">今日尚無支出</div>"; return; }
   list.innerHTML = exps.map(e =>
@@ -860,6 +883,7 @@ function renderTodayBanner() {
   ).join("");
 }
 
+// ─── 總覽 ─────────────────────────────────────────────────────
 let tChart=null, pChart=null;
 
 function renderHome() {
@@ -877,6 +901,7 @@ function renderHome() {
   $("h-rev").textContent="$"+fmt(totR); $("h-revd").textContent=revs.length+" 天";
   $("h-exp").textContent="$"+fmt(totE); $("h-expi").textContent=exps.length+" 筆";
 
+  // 趨勢折線圖
   const dim=new Date(now.getFullYear(),now.getMonth()+1,0).getDate();
   const lbs=[],rArr=[],eArr=[];
   for (let d=1;d<=dim;d++) {
@@ -902,6 +927,7 @@ function renderHome() {
     }
   });
 
+  // 支出圓餅圖
   const cats  =["food","staff","utility","rent","supply","other"];
   const colors=["#5ee7c8","#a29bfe","#ffd93d","#ff6b6b","#74b9ff","#8b90a7"];
   const tots  =cats.map(c=>exps.filter(e=>e.category===c).reduce((s,e)=>s+e.amount,0));
@@ -917,6 +943,7 @@ function renderHome() {
     }
   });
 
+  // 最近 7 天
   const ds=new Set([...C.revs.map(r=>r.date),...C.exps.map(e=>e.date)]);
   const recent=[...ds].sort().reverse().slice(0,7);
   const rl=$("h-recent");
@@ -934,6 +961,7 @@ function renderHome() {
   }).join("");
 }
 
+// ─── 明細（分頁） ─────────────────────────────────────────────
 let _recRows  = [];
 let _recCursor = 0;
 
@@ -950,9 +978,11 @@ function buildRecordsRows() {
   const m  =$("f-month").value;
   const cat=$("f-cat").value;
   _recRows=[];
+  // 加入營收
   if (cat==="all"||cat==="revenue") {
     C.revs.filter(r=>r.date.startsWith(m)).forEach(r=>_recRows.push({...r,_type:"rev"}));
   }
+  // 加入支出
   if (cat!=="revenue") {
     C.exps
       .filter(e=>e.date.startsWith(m) && (cat==="all"||e.category===cat))
@@ -1028,6 +1058,7 @@ function renderRecordsPage() {
 function loadMoreRecords() { renderRecordsPage(); }
 function renderRecords() { resetRecords(); }
 
+// ─── 報表 ─────────────────────────────────────────────────────
 function renderReport() {
   const m   =$("rpt-month").value;
   const revs=C.revs.filter(r=>r.date.startsWith(m));
@@ -1084,6 +1115,7 @@ function renderReport() {
   }
   html+="</div>";
 
+  // 每日損益
   const dateSet=new Set([...revs.map(r=>r.date),...exps.map(e=>e.date)]);
   html+="<div class=\"card\"><div class=\"ch\">每日損益</div>";
   if (!dateSet.size) {
@@ -1110,12 +1142,14 @@ function renderReport() {
   $("rpt-content").innerHTML=html;
 }
 
+// ─── CSV 匯出 ─────────────────────────────────────────────────
 async function exportCSV() {
   const from=$("csv-from").value, to=$("csv-to").value;
   if (!from||!to)  { toast("請選擇起始和結束日期",true); return; }
   if (from>to)     { toast("起始日期不能晚於結束日期",true); return; }
 
   const shopName=$("shop-title").textContent;
+  // Title rows first, then column header, then data
   const titleRow=['"'+shopName+' - 帳務匯出"','','','','',''];
   const rangeRow=['"期間：'+from+' 至 '+to+'"','','','','',''];
   const header  =["日期","類型","分類","項目名稱/明細","金額（元）","備註"];
