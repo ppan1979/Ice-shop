@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>Ice Shop</title>
+<title>冰店記帳</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
@@ -15,48 +15,47 @@ import {
   sendPasswordResetEmail, onAuthStateChanged, signOut
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import {
-  getFirestore, collection, doc, setDoc, getDoc, getDocs,
-  deleteDoc, onSnapshot, query, orderBy, limit, startAfter
+  getFirestore, collection, doc, setDoc, getDoc,
+  deleteDoc, onSnapshot
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const cfg = {
-apiKey: "AIzaSyBVp9cEW4maC1oLdJGnduD8Gnpct2FvIaY",
-authDomain: "ice-shop-account.firebaseapp.com",
-projectId: "ice-shop-account",
-storageBucket: "ice-shop-account.firebasestorage.app",
-messagingSenderId: "115443037159",
-appId: "1:115443037159:web:3748852558c426e7acc342"
+apiKey: “AIzaSyBVp9cEW4maC1oLdJGnduD8Gnpct2FvIaY”,
+authDomain: “ice-shop-account.firebaseapp.com”,
+projectId: “ice-shop-account”,
+storageBucket: “ice-shop-account.firebasestorage.app”,
+messagingSenderId: “115443037159”,
+appId: “1:115443037159:web:3748852558c426e7acc342”
 };
 
 const fbApp  = initializeApp(cfg);
 const fbAuth = getAuth(fbApp);
 const fbDb   = getFirestore(fbApp);
 
-// expose to global script tag
 window.FB = {
 auth: fbAuth, db: fbDb,
 createUser: createUserWithEmailAndPassword,
-signIn: signInWithEmailAndPassword,
-resetPw: sendPasswordResetEmail,
+signIn:     signInWithEmailAndPassword,
+resetPw:    sendPasswordResetEmail,
 signOut,
-col: collection, doc, setDoc, getDoc, getDocs,
-deleteDoc, onSnapshot, query, orderBy, limit, startAfter
+col: collection, doc, setDoc, getDoc,
+deleteDoc, onSnapshot
 };
 
 onAuthStateChanged(fbAuth, user => {
 if (user) {
 window.UID = user.uid;
-document.getElementById("loading-wrap").style.display = "none";
-document.getElementById("auth-wrap").style.display   = "none";
-document.getElementById("app-wrap").style.display    = "flex";
-document.getElementById("hdr-email").textContent     = user.email;
+document.getElementById(“loading-wrap”).style.display = “none”;
+document.getElementById(“auth-wrap”).style.display   = “none”;
+document.getElementById(“app-wrap”).style.display    = “flex”;
+document.getElementById(“hdr-email”).textContent     = user.email;
 window.appBoot();
 } else {
 window.UID = null;
-document.getElementById("loading-wrap").style.display = "none";
-document.getElementById("auth-wrap").style.display    = "flex";
-document.getElementById("app-wrap").style.display     = "none";
-window.stopListeners && window.stopListeners();
+document.getElementById(“loading-wrap”).style.display = “none”;
+document.getElementById(“auth-wrap”).style.display    = “flex”;
+document.getElementById(“app-wrap”).style.display     = “none”;
+if (window.stopListeners) window.stopListeners();
 }
 });
 </script>
@@ -73,24 +72,29 @@ window.stopListeners && window.stopListeners();
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 html,body{height:100%;overflow:hidden;font-family:"Noto Sans TC",sans-serif;background:var(--bg);color:var(--tx);font-size:15px}
 
-/* ── loading ─────────────────────────────── */
+/* loading */
 #loading-wrap{position:fixed;inset:0;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:999}
 .spin{width:36px;height:36px;border:3px solid var(--bd);border-top-color:var(--ac);border-radius:50%;animation:spin .8s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
 
-/* ── auth ────────────────────────────────── */
+/* auth - scrollable, no vertical centering to avoid overlap */
 #auth-wrap{
-  display:none;flex-direction:column;align-items:center;
-  min-height:100vh;padding:32px 20px 24px;overflow-y:auto;
+  display:none;
+  flex-direction:column;
+  align-items:center;
+  min-height:100vh;
+  overflow-y:auto;
+  -webkit-overflow-scrolling:touch;
+  padding:48px 20px 40px;
   background:var(--bg);
   background-image:
     radial-gradient(ellipse at 20% 20%,rgba(94,231,200,.08) 0%,transparent 60%),
     radial-gradient(ellipse at 80% 80%,rgba(162,155,254,.07) 0%,transparent 60%);
 }
-.a-logo{text-align:center;margin-bottom:28px;flex-shrink:0}
-.a-logo .em{font-size:52px;display:block;margin-bottom:10px;filter:drop-shadow(0 0 16px rgba(94,231,200,.45))}
+.a-logo{text-align:center;margin-bottom:32px;flex-shrink:0}
+.a-logo .em{font-size:52px;display:block;margin-bottom:12px;filter:drop-shadow(0 0 16px rgba(94,231,200,.45))}
 .a-logo h1{font-size:26px;font-weight:900;color:var(--ac);letter-spacing:1px}
-.a-logo p{font-size:13px;color:var(--tx3);margin-top:4px}
+.a-logo p{font-size:13px;color:var(--tx3);margin-top:6px}
 .a-card{width:100%;max-width:380px;background:var(--sf);border:1px solid var(--bd);border-radius:20px;padding:24px 20px;box-shadow:0 8px 40px rgba(0,0,0,.5);flex-shrink:0}
 .a-tabs{display:flex;gap:6px;margin-bottom:20px}
 .a-tab{flex:1;padding:9px;border-radius:10px;border:none;cursor:pointer;font-family:inherit;font-size:13px;font-weight:600;background:var(--sf2);color:var(--tx2);transition:all .15s}
@@ -102,7 +106,7 @@ html,body{height:100%;overflow:hidden;font-family:"Noto Sans TC",sans-serif;back
 .a-iw input{width:100%;background:var(--sf2);border:1px solid var(--bd);border-radius:11px;color:var(--tx);padding:13px 13px 13px 40px;font-family:inherit;font-size:16px;outline:none;transition:border-color .15s;-webkit-appearance:none}
 .a-iw input:focus{border-color:var(--ac)}
 .a-iw input::placeholder{color:var(--tx3)}
-.a-btn{width:100%;padding:14px;border-radius:11px;border:none;cursor:pointer;font-family:inherit;font-size:15px;font-weight:700;background:var(--ac);color:#0b0e18;margin-top:4px;letter-spacing:.4px;transition:all .15s}
+.a-btn{width:100%;padding:14px;border-radius:11px;border:none;cursor:pointer;font-family:inherit;font-size:15px;font-weight:700;background:var(--ac);color:#0b0e18;margin-top:4px;transition:all .15s}
 .a-btn:active{filter:brightness(.87);transform:scale(.98)}
 .a-btn.ld{opacity:.55;pointer-events:none}
 .a-lnk{text-align:center;margin-top:14px;font-size:13px;color:var(--tx2)}
@@ -110,29 +114,27 @@ html,body{height:100%;overflow:hidden;font-family:"Noto Sans TC",sans-serif;back
 .a-err{background:rgba(255,107,107,.1);border:1px solid rgba(255,107,107,.3);border-radius:9px;padding:9px 13px;font-size:13px;color:var(--rd);margin-bottom:12px;display:none}
 .a-ok{background:rgba(94,231,200,.1);border:1px solid rgba(94,231,200,.3);border-radius:9px;padding:9px 13px;font-size:13px;color:var(--ac);margin-bottom:12px;display:none}
 
-/* ── app shell ───────────────────────────── */
+/* app shell */
 #app-wrap{display:none;flex-direction:column;height:100%}
 .hdr{padding-top:var(--st);background:var(--sf);border-bottom:1px solid var(--bd);flex-shrink:0}
 .hdr-inner{display:flex;align-items:center;justify-content:space-between;padding:9px 15px}
 .hdr-mid{flex:1;display:flex;flex-direction:column;align-items:center}
-.shop-t{font-size:21px;font-weight:900;color:var(--ac);letter-spacing:1px;cursor:pointer;border-bottom:1.5px dashed transparent;transition:border-color .2s;padding:0 4px;line-height:1.2}
+.shop-t{font-size:21px;font-weight:900;color:var(--ac);letter-spacing:1px;cursor:pointer;border-bottom:1.5px dashed transparent;transition:border-color .2s;padding:0 4px}
 .shop-t:active{border-bottom-color:var(--ac)}
 #hdr-email{font-size:10px;color:var(--tx3);margin-top:2px}
 .logout-b{background:transparent;border:1px solid var(--bd);color:var(--tx2);border-radius:8px;padding:6px 9px;font-size:11px;font-family:inherit;cursor:pointer;flex-shrink:0}
 .logout-b:active{opacity:.65}
-
-/* ── scroll + nav ────────────────────────── */
 .scr{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;padding:13px;padding-bottom:calc(var(--nh) + var(--sb) + 20px)}
 .bnav{height:calc(var(--nh) + var(--sb));padding-bottom:var(--sb);background:var(--sf);border-top:1px solid var(--bd);display:flex;flex-shrink:0;z-index:50}
 .ntab{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;cursor:pointer;color:var(--tx3);font-size:10px;font-weight:500;transition:color .15s;padding-top:2px;user-select:none}
 .ntab.on{color:var(--ac)}
 .ntab .ni{font-size:22px;line-height:1}
 
-/* ── pages ───────────────────────────────── */
+/* pages */
 .pg{display:none}
 .pg.on{display:block}
 
-/* ── stat cards ──────────────────────────── */
+/* stat cards */
 .sg{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
 .sc{background:var(--sf);border:1px solid var(--bd);border-radius:14px;padding:14px}
 .sl{font-size:11px;color:var(--tx3);margin-bottom:6px}
@@ -146,12 +148,10 @@ html,body{height:100%;overflow:hidden;font-family:"Noto Sans TC",sans-serif;back
 .pcard .pv.g{color:var(--ac)}
 .pcard .pv.r{color:var(--rd)}
 .mbadge{font-size:12px;color:var(--tx2);background:var(--sf2);padding:4px 10px;border-radius:20px}
-
-/* ── card ────────────────────────────────── */
 .card{background:var(--sf);border:1px solid var(--bd);border-radius:14px;padding:13px 15px;margin-bottom:12px}
 .ch{font-size:12px;font-weight:600;color:var(--tx3);text-transform:uppercase;letter-spacing:.8px;margin-bottom:11px}
 
-/* ── form ────────────────────────────────── */
+/* forms */
 .fg{margin-bottom:11px}
 label{display:block;font-size:12px;color:var(--tx2);font-weight:500;margin-bottom:5px}
 input[type=text],input[type=number],input[type=date],input[type=month],
@@ -169,10 +169,11 @@ select option{background:#141824}
 .btn{width:100%;padding:14px;border-radius:11px;border:none;cursor:pointer;font-family:inherit;font-size:15px;font-weight:600;transition:all .15s}
 .btn-p{background:var(--ac);color:#0b0e18}
 .btn-p:active{filter:brightness(.87);transform:scale(.98)}
+.btn-p:disabled{opacity:.5;pointer-events:none}
 .btn-s{background:var(--sf2);color:var(--tx2);border:1px solid var(--bd)}
 .btn-s:active{filter:brightness(.87)}
 
-/* ── category grid (no edit btn) ────────── */
+/* category grid */
 .cg{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:11px}
 .cb{background:var(--sf2);border:2px solid var(--bd);border-radius:10px;padding:10px 4px;text-align:center;cursor:pointer;transition:all .15s;font-family:inherit;user-select:none}
 .cb .ci{font-size:19px;display:block;margin-bottom:3px}
@@ -180,7 +181,7 @@ select option{background:#141824}
 .cb.on{border-color:var(--ac);background:rgba(94,231,200,.1)}
 .cb.on .cn{color:var(--ac)}
 
-/* ── expense list items ──────────────────── */
+/* expense list items */
 .ei{padding:10px 0;border-bottom:1px solid rgba(42,48,80,.5)}
 .ei:last-child{border-bottom:none}
 .ei-top{display:flex;align-items:center;gap:7px}
@@ -195,13 +196,13 @@ select option{background:#141824}
 .ab-d{color:var(--rd);border-color:var(--rd);background:transparent}
 .ab:active{opacity:.6}
 
-/* ── day row ─────────────────────────────── */
+/* day row */
 .dr{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid rgba(42,48,80,.4)}
 .dr:last-child{border-bottom:none}
 .dd{font-size:13px;color:var(--tx2)}
 .dpnl{font-family:"DM Mono",monospace;font-size:14px;font-weight:500}
 
-/* ── badges ──────────────────────────────── */
+/* badges */
 .badge{display:inline-block;padding:2px 7px;border-radius:20px;font-size:10px;font-weight:500}
 .bf{background:rgba(94,231,200,.15);color:var(--ac)}
 .bs{background:rgba(162,155,254,.15);color:var(--pu)}
@@ -211,27 +212,27 @@ select option{background:#141824}
 .bo{background:rgba(139,144,167,.15);color:var(--tx2)}
 .brev{background:rgba(94,231,200,.15);color:var(--ac)}
 
-/* ── chart ───────────────────────────────── */
+/* chart */
 .cw{position:relative;height:185px;margin:5px 0}
 
-/* ── filter row ──────────────────────────── */
+/* filter row */
 .fr{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap}
 .fr>div{flex:1;min-width:100px}
 .fl{font-size:11px;color:var(--tx3);display:block;margin-bottom:3px}
 .fr input[type=month],.fr select{font-size:14px;padding:10px 11px}
 
-/* ── progress bar ────────────────────────── */
+/* progress */
 .pb{height:5px;background:var(--sf2);border-radius:3px;margin-top:4px;overflow:hidden}
 .pf{height:100%;border-radius:3px;background:var(--pu)}
 
-/* ── today banner ────────────────────────── */
+/* today banner */
 .tbanner{background:var(--sf);border:1px solid var(--bd);border-radius:14px;padding:13px 15px;margin-bottom:12px;display:flex}
 .tbanner .tc{flex:1;text-align:center}
 .tbanner .tc+.tc{border-left:1px solid var(--bd)}
 .tcl{font-size:10px;color:var(--tx3);margin-bottom:3px}
 .tcv{font-family:"DM Mono",monospace;font-size:16px;font-weight:600}
 
-/* ── modal ───────────────────────────────── */
+/* modal */
 .mov{position:fixed;inset:0;background:rgba(0,0,0,.72);display:none;align-items:flex-end;justify-content:center;z-index:200;backdrop-filter:blur(3px)}
 .mov.on{display:flex}
 .msh{background:var(--sf);border-radius:20px 20px 0 0;padding:18px 18px calc(18px + var(--sb));width:100%;max-width:480px;max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch;border-top:1px solid var(--bd)}
@@ -240,18 +241,18 @@ select option{background:#141824}
 .mbtns{display:flex;gap:9px;margin-top:16px}
 .mbtns .btn{flex:1}
 
-/* ── section title ───────────────────────── */
+/* section title */
 .stitle{font-size:12px;font-weight:600;color:var(--tx3);text-transform:uppercase;letter-spacing:1px;margin:16px 0 7px}
 
-/* ── toast ───────────────────────────────── */
-.toast{position:fixed;bottom:calc(var(--nh) + var(--sb) + 11px);left:50%;transform:translateX(-50%) translateY(10px);background:var(--ac);color:#0b0e18;padding:9px 18px;border-radius:20px;font-size:13px;font-weight:600;white-space:nowrap;opacity:0;transition:all .25s;z-index:999;pointer-events:none;box-shadow:0 4px 20px rgba(0,0,0,.5)}
-.toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
-.toast.err{background:var(--rd);color:#fff}
-
-/* ── load-more button ────────────────────── */
+/* load more */
 .load-more-btn{width:100%;padding:12px;margin-top:10px;border-radius:10px;border:1px solid var(--bd);background:var(--sf2);color:var(--tx2);font-family:inherit;font-size:14px;font-weight:500;cursor:pointer;transition:all .15s}
 .load-more-btn:active{opacity:.7}
 .load-more-btn:disabled{opacity:.4;cursor:default}
+
+/* toast */
+.toast{position:fixed;bottom:calc(var(--nh) + var(--sb) + 11px);left:50%;transform:translateX(-50%) translateY(10px);background:var(--ac);color:#0b0e18;padding:9px 18px;border-radius:20px;font-size:13px;font-weight:600;white-space:nowrap;opacity:0;transition:all .25s;z-index:999;pointer-events:none;box-shadow:0 4px 20px rgba(0,0,0,.5)}
+.toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+.toast.err{background:var(--rd);color:#fff}
 
 .empty{text-align:center;padding:28px 14px;color:var(--tx3);font-size:13px}
 ::-webkit-scrollbar{width:3px}
@@ -261,54 +262,63 @@ select option{background:#141824}
 </head>
 <body>
 
+<!-- 載入畫面 -->
+
 <div id="loading-wrap">
   <div class="spin"></div>
-  <div style="margin-top:13px;font-size:13px;color:var(--tx3)">Loading...</div>
+  <div style="margin-top:13px;font-size:13px;color:var(--tx3)">載入中...</div>
 </div>
+
+<!-- 登入畫面 -->
 
 <div id="auth-wrap">
   <div class="a-logo">
     <span class="em">🍧</span>
-    <h1 id="auth-title">Ice Shop Accounting</h1>
-    <p>Cost Management System</p>
+    <h1 id="auth-title">冰店記帳</h1>
+    <p>成本管控系統</p>
   </div>
   <div class="a-card">
     <div class="a-tabs">
-      <button class="a-tab on" onclick="authTab('login')">Login</button>
-      <button class="a-tab" onclick="authTab('register')">Register</button>
+      <button class="a-tab on" onclick="authTab('login')">登入</button>
+      <button class="a-tab" onclick="authTab('register')">註冊帳號</button>
     </div>
+    <!-- login -->
     <div id="af-login" class="a-form on">
       <div class="a-err" id="lerr"></div>
-      <div class="a-iw"><span class="ico">✉️</span><input type="email" id="l-email" placeholder="Email" autocomplete="email"></div>
-      <div class="a-iw"><span class="ico">🔒</span><input type="password" id="l-pw" placeholder="Password" autocomplete="current-password"></div>
-      <button class="a-btn" id="l-btn" onclick="doLogin()">Login</button>
-      <div class="a-lnk"><a onclick="authTab('reset')">Forgot password?</a></div>
+      <div class="a-iw"><span class="ico">✉️</span><input type="email" id="l-email" placeholder="電子郵件" autocomplete="email"></div>
+      <div class="a-iw"><span class="ico">🔒</span><input type="password" id="l-pw" placeholder="密碼" autocomplete="current-password"></div>
+      <button class="a-btn" id="l-btn" onclick="doLogin()">登入</button>
+      <div class="a-lnk"><a onclick="authTab('reset')">忘記密碼？</a></div>
     </div>
+    <!-- register -->
     <div id="af-register" class="a-form">
       <div class="a-err" id="rerr"></div>
-      <div class="a-iw"><span class="ico">✉️</span><input type="email" id="r-email" placeholder="Email"></div>
-      <div class="a-iw"><span class="ico">🔒</span><input type="password" id="r-pw" placeholder="Password (min 6 chars)"></div>
-      <div class="a-iw"><span class="ico">🔒</span><input type="password" id="r-pw2" placeholder="Confirm password"></div>
-      <button class="a-btn" id="r-btn" onclick="doRegister()">Create Account</button>
-      <div class="a-lnk">Already have an account? <a onclick="authTab('login')">Login</a></div>
+      <div class="a-iw"><span class="ico">✉️</span><input type="email" id="r-email" placeholder="電子郵件"></div>
+      <div class="a-iw"><span class="ico">🔒</span><input type="password" id="r-pw" placeholder="密碼（至少 6 位）"></div>
+      <div class="a-iw"><span class="ico">🔒</span><input type="password" id="r-pw2" placeholder="確認密碼"></div>
+      <button class="a-btn" id="r-btn" onclick="doRegister()">建立帳號</button>
+      <div class="a-lnk">已有帳號？<a onclick="authTab('login')">登入</a></div>
     </div>
+    <!-- reset -->
     <div id="af-reset" class="a-form">
       <div class="a-err" id="pwerr"></div>
       <div class="a-ok" id="pwok"></div>
-      <p style="font-size:13px;color:var(--tx2);margin-bottom:13px">Enter your email to receive a password reset link.</p>
-      <div class="a-iw"><span class="ico">✉️</span><input type="email" id="pw-email" placeholder="Email"></div>
-      <button class="a-btn" id="pw-btn" onclick="doReset()">Send Reset Email</button>
-      <div class="a-lnk"><a onclick="authTab('login')">Back to Login</a></div>
+      <p style="font-size:13px;color:var(--tx2);margin-bottom:13px">輸入電子郵件，將發送重設密碼連結。</p>
+      <div class="a-iw"><span class="ico">✉️</span><input type="email" id="pw-email" placeholder="電子郵件"></div>
+      <button class="a-btn" id="pw-btn" onclick="doReset()">發送重設郵件</button>
+      <div class="a-lnk"><a onclick="authTab('login')">← 返回登入</a></div>
     </div>
   </div>
 </div>
 
+<!-- 主應用 -->
+
 <div id="app-wrap">
   <div class="hdr">
     <div class="hdr-inner">
-      <button class="logout-b" onclick="doLogout()">Logout</button>
+      <button class="logout-b" onclick="doLogout()">登出</button>
       <div class="hdr-mid">
-        <div class="shop-t" id="shop-title" onclick="openTitleModal()">🍧 Ice Shop</div>
+        <div class="shop-t" id="shop-title" onclick="openTitleModal()">🍧 冰店記帳</div>
         <div id="hdr-email"></div>
       </div>
       <div style="width:48px"></div>
@@ -317,199 +327,217 @@ select option{background:#141824}
 
   <div class="scr" id="scr">
 
+```
+<!-- 總覽 -->
 <div id="pg-home" class="pg on">
   <div class="pcard">
     <div>
-      <div class="pl">Monthly P&amp;L</div>
+      <div class="pl">本月損益</div>
       <div class="pv g" id="h-profit">$0</div>
-      <div class="ss" id="h-margin">Margin 0%</div>
+      <div class="ss" id="h-margin">毛利率 0%</div>
     </div>
     <div class="mbadge" id="h-month"></div>
   </div>
   <div class="sg">
-    <div class="sc"><div class="sl">Monthly Revenue</div><div class="sv g" id="h-rev">$0</div><div class="ss" id="h-revd"></div></div>
-    <div class="sc"><div class="sl">Monthly Expense</div><div class="sv r" id="h-exp">$0</div><div class="ss" id="h-expi"></div></div>
+    <div class="sc"><div class="sl">本月營收</div><div class="sv g" id="h-rev">$0</div><div class="ss" id="h-revd"></div></div>
+    <div class="sc"><div class="sl">本月支出</div><div class="sv r" id="h-exp">$0</div><div class="ss" id="h-expi"></div></div>
   </div>
   <div class="card">
-    <div class="ch">Revenue vs Expense (this month)</div>
+    <div class="ch">收支趨勢（本月）</div>
     <div class="cw"><canvas id="trend-chart"></canvas></div>
   </div>
   <div class="card">
-    <div class="ch">Expense Breakdown (this month)</div>
+    <div class="ch">支出分類（本月）</div>
     <div class="cw" style="height:175px"><canvas id="pie-chart"></canvas></div>
   </div>
   <div class="card">
-    <div class="ch">Last 7 Days</div>
+    <div class="ch">最近 7 天</div>
     <div id="h-recent"></div>
   </div>
 </div>
 
+<!-- 記帳 -->
 <div id="pg-entry" class="pg">
   <div class="tbanner">
-    <div class="tc"><div class="tcl">Today Revenue</div><div class="tcv" id="tb-rev" style="color:var(--tx3)">--</div></div>
-    <div class="tc"><div class="tcl">Today Expense</div><div class="tcv" style="color:var(--rd)" id="tb-exp">$0</div></div>
-    <div class="tc"><div class="tcl">Today P&amp;L</div><div class="tcv" id="tb-pnl" style="color:var(--tx3)">--</div></div>
+    <div class="tc"><div class="tcl">今日營收</div><div class="tcv" id="tb-rev" style="color:var(--tx3)">--</div></div>
+    <div class="tc"><div class="tcl">今日支出</div><div class="tcv" style="color:var(--rd)" id="tb-exp">$0</div></div>
+    <div class="tc"><div class="tcl">今日損益</div><div class="tcv" id="tb-pnl" style="color:var(--tx3)">--</div></div>
   </div>
 
+  <!-- 營收輸入 -->
   <div class="card">
-    <div class="ch">📟 Revenue Input</div>
-    <div class="fg"><label>Category</label>
+    <div class="ch">📟 輸入營收</div>
+    <div class="fg"><label>營收類別</label>
       <select id="rev-cat">
-        <option value="pos">POS Revenue</option>
-        <option value="other_rev">Other Revenue</option>
-        <option value="delivery">Delivery Platform</option>
+        <option value="pos">POS 收款</option>
+        <option value="delivery">外送平台</option>
+        <option value="other_rev">其他收入</option>
       </select>
     </div>
-    <div class="fg"><label>Date</label><input type="date" id="rev-date"></div>
-    <div class="fg"><label>Amount (NTD)</label><input type="number" id="rev-amt" inputmode="numeric" placeholder="e.g. 8500"></div>
-    <div class="fg"><label>Note (optional)</label><input type="text" id="rev-note" placeholder="e.g. Holiday, event..."></div>
-    <button class="btn btn-p" id="save-rev-btn" onclick="saveRev()">Save Revenue</button>
+    <div class="fg"><label>日期</label><input type="date" id="rev-date"></div>
+    <div class="fg"><label>金額（元）</label><input type="number" id="rev-amt" inputmode="numeric" placeholder="例：8500"></div>
+    <div class="fg"><label>備註（選填）</label><input type="text" id="rev-note" placeholder="例：假日、活動..."></div>
+    <button class="btn btn-p" id="save-rev-btn" onclick="saveRev()">儲存營收</button>
   </div>
 
+  <!-- 支出輸入 -->
   <div class="card">
-    <div class="ch">💸 Expense Input</div>
-    <div class="fg"><label>Date</label><input type="date" id="exp-date"></div>
+    <div class="ch">💸 新增支出</div>
+    <div class="fg"><label>日期</label><input type="date" id="exp-date"></div>
     <div class="fg">
-      <label>Category</label>
+      <label>支出分類</label>
       <div class="cg">
-        <button class="cb on" data-cat="food"    onclick="selCat(this)"><span class="ci">🥭</span><span class="cn" id="cn-food">Food/Ingredients</span></button>
-        <button class="cb"    data-cat="staff"   onclick="selCat(this)"><span class="ci">👥</span><span class="cn" id="cn-staff">Payroll/Family</span></button>
-        <button class="cb"    data-cat="utility" onclick="selCat(this)"><span class="ci">💡</span><span class="cn" id="cn-utility">Utility/Internet</span></button>
-        <button class="cb"    data-cat="rent"    onclick="selCat(this)"><span class="ci">🔧</span><span class="cn" id="cn-rent">Equipment/Repair</span></button>
-        <button class="cb"    data-cat="supply"  onclick="selCat(this)"><span class="ci">📦</span><span class="cn" id="cn-supply">Supplies</span></button>
-        <button class="cb"    data-cat="other"   onclick="selCat(this)"><span class="ci">📌</span><span class="cn" id="cn-other">Miscellaneous</span></button>
+        <button class="cb on" data-cat="food"    onclick="selCat(this)"><span class="ci">🥭</span><span class="cn">食材原料</span></button>
+        <button class="cb"    data-cat="staff"   onclick="selCat(this)"><span class="ci">👥</span><span class="cn">人事支出/<br>孝親費</span></button>
+        <button class="cb"    data-cat="utility" onclick="selCat(this)"><span class="ci">💡</span><span class="cn">水電費/<br>網路電話</span></button>
+        <button class="cb"    data-cat="rent"    onclick="selCat(this)"><span class="ci">🔧</span><span class="cn">設備採買<br>或維修</span></button>
+        <button class="cb"    data-cat="supply"  onclick="selCat(this)"><span class="ci">📦</span><span class="cn">耗材包材</span></button>
+        <button class="cb"    data-cat="other"   onclick="selCat(this)"><span class="ci">📌</span><span class="cn">其他雜費</span></button>
       </div>
     </div>
-    <div class="fg"><label>Item / Detail</label><input type="text" id="exp-name" placeholder="e.g. Mango restock; 3 staff x 5000"></div>
-    <div class="fg"><label>Amount (NTD)</label><input type="number" id="exp-amt" inputmode="numeric" placeholder="e.g. 15000"></div>
-    <div class="fg"><label>Note (optional)</label><input type="text" id="exp-note" placeholder="e.g. Vendor ABC"></div>
-    <button class="btn btn-p" id="save-exp-btn" onclick="saveExp()">Add Expense</button>
+    <div class="fg"><label>項目名稱 / 明細說明</label><input type="text" id="exp-name" placeholder="例：芒果補貨；員工3人x5000"></div>
+    <div class="fg"><label>金額（元）</label><input type="number" id="exp-amt" inputmode="numeric" placeholder="例：15000"></div>
+    <div class="fg"><label>備註（選填）</label><input type="text" id="exp-note" placeholder="例：向OO廠商採購"></div>
+    <button class="btn btn-p" id="save-exp-btn" onclick="saveExp()">新增支出</button>
   </div>
 
+  <!-- 今日支出清單（僅顯示，無編輯鍵） -->
   <div class="card">
-    <div class="ch">Today Expenses</div>
+    <div class="ch">今日支出明細</div>
     <div id="today-list"></div>
   </div>
 </div>
 
+<!-- 明細 -->
 <div id="pg-records" class="pg">
   <div class="fr">
-    <div><span class="fl">Month</span><input type="month" id="f-month" onchange="resetRecords()"></div>
-    <div><span class="fl">Category</span>
+    <div><span class="fl">月份</span><input type="month" id="f-month" onchange="resetRecords()"></div>
+    <div><span class="fl">類別</span>
       <select id="f-cat" onchange="resetRecords()">
-        <option value="all">All</option>
-        <option value="revenue">Revenue</option>
-        <option value="food">Food/Ingredients</option>
-        <option value="staff">Payroll/Family</option>
-        <option value="utility">Utility/Internet</option>
-        <option value="rent">Equipment/Repair</option>
-        <option value="supply">Supplies</option>
-        <option value="other">Miscellaneous</option>
+        <option value="all">全部</option>
+        <option value="revenue">營收</option>
+        <option value="food">食材原料</option>
+        <option value="staff">人事支出/孝親費</option>
+        <option value="utility">水電費/網路電話</option>
+        <option value="rent">設備採買或維修</option>
+        <option value="supply">耗材包材</option>
+        <option value="other">其他雜費</option>
       </select>
     </div>
   </div>
   <div class="card" id="rec-list"></div>
-  <button class="load-more-btn" id="load-more-btn" onclick="loadMoreRecords()" style="display:none">Load More</button>
+  <button class="load-more-btn" id="load-more-btn" onclick="loadMoreRecords()" style="display:none">載入更多</button>
 </div>
 
+<!-- 報表 -->
 <div id="pg-report" class="pg">
   <div class="fr" style="flex-wrap:nowrap">
     <input type="month" id="rpt-month" style="flex:1;font-size:14px;padding:10px 11px">
-    <button class="btn btn-p" style="width:auto;padding:10px 16px;font-size:13px;flex-shrink:0" onclick="renderReport()">Generate</button>
+    <button class="btn btn-p" style="width:auto;padding:10px 16px;font-size:13px;flex-shrink:0" onclick="renderReport()">產生報表</button>
   </div>
   <div id="rpt-content"></div>
 </div>
 
+<!-- 更多 -->
 <div id="pg-more" class="pg">
-  <div class="stitle">Export CSV</div>
+  <div class="stitle">匯出 CSV</div>
   <div class="card">
-    <div class="fg"><label>From Date</label><input type="date" id="csv-from"></div>
-    <div class="fg"><label>To Date</label><input type="date" id="csv-to"></div>
-    <button class="btn btn-p" onclick="exportCSV()">📥 Download CSV</button>
+    <div class="fg"><label>起始日期</label><input type="date" id="csv-from"></div>
+    <div class="fg"><label>結束日期</label><input type="date" id="csv-to"></div>
+    <button class="btn btn-p" onclick="exportCSV()">📥 下載 CSV（可用 Excel 開啟）</button>
   </div>
 </div>
+```
 
   </div>
 
   <nav class="bnav">
-    <div class="ntab on" id="nt-home"    onclick="goPg('home')">   <span class="ni">📊</span>Overview</div>
-    <div class="ntab"    id="nt-entry"   onclick="goPg('entry')">  <span class="ni">✏️</span>Entry</div>
-    <div class="ntab"    id="nt-records" onclick="goPg('records')"><span class="ni">📋</span>Records</div>
-    <div class="ntab"    id="nt-report"  onclick="goPg('report')"> <span class="ni">📈</span>Report</div>
-    <div class="ntab"    id="nt-more"    onclick="goPg('more')">   <span class="ni">⚙️</span>More</div>
+    <div class="ntab on" id="nt-home"    onclick="goPg('home')">   <span class="ni">📊</span>總覽</div>
+    <div class="ntab"    id="nt-entry"   onclick="goPg('entry')">  <span class="ni">✏️</span>記帳</div>
+    <div class="ntab"    id="nt-records" onclick="goPg('records')"><span class="ni">📋</span>明細</div>
+    <div class="ntab"    id="nt-report"  onclick="goPg('report')"> <span class="ni">📈</span>報表</div>
+    <div class="ntab"    id="nt-more"    onclick="goPg('more')">   <span class="ni">⚙️</span>更多</div>
   </nav>
 </div>
+
+<!-- 編輯支出 modal -->
 
 <div class="mov" id="m-exp">
   <div class="msh">
     <div class="mhd"></div>
-    <div class="mt">Edit Expense</div>
+    <div class="mt">✏️ 修改支出</div>
     <input type="hidden" id="me-id">
-    <div class="fg"><label>Date</label><input type="date" id="me-date"></div>
-    <div class="fg"><label>Category</label>
+    <div class="fg"><label>日期</label><input type="date" id="me-date"></div>
+    <div class="fg"><label>支出分類</label>
       <select id="me-cat">
-        <option value="food">🥭 Food/Ingredients</option>
-        <option value="staff">👥 Payroll/Family</option>
-        <option value="utility">💡 Utility/Internet</option>
-        <option value="rent">🔧 Equipment/Repair</option>
-        <option value="supply">📦 Supplies</option>
-        <option value="other">📌 Miscellaneous</option>
+        <option value="food">🥭 食材原料</option>
+        <option value="staff">👥 人事支出/孝親費</option>
+        <option value="utility">💡 水電費/網路電話</option>
+        <option value="rent">🔧 設備採買或維修</option>
+        <option value="supply">📦 耗材包材</option>
+        <option value="other">📌 其他雜費</option>
       </select>
     </div>
-    <div class="fg"><label>Item / Detail</label><input type="text" id="me-name"></div>
-    <div class="fg"><label>Amount (NTD)</label><input type="number" id="me-amt" inputmode="numeric"></div>
-    <div class="fg"><label>Note</label><input type="text" id="me-note"></div>
+    <div class="fg"><label>項目名稱 / 明細說明</label><input type="text" id="me-name"></div>
+    <div class="fg"><label>金額（元）</label><input type="number" id="me-amt" inputmode="numeric"></div>
+    <div class="fg"><label>備註</label><input type="text" id="me-note"></div>
     <div class="mbtns">
-      <button class="btn btn-s" onclick="closeMov('m-exp')">Cancel</button>
-      <button class="btn btn-p" onclick="saveExpEdit()">Save</button>
+      <button class="btn btn-s" onclick="closeMov('m-exp')">取消</button>
+      <button class="btn btn-p" onclick="saveExpEdit()">儲存修改</button>
     </div>
   </div>
 </div>
+
+<!-- 編輯營收 modal -->
 
 <div class="mov" id="m-rev">
   <div class="msh">
     <div class="mhd"></div>
-    <div class="mt">Edit Revenue</div>
+    <div class="mt">✏️ 修改營收</div>
     <input type="hidden" id="mr-id">
-    <div class="fg"><label>Category</label>
+    <div class="fg"><label>營收類別</label>
       <select id="mr-cat">
-        <option value="pos">POS Revenue</option>
-        <option value="other_rev">Other Revenue</option>
-        <option value="delivery">Delivery Platform</option>
+        <option value="pos">POS 收款</option>
+        <option value="delivery">外送平台</option>
+        <option value="other_rev">其他收入</option>
       </select>
     </div>
-    <div class="fg"><label>Date</label><input type="date" id="mr-date"></div>
-    <div class="fg"><label>Amount (NTD)</label><input type="number" id="mr-amt" inputmode="numeric"></div>
-    <div class="fg"><label>Note</label><input type="text" id="mr-note"></div>
+    <div class="fg"><label>日期</label><input type="date" id="mr-date"></div>
+    <div class="fg"><label>金額（元）</label><input type="number" id="mr-amt" inputmode="numeric"></div>
+    <div class="fg"><label>備註</label><input type="text" id="mr-note"></div>
     <div class="mbtns">
-      <button class="btn btn-s" onclick="closeMov('m-rev')">Cancel</button>
-      <button class="btn btn-p" onclick="saveRevEdit()">Save</button>
+      <button class="btn btn-s" onclick="closeMov('m-rev')">取消</button>
+      <button class="btn btn-p" onclick="saveRevEdit()">儲存修改</button>
     </div>
   </div>
 </div>
+
+<!-- 店名 modal -->
 
 <div class="mov" id="m-title">
   <div class="msh">
     <div class="mhd"></div>
-    <div class="mt">Edit Shop Name</div>
-    <div class="fg"><label>Shop Name (emoji OK)</label><input type="text" id="title-inp" placeholder="e.g. My Ice Shop"></div>
+    <div class="mt">✏️ 修改店名</div>
+    <div class="fg"><label>店名（可加 emoji）</label><input type="text" id="title-inp" placeholder="例：我的冰店"></div>
     <div class="mbtns">
-      <button class="btn btn-s" onclick="closeMov('m-title')">Cancel</button>
-      <button class="btn btn-p" onclick="saveTitleModal()">Save</button>
+      <button class="btn btn-s" onclick="closeMov('m-title')">取消</button>
+      <button class="btn btn-p" onclick="saveTitleModal()">儲存</button>
     </div>
   </div>
 </div>
 
+<!-- 密碼驗證 modal -->
+
 <div class="mov" id="m-pw">
   <div class="msh">
     <div class="mhd"></div>
-    <div class="mt">🔐 Edit Password Required</div>
-    <p style="font-size:13px;color:var(--tx2);margin-bottom:13px">Editing and deleting records requires password verification.</p>
-    <div class="fg"><input type="password" id="pw-inp" inputmode="numeric" placeholder="Enter password" maxlength="10"></div>
+    <div class="mt">🔐 請輸入編輯密碼</div>
+    <p style="font-size:13px;color:var(--tx2);margin-bottom:13px">修改與刪除需要密碼驗證。</p>
+    <div class="fg"><input type="password" id="pw-inp" inputmode="numeric" placeholder="請輸入密碼" maxlength="10"></div>
     <div class="a-err" id="pw-err"></div>
     <div class="mbtns">
-      <button class="btn btn-s" onclick="closeMov('m-pw')">Cancel</button>
-      <button class="btn btn-p" onclick="checkPw()">Confirm</button>
+      <button class="btn btn-s" onclick="closeMov('m-pw')">取消</button>
+      <button class="btn btn-p" onclick="checkPw()">確認</button>
     </div>
   </div>
 </div>
@@ -517,26 +545,31 @@ select option{background:#141824}
 <div class="toast" id="toast"></div>
 
 <script>
-// ─── constants ────────────────────────────────────────────────
-const EDIT_PW = "9527";
+// ─── 常數 ─────────────────────────────────────────────────────
+const EDIT_PW  = "9527";
 const PAGE_SIZE = 30;
 
-// ─── helpers ─────────────────────────────────────────────────
-const $ = id => document.getElementById(id);
-const fmt = n => Number(n).toLocaleString("zh-TW");
+// ─── 工具函式 ─────────────────────────────────────────────────
+const $       = id => document.getElementById(id);
+const fmt     = n  => Number(n).toLocaleString("zh-TW");
 const todayStr  = () => new Date().toISOString().slice(0,10);
 const monthStr  = () => new Date().toISOString().slice(0,7);
 
-// category meta
+// 分類標籤
 const CAT_LABEL = {
-  food:"Food/Ingredients", staff:"Payroll/Family",
-  utility:"Utility/Internet", rent:"Equipment/Repair",
-  supply:"Supplies", other:"Miscellaneous"
+  food:"食材原料", staff:"人事支出/孝親費",
+  utility:"水電費/網路電話", rent:"設備採買或維修",
+  supply:"耗材包材", other:"其他雜費"
 };
-const REV_LABEL = { pos:"POS Revenue", other_rev:"Other Revenue", delivery:"Delivery Platform" };
+const REV_LABEL = { pos:"POS 收款", delivery:"外送平台", other_rev:"其他收入" };
 const catLabel = c => CAT_LABEL[c] || REV_LABEL[c] || c;
-const catIcon  = c => ({food:"🥭",staff:"👥",utility:"💡",rent:"🔧",supply:"📦",other:"📌",pos:"💰",other_rev:"💵",delivery:"🛵"})[c] || "💰";
-const catBadge = c => ({food:"bf",staff:"bs",utility:"bu",rent:"br",supply:"bp",other:"bo"})[c] || "brev";
+const catIcon  = c => (
+  {food:"🥭",staff:"👥",utility:"💡",rent:"🔧",supply:"📦",other:"📌",
+   pos:"💰",delivery:"🛵",other_rev:"💵"}
+)[c] || "💰";
+const catBadge = c => (
+  {food:"bf",staff:"bs",utility:"bu",rent:"br",supply:"bp",other:"bo"}
+)[c] || "brev";
 
 function toast(msg, err=false) {
   const t = $("toast");
@@ -546,55 +579,56 @@ function toast(msg, err=false) {
   t._t = setTimeout(() => { t.className = "toast" + (err ? " err" : ""); }, 2600);
 }
 
-// ─── modal helpers ────────────────────────────────────────────
+// ─── Modal ────────────────────────────────────────────────────
 function openMov(id)  { $(id).classList.add("on"); }
 function closeMov(id) { $(id).classList.remove("on"); }
 document.querySelectorAll(".mov").forEach(m => {
   m.addEventListener("click", e => { if (e.target === m) m.classList.remove("on"); });
 });
 
-// ─── auth UI ─────────────────────────────────────────────────
+// ─── Auth UI ──────────────────────────────────────────────────
 function authTab(tab) {
   ["login","register","reset"].forEach(t => {
     $("af-"+t).classList.toggle("on", t===tab);
   });
   document.querySelectorAll(".a-tab").forEach((el,i) => {
-    el.classList.toggle("on", (i===0 && tab==="login") || (i===1 && (tab==="register"||tab==="reset")));
+    el.classList.toggle("on",
+      (i===0 && tab==="login") || (i===1 && (tab==="register"||tab==="reset"))
+    );
   });
 }
 function authLd(id, on) { $(id).classList.toggle("ld", on); }
 
 function fbErr(code) {
-  const MAP = {
-    "auth/user-not-found":        "Account not found",
-    "auth/wrong-password":        "Incorrect password",
-    "auth/email-already-in-use":  "Email already in use",
-    "auth/invalid-email":         "Invalid email format",
-    "auth/weak-password":         "Password too weak (min 6 chars)",
-    "auth/too-many-requests":     "Too many attempts, try later",
-    "auth/invalid-credential":    "Invalid email or password",
-    "auth/network-request-failed":"Network error, please retry"
-  };
-  return MAP[code] || ("Error: " + code);
+  return ({
+    "auth/user-not-found":        "找不到此帳號",
+    "auth/wrong-password":        "密碼錯誤",
+    "auth/email-already-in-use":  "此電子郵件已被使用",
+    "auth/invalid-email":         "電子郵件格式不正確",
+    "auth/weak-password":         "密碼強度不足（至少 6 位）",
+    "auth/too-many-requests":     "嘗試次數過多，請稍後再試",
+    "auth/invalid-credential":    "帳號或密碼錯誤",
+    "auth/network-request-failed":"網路連線失敗，請重試"
+  })[code] || ("登入失敗 (" + code + ")");
 }
 
 async function doLogin() {
-  const email = $("l-email").value.trim(), pw = $("l-pw").value;
-  const err = $("lerr"); err.style.display = "none";
-  if (!email || !pw) { err.textContent = "Please fill in email and password"; err.style.display = "block"; return; }
-  authLd("l-btn", true);
-  try { await FB.signIn(FB.auth, email, pw); }
-  catch(e) { err.textContent = fbErr(e.code); err.style.display = "block"; authLd("l-btn", false); }
+  const email=$("l-email").value.trim(), pw=$("l-pw").value;
+  const err=$("lerr"); err.style.display="none";
+  if (!email||!pw) { err.textContent="請填寫電子郵件和密碼"; err.style.display="block"; return; }
+  authLd("l-btn",true);
+  try { await FB.signIn(FB.auth,email,pw); }
+  catch(e) { err.textContent=fbErr(e.code); err.style.display="block"; authLd("l-btn",false); }
 }
 
 async function doRegister() {
   const email=$("r-email").value.trim(), pw=$("r-pw").value, pw2=$("r-pw2").value;
   const err=$("rerr"); err.style.display="none";
-  if (!email||!pw) { err.textContent="Please fill in all fields"; err.style.display="block"; return; }
-  if (pw!==pw2)    { err.textContent="Passwords do not match";    err.style.display="block"; return; }
-  if (pw.length<6) { err.textContent="Password min 6 characters"; err.style.display="block"; return; }
-  authLd("r-btn", true);
-  try { await FB.createUser(FB.auth, email, pw); }
+  if (!email||!pw)  { err.textContent="請填寫所有欄位";     err.style.display="block"; return; }
+  if (pw!==pw2)     { err.textContent="兩次密碼不一致";     err.style.display="block"; return; }
+  if (pw.length<6)  { err.textContent="密碼至少需要 6 個字元"; err.style.display="block"; return; }
+  authLd("r-btn",true);
+  try { await FB.createUser(FB.auth,email,pw); }
   catch(e) { err.textContent=fbErr(e.code); err.style.display="block"; authLd("r-btn",false); }
 }
 
@@ -602,92 +636,122 @@ async function doReset() {
   const email=$("pw-email").value.trim();
   const err=$("pwerr"), ok=$("pwok");
   err.style.display="none"; ok.style.display="none";
-  if (!email) { err.textContent="Please enter email"; err.style.display="block"; return; }
-  authLd("pw-btn", true);
-  try { await FB.resetPw(FB.auth, email); ok.textContent="Reset email sent. Check your inbox."; ok.style.display="block"; }
-  catch(e) { err.textContent=fbErr(e.code); err.style.display="block"; }
-  authLd("pw-btn", false);
+  if (!email) { err.textContent="請輸入電子郵件"; err.style.display="block"; return; }
+  authLd("pw-btn",true);
+  try {
+    await FB.resetPw(FB.auth,email);
+    ok.textContent="重設郵件已發送，請查收收件匣"; ok.style.display="block";
+  } catch(e) { err.textContent=fbErr(e.code); err.style.display="block"; }
+  authLd("pw-btn",false);
 }
 
 async function doLogout() {
-  if (!confirm("Confirm logout?")) return;
+  if (!confirm("確定要登出？")) return;
   await FB.signOut(FB.auth);
 }
 
 // ─── Firestore refs ───────────────────────────────────────────
-const rCol = () => FB.col(FB.db, "users", UID, "revenues");
-const eCol = () => FB.col(FB.db, "users", UID, "expenses");
-const mDoc = () => FB.doc(FB.db, "users", UID, "meta", "settings");
+const rCol = () => FB.col(FB.db,"users",UID,"revenues");
+const eCol = () => FB.col(FB.db,"users",UID,"expenses");
+const mDoc = () => FB.doc(FB.db,"users",UID,"meta","settings");
 
-// ─── local in-memory cache (populated by realtime listeners) ──
+// ─── 本地快取（由 onSnapshot 即時填入） ──────────────────────
+// KEY FIX: C is populated ONLY by listeners.
+// We track how many listeners have fired at least once before rendering.
 let C = { revs:[], exps:[] };
-let _unsub = []; // unsubscribe functions for listeners
+let _listenersReady = 0; // counts to 2 before first render
+let _unsub = [];
 
-// Stop all realtime listeners (called on logout)
 window.stopListeners = function() {
   _unsub.forEach(fn => fn());
   _unsub = [];
   C = { revs:[], exps:[] };
+  _listenersReady = 0;
 };
 
-// Start realtime listeners -- immediate update on any device change
 function startListeners() {
+  _listenersReady = 0;
+
   const unsub1 = FB.onSnapshot(rCol(), snap => {
     C.revs = snap.docs.map(d => ({ id:d.id, ...d.data() }));
-    // refresh visible page immediately
-    refreshVisible();
+    _listenersReady = Math.max(_listenersReady, 1);
+    if (_listenersReady >= 2) onDataReady();
+    else if (_listenersReady === 1 && C.exps.length >= 0) {
+      // both fired at least once (exps may be empty array which is valid)
+    }
+    onCacheUpdate();
   });
+
   const unsub2 = FB.onSnapshot(eCol(), snap => {
     C.exps = snap.docs.map(d => ({ id:d.id, ...d.data() }));
-    refreshVisible();
+    _listenersReady = Math.max(_listenersReady, 2);
+    onDataReady();
+    onCacheUpdate();
   });
+
   _unsub = [unsub1, unsub2];
 }
 
-function refreshVisible() {
+let _bootDone = false;
+function onDataReady() {
+  // Called when BOTH listeners have fired at least once
+  if (_listenersReady < 2) return;
+  if (!_bootDone) {
+    _bootDone = true;
+    renderHome();
+    renderTodayBanner();
+  }
+}
+
+// Called on every subsequent update after boot
+function onCacheUpdate() {
+  if (!_bootDone) return;
   const active = document.querySelector(".pg.on");
   if (!active) return;
   const id = active.id.replace("pg-","");
   if (id==="home")    renderHome();
   if (id==="entry")   renderTodayBanner();
-  // records uses pagination, only refresh if already loaded
-  if (id==="records") { if (_recRows.length>0) { _recRows=[]; _recCursor=0; renderRecordsPage(true); } }
+  if (id==="records") resetRecords();
 }
 
-// ─── app boot ─────────────────────────────────────────────────
+// ─── App Boot ─────────────────────────────────────────────────
 window.appBoot = async function() {
+  _bootDone = false;
   const t=todayStr(), m=monthStr();
   $("rev-date").value=t; $("exp-date").value=t;
   $("f-month").value=m; $("rpt-month").value=m;
   $("csv-from").value=m+"-01"; $("csv-to").value=t;
 
-  // load meta
+  // load meta（店名）
   try {
     const snap = await FB.getDoc(mDoc());
     if (snap.exists()) {
       const d = snap.data();
-      if (d.shopTitle) { $("shop-title").textContent=d.shopTitle; $("auth-title").textContent=d.shopTitle; }
+      if (d.shopTitle) {
+        $("shop-title").textContent=d.shopTitle;
+        $("auth-title").textContent=d.shopTitle;
+      }
     }
   } catch(e) {}
 
-  // start realtime listeners -- they will call renderHome + renderTodayBanner
+  // 啟動即時監聽，資料到齊後自動觸發 onDataReady()
   startListeners();
 };
 
-// ─── navigation ───────────────────────────────────────────────
+// ─── 導覽 ─────────────────────────────────────────────────────
 function goPg(id) {
   document.querySelectorAll(".pg").forEach(p=>p.classList.remove("on"));
   document.querySelectorAll(".ntab").forEach(t=>t.classList.remove("on"));
   $("pg-"+id).classList.add("on");
   $("nt-"+id).classList.add("on");
-  $("scr").scrollTop = 0;
+  $("scr").scrollTop=0;
   if (id==="home")    renderHome();
   if (id==="entry")   renderTodayBanner();
   if (id==="records") { $("f-month").value=monthStr(); resetRecords(); }
   if (id==="report")  { $("rpt-month").value=monthStr(); renderReport(); }
 }
 
-// ─── category select ──────────────────────────────────────────
+// ─── 分類選擇 ─────────────────────────────────────────────────
 function selCat(el) {
   document.querySelectorAll(".cb").forEach(b=>b.classList.remove("on"));
   el.classList.add("on");
@@ -697,82 +761,80 @@ function getCat() {
   return s ? s.dataset.cat : "food";
 }
 
-// ─── shop title ───────────────────────────────────────────────
+// ─── 店名 ─────────────────────────────────────────────────────
 function openTitleModal() {
   $("title-inp").value = $("shop-title").textContent;
   openMov("m-title");
 }
 async function saveTitleModal() {
-  const val = $("title-inp").value.trim(); if (!val) return;
-  $("shop-title").textContent = val; $("auth-title").textContent = val;
-  closeMov("m-title"); toast("Shop name updated");
-  try { await FB.setDoc(mDoc(), { shopTitle:val }, { merge:true }); } catch(e) {}
+  const val=$("title-inp").value.trim(); if (!val) return;
+  $("shop-title").textContent=val; $("auth-title").textContent=val;
+  closeMov("m-title"); toast("店名已更新");
+  try { await FB.setDoc(mDoc(),{shopTitle:val},{merge:true}); } catch(e) {}
 }
 
-// ─── revenue CRUD ─────────────────────────────────────────────
+// ─── 營收 CRUD ────────────────────────────────────────────────
 async function saveRev() {
   const cat  = $("rev-cat").value;
   const date = $("rev-date").value;
   const amt  = parseFloat($("rev-amt").value);
   const note = $("rev-note").value.trim();
-  if (!date || isNaN(amt) || amt<0) { toast("Please fill in date and amount", true); return; }
-  const ex = C.revs.find(r => r.date===date && r.revCat===cat);
-  if (ex && !confirm(date+" already has a "+catLabel(cat)+" entry ("+fmt(ex.amount)+" NTD). Overwrite?")) return;
-  const btn = $("save-rev-btn");
-  btn.disabled = true;
+  if (!date||isNaN(amt)||amt<0) { toast("請填寫日期與金額",true); return; }
+  // find existing entry same date+cat
+  const ex = C.revs.find(r=>r.date===date && (r.revCat||"pos")===cat);
+  if (ex && !confirm(date+" 已有 "+catLabel(cat)+" 記錄（"+fmt(ex.amount)+" 元），確定覆蓋？")) return;
+  const btn=$("save-rev-btn"); btn.disabled=true;
   try {
     const id = ex ? ex.id : "rev_"+cat+"_"+date+"_"+UID.slice(-6);
-    await FB.setDoc(FB.doc(rCol(), id), { date, revCat:cat, amount:amt, note, uid:UID });
+    await FB.setDoc(FB.doc(rCol(),id),{date,revCat:cat,amount:amt,note,uid:UID});
     $("rev-amt").value=""; $("rev-note").value="";
-    toast("Saved: "+catLabel(cat)+" $"+fmt(amt));
-    // listener will trigger renderTodayBanner automatically
-  } catch(e) { toast("Save failed", true); }
-  finally { btn.disabled = false; }
+    toast("已儲存 "+catLabel(cat)+" $"+fmt(amt));
+  } catch(e) { toast("儲存失敗",true); }
+  finally { btn.disabled=false; }
 }
 
 function openRevEdit(r) {
   $("mr-id").value   = r.id;
-  $("mr-cat").value  = r.revCat || "pos";
+  $("mr-cat").value  = r.revCat||"pos";
   $("mr-date").value = r.date;
   $("mr-amt").value  = r.amount;
-  $("mr-note").value = r.note || "";
+  $("mr-note").value = r.note||"";
   openMov("m-rev");
 }
 async function saveRevEdit() {
-  const id   = $("mr-id").value;
-  const cat  = $("mr-cat").value;
-  const date = $("mr-date").value;
-  const amt  = parseFloat($("mr-amt").value);
-  const note = $("mr-note").value.trim();
-  if (!date||isNaN(amt)) { toast("Incomplete data",true); return; }
+  const id=  $("mr-id").value;
+  const cat= $("mr-cat").value;
+  const date=$("mr-date").value;
+  const amt= parseFloat($("mr-amt").value);
+  const note=$("mr-note").value.trim();
+  if (!date||isNaN(amt)) { toast("資料不完整",true); return; }
   try {
-    await FB.setDoc(FB.doc(rCol(),id), { date, revCat:cat, amount:amt, note, uid:UID });
-    closeMov("m-rev"); toast("Updated");
-  } catch(e) { toast("Update failed",true); }
+    await FB.setDoc(FB.doc(rCol(),id),{date,revCat:cat,amount:amt,note,uid:UID});
+    closeMov("m-rev"); toast("已更新");
+  } catch(e) { toast("更新失敗",true); }
 }
 async function deleteRev(id) {
-  if (!confirm("Delete this revenue record?")) return;
-  try { await FB.deleteDoc(FB.doc(rCol(),id)); toast("Deleted"); }
-  catch(e) { toast("Delete failed",true); }
+  if (!confirm("確定刪除此筆營收記錄？")) return;
+  try { await FB.deleteDoc(FB.doc(rCol(),id)); toast("已刪除"); }
+  catch(e) { toast("刪除失敗",true); }
 }
 
-// ─── expense CRUD ─────────────────────────────────────────────
+// ─── 支出 CRUD ────────────────────────────────────────────────
 async function saveExp() {
-  const date = $("exp-date").value;
-  const cat  = getCat();
-  const name = $("exp-name").value.trim();
-  const amt  = parseFloat($("exp-amt").value);
-  const note = $("exp-note").value.trim();
-  if (!date||!name||isNaN(amt)||amt<0) { toast("Please fill in all expense fields",true); return; }
-  const btn = $("save-exp-btn");
-  btn.disabled = true;
+  const date=$("exp-date").value;
+  const cat= getCat();
+  const name=$("exp-name").value.trim();
+  const amt= parseFloat($("exp-amt").value);
+  const note=$("exp-note").value.trim();
+  if (!date||!name||isNaN(amt)||amt<0) { toast("請填寫完整支出資訊",true); return; }
+  const btn=$("save-exp-btn"); btn.disabled=true;
   try {
-    const id = "exp_"+Date.now()+"_"+UID.slice(-6);
-    await FB.setDoc(FB.doc(eCol(),id), { date, category:cat, name, amount:amt, note, uid:UID });
+    const id="exp_"+Date.now()+"_"+UID.slice(-6);
+    await FB.setDoc(FB.doc(eCol(),id),{date,category:cat,name,amount:amt,note,uid:UID});
     $("exp-name").value=""; $("exp-amt").value=""; $("exp-note").value="";
-    toast("Added: "+catLabel(cat)+" $"+fmt(amt));
-  } catch(e) { toast("Save failed",true); }
-  finally { btn.disabled = false; }
+    toast("已新增 "+catLabel(cat)+" $"+fmt(amt));
+  } catch(e) { toast("儲存失敗",true); }
+  finally { btn.disabled=false; }
 }
 
 function openExpEdit(e) {
@@ -785,43 +847,41 @@ function openExpEdit(e) {
   openMov("m-exp");
 }
 async function saveExpEdit() {
-  const id   = $("me-id").value;
-  const date = $("me-date").value;
-  const cat  = $("me-cat").value;
-  const name = $("me-name").value.trim();
-  const amt  = parseFloat($("me-amt").value);
-  const note = $("me-note").value.trim();
-  if (!date||!name||isNaN(amt)) { toast("Incomplete data",true); return; }
+  const id=  $("me-id").value;
+  const date=$("me-date").value;
+  const cat= $("me-cat").value;
+  const name=$("me-name").value.trim();
+  const amt= parseFloat($("me-amt").value);
+  const note=$("me-note").value.trim();
+  if (!date||!name||isNaN(amt)) { toast("資料不完整",true); return; }
   try {
-    await FB.setDoc(FB.doc(eCol(),id), { date, category:cat, name, amount:amt, note, uid:UID });
-    closeMov("m-exp"); toast("Updated");
-  } catch(e) { toast("Update failed",true); }
+    await FB.setDoc(FB.doc(eCol(),id),{date,category:cat,name,amount:amt,note,uid:UID});
+    closeMov("m-exp"); toast("已更新");
+  } catch(e) { toast("更新失敗",true); }
 }
 async function deleteExp(id) {
-  if (!confirm("Delete this expense record?")) return;
-  try { await FB.deleteDoc(FB.doc(eCol(),id)); toast("Deleted"); }
-  catch(e) { toast("Delete failed",true); }
+  if (!confirm("確定刪除此筆支出？")) return;
+  try { await FB.deleteDoc(FB.doc(eCol(),id)); toast("已刪除"); }
+  catch(e) { toast("刪除失敗",true); }
 }
 
-// ─── password gate ────────────────────────────────────────────
+// ─── 密碼驗證 ─────────────────────────────────────────────────
 let _pwQ = null;
 function requirePw(action) {
   _pwQ = action;
-  $("pw-inp").value = "";
-  $("pw-err").style.display = "none";
+  $("pw-inp").value=""; $("pw-err").style.display="none";
   openMov("m-pw");
 }
 function checkPw() {
   if ($("pw-inp").value !== EDIT_PW) {
-    $("pw-err").textContent = "Incorrect password";
-    $("pw-err").style.display = "block";
-    $("pw-inp").value = ""; return;
+    $("pw-err").textContent="密碼錯誤"; $("pw-err").style.display="block";
+    $("pw-inp").value=""; return;
   }
   closeMov("m-pw");
-  if (_pwQ) { _pwQ(); _pwQ = null; }
+  if (_pwQ) { _pwQ(); _pwQ=null; }
 }
 
-// ─── today banner (entry page) ────────────────────────────────
+// ─── 今日記帳 banner ──────────────────────────────────────────
 function renderTodayBanner() {
   const d    = todayStr();
   const revs = C.revs.filter(x=>x.date===d);
@@ -831,17 +891,17 @@ function renderTodayBanner() {
   const hasRev = revs.length>0;
   const pnl  = hasRev ? totR-totE : null;
 
-  const tbR = $("tb-rev");
+  const tbR=$("tb-rev");
   tbR.textContent = hasRev ? "$"+fmt(totR) : "--";
   tbR.style.color = hasRev ? "var(--ac)" : "var(--tx3)";
-  $("tb-exp").textContent = "$"+fmt(totE);
-  const tbP = $("tb-pnl");
-  if (pnl!==null){ tbP.textContent="$"+fmt(pnl); tbP.style.color=pnl>=0?"var(--ac)":"var(--rd)"; }
+  $("tb-exp").textContent="$"+fmt(totE);
+  const tbP=$("tb-pnl");
+  if (pnl!==null) { tbP.textContent="$"+fmt(pnl); tbP.style.color=pnl>=0?"var(--ac)":"var(--rd)"; }
   else { tbP.textContent="--"; tbP.style.color="var(--tx3)"; }
 
-  // today expense list -- display only, no edit/delete buttons
-  const list = $("today-list");
-  if (!exps.length) { list.innerHTML="<div class=\"empty\">No expenses today</div>"; return; }
+  // 今日支出清單（僅顯示，無修改/刪除按鈕）
+  const list=$("today-list");
+  if (!exps.length) { list.innerHTML="<div class=\"empty\">今日尚無支出</div>"; return; }
   list.innerHTML = exps.map(e =>
     "<div class=\"ei\"><div class=\"ei-top\">" +
     "<span class=\"eico\">"+catIcon(e.category)+"</span>" +
@@ -854,249 +914,254 @@ function renderTodayBanner() {
   ).join("");
 }
 
-// ─── home page ────────────────────────────────────────────────
+// ─── 總覽 ─────────────────────────────────────────────────────
 let tChart=null, pChart=null;
 
 function renderHome() {
   const now=new Date(), m=monthStr();
-  $("h-month").textContent = m;
-  const revs = C.revs.filter(r=>r.date.startsWith(m));
-  const exps = C.exps.filter(e=>e.date.startsWith(m));
-  const totR = revs.reduce((s,r)=>s+r.amount,0);
-  const totE = exps.reduce((s,e)=>s+e.amount,0);
-  const pnl  = totR-totE;
-  const mg   = totR>0 ? ((pnl/totR)*100).toFixed(1) : 0;
+  $("h-month").textContent=m;
+  const revs=C.revs.filter(r=>r.date.startsWith(m));
+  const exps=C.exps.filter(e=>e.date.startsWith(m));
+  const totR=revs.reduce((s,r)=>s+r.amount,0);
+  const totE=exps.reduce((s,e)=>s+e.amount,0);
+  const pnl=totR-totE, mg=totR>0?((pnl/totR)*100).toFixed(1):0;
 
-  const hp = $("h-profit");
-  hp.textContent = "$"+fmt(pnl); hp.className = "pv "+(pnl>=0?"g":"r");
-  $("h-margin").textContent = "Margin "+mg+"%";
-  $("h-rev").textContent    = "$"+fmt(totR); $("h-revd").textContent = revs.length+" days";
-  $("h-exp").textContent    = "$"+fmt(totE); $("h-expi").textContent = exps.length+" items";
+  const hp=$("h-profit");
+  hp.textContent="$"+fmt(pnl); hp.className="pv "+(pnl>=0?"g":"r");
+  $("h-margin").textContent="毛利率 "+mg+"%";
+  $("h-rev").textContent="$"+fmt(totR); $("h-revd").textContent=revs.length+" 天";
+  $("h-exp").textContent="$"+fmt(totE); $("h-expi").textContent=exps.length+" 筆";
 
-  // trend chart
-  const dim = new Date(now.getFullYear(), now.getMonth()+1, 0).getDate();
-  const lbs=[], rArr=[], eArr=[];
-  for (let d=1; d<=dim; d++) {
-    const ds = m+"-"+String(d).padStart(2,"0");
+  // 趨勢折線圖
+  const dim=new Date(now.getFullYear(),now.getMonth()+1,0).getDate();
+  const lbs=[],rArr=[],eArr=[];
+  for (let d=1;d<=dim;d++) {
+    const ds=m+"-"+String(d).padStart(2,"0");
     lbs.push(d);
-    const rv = C.revs.filter(x=>x.date===ds).reduce((s,x)=>s+x.amount,0);
-    const ex = C.exps.filter(x=>x.date===ds).reduce((s,x)=>s+x.amount,0);
+    const rv=C.revs.filter(x=>x.date===ds).reduce((s,x)=>s+x.amount,0);
+    const ex=C.exps.filter(x=>x.date===ds).reduce((s,x)=>s+x.amount,0);
     rArr.push(rv>0?rv:null); eArr.push(ex>0?ex:null);
   }
   if (tChart) { tChart.destroy(); tChart=null; }
-  tChart = new Chart($("trend-chart").getContext("2d"), {
+  tChart = new Chart($("trend-chart").getContext("2d"),{
     type:"line",
-    data:{ labels:lbs, datasets:[
-      { label:"Revenue", data:rArr, borderColor:"#5ee7c8", backgroundColor:"rgba(94,231,200,.07)", tension:.3, spanGaps:true, pointRadius:2, borderWidth:2 },
-      { label:"Expense", data:eArr, borderColor:"#ff6b6b", backgroundColor:"rgba(255,107,107,.07)", tension:.3, spanGaps:true, pointRadius:2, borderWidth:2 }
+    data:{labels:lbs,datasets:[
+      {label:"營收",data:rArr,borderColor:"#5ee7c8",backgroundColor:"rgba(94,231,200,.07)",tension:.3,spanGaps:true,pointRadius:2,borderWidth:2},
+      {label:"支出",data:eArr,borderColor:"#ff6b6b",backgroundColor:"rgba(255,107,107,.07)",tension:.3,spanGaps:true,pointRadius:2,borderWidth:2}
     ]},
-    options:{ responsive:true, maintainAspectRatio:false,
-      plugins:{ legend:{ labels:{ color:"#8b90a7", font:{size:10}, boxWidth:10, padding:10 } } },
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{labels:{color:"#8b90a7",font:{size:10},boxWidth:10,padding:10}}},
       scales:{
-        x:{ ticks:{ color:"#4e5470", font:{size:9}, maxTicksLimit:8 }, grid:{ color:"rgba(42,48,80,.4)" } },
-        y:{ ticks:{ color:"#4e5470", font:{size:9}, callback:v=>"$"+fmt(v) }, grid:{ color:"rgba(42,48,80,.4)" } }
+        x:{ticks:{color:"#4e5470",font:{size:9},maxTicksLimit:8},grid:{color:"rgba(42,48,80,.4)"}},
+        y:{ticks:{color:"#4e5470",font:{size:9},callback:v=>"$"+fmt(v)},grid:{color:"rgba(42,48,80,.4)"}}
       }
     }
   });
 
-  // pie chart
-  const cats   = ["food","staff","utility","rent","supply","other"];
-  const colors = ["#5ee7c8","#a29bfe","#ffd93d","#ff6b6b","#74b9ff","#8b90a7"];
-  const tots   = cats.map(c => exps.filter(e=>e.category===c).reduce((s,e)=>s+e.amount,0));
+  // 支出圓餅圖
+  const cats  =["food","staff","utility","rent","supply","other"];
+  const colors=["#5ee7c8","#a29bfe","#ffd93d","#ff6b6b","#74b9ff","#8b90a7"];
+  const tots  =cats.map(c=>exps.filter(e=>e.category===c).reduce((s,e)=>s+e.amount,0));
   if (pChart) { pChart.destroy(); pChart=null; }
-  pChart = new Chart($("pie-chart").getContext("2d"), {
+  pChart = new Chart($("pie-chart").getContext("2d"),{
     type:"doughnut",
-    data:{ labels:cats.map(catLabel), datasets:[{ data:tots, backgroundColor:colors.map(c=>c+"bb"), borderColor:colors, borderWidth:1.5 }] },
-    options:{ responsive:true, maintainAspectRatio:false,
+    data:{labels:cats.map(catLabel),datasets:[{data:tots,backgroundColor:colors.map(c=>c+"bb"),borderColor:colors,borderWidth:1.5}]},
+    options:{responsive:true,maintainAspectRatio:false,
       plugins:{
-        legend:{ position:"right", labels:{ color:"#8b90a7", font:{size:10}, boxWidth:10, padding:5 } },
-        tooltip:{ callbacks:{ label: ctx=>" "+ctx.label+": $"+fmt(ctx.raw) } }
+        legend:{position:"right",labels:{color:"#8b90a7",font:{size:10},boxWidth:10,padding:5}},
+        tooltip:{callbacks:{label:ctx=>" "+ctx.label+": $"+fmt(ctx.raw)}}
       }
     }
   });
 
-  // last 7 days
-  const ds = new Set([...C.revs.map(r=>r.date), ...C.exps.map(e=>e.date)]);
-  const recent = [...ds].sort().reverse().slice(0,7);
-  const rl = $("h-recent");
-  if (!recent.length) { rl.innerHTML="<div class=\"empty\">No data yet</div>"; return; }
-  rl.innerHTML = recent.map(d => {
-    const rv = C.revs.filter(x=>x.date===d).reduce((s,x)=>s+x.amount,0);
-    const ex = C.exps.filter(x=>x.date===d).reduce((s,x)=>s+x.amount,0);
-    const p  = rv-ex, mm=d.slice(5,7)+"/"+d.slice(8,10);
-    const hasR = C.revs.some(x=>x.date===d);
+  // 最近 7 天
+  const ds=new Set([...C.revs.map(r=>r.date),...C.exps.map(e=>e.date)]);
+  const recent=[...ds].sort().reverse().slice(0,7);
+  const rl=$("h-recent");
+  if (!recent.length) { rl.innerHTML="<div class=\"empty\">尚無資料</div>"; return; }
+  rl.innerHTML=recent.map(d=>{
+    const rv=C.revs.filter(x=>x.date===d).reduce((s,x)=>s+x.amount,0);
+    const ex=C.exps.filter(x=>x.date===d).reduce((s,x)=>s+x.amount,0);
+    const p=rv-ex, mm=d.slice(5,7)+"/"+d.slice(8,10);
+    const hasR=C.revs.some(x=>x.date===d);
     return "<div class=\"dr\">" +
-      "<div><div class=\"dd\">"+mm+"</div><div style=\"font-size:11px;color:var(--tx3);margin-top:2px\">"+(hasR?"Rev $"+fmt(rv):"No revenue")+(ex>0?" / Exp $"+fmt(ex):"")+"</div></div>" +
+      "<div><div class=\"dd\">"+mm+"</div>" +
+      "<div style=\"font-size:11px;color:var(--tx3);margin-top:2px\">"+(hasR?"收 $"+fmt(rv):"無營收")+(ex>0?" / 支 $"+fmt(ex):"")+"</div></div>" +
       "<div class=\"dpnl\" style=\"color:"+(hasR||ex>0?(p>=0?"var(--ac)":"var(--rd)"):"var(--tx3)")+"\">"+((hasR||ex>0)?"$"+fmt(p):"--")+"</div>" +
       "</div>";
   }).join("");
 }
 
-// ─── records (paginated) ──────────────────────────────────────
-let _recRows   = [];  // all merged rows for current filter (rebuilt on filter change)
-let _recCursor = 0;   // how many rows already rendered
+// ─── 明細（分頁） ─────────────────────────────────────────────
+let _recRows  = [];
+let _recCursor = 0;
 
 function resetRecords() {
   _recRows   = [];
   _recCursor = 0;
-  $("rec-list").innerHTML = "";
-  $("load-more-btn").style.display = "none";
-  renderRecordsPage(true);
+  $("rec-list").innerHTML="";
+  $("load-more-btn").style.display="none";
+  buildRecordsRows();
+  renderRecordsPage();
 }
 
-function renderRecordsPage(firstLoad=false) {
-  const m   = $("f-month").value;
-  const cat = $("f-cat").value;
-
-  // rebuild full list if first load
-  if (firstLoad) {
-    _recRows = [];
-    if (cat==="all" || cat==="revenue")
-      C.revs.filter(r=>r.date.startsWith(m)).forEach(r=>_recRows.push({...r, _type:"rev"}));
-    if (cat!=="revenue")
-      C.exps.filter(e=>e.date.startsWith(m)&&(cat==="all"||e.category===cat)).forEach(e=>_recRows.push({...e, _type:"exp"}));
-    _recRows.sort((a,b)=>b.date.localeCompare(a.date));
-    _recCursor = 0;
-    $("rec-list").innerHTML = "";
+function buildRecordsRows() {
+  const m  =$("f-month").value;
+  const cat=$("f-cat").value;
+  _recRows=[];
+  // 加入營收
+  if (cat==="all"||cat==="revenue") {
+    C.revs.filter(r=>r.date.startsWith(m)).forEach(r=>_recRows.push({...r,_type:"rev"}));
   }
+  // 加入支出
+  if (cat!=="revenue") {
+    C.exps
+      .filter(e=>e.date.startsWith(m) && (cat==="all"||e.category===cat))
+      .forEach(e=>_recRows.push({...e,_type:"exp"}));
+  }
+  _recRows.sort((a,b)=>b.date.localeCompare(a.date));
+}
 
+function renderRecordsPage() {
   if (!_recRows.length) {
-    $("rec-list").innerHTML = "<div class=\"empty\">No records this month</div>";
-    $("load-more-btn").style.display = "none";
+    $("rec-list").innerHTML="<div class=\"empty\">此月份無資料</div>";
+    $("load-more-btn").style.display="none";
     return;
   }
+  const page=_recRows.slice(_recCursor,_recCursor+PAGE_SIZE);
+  const el=$("rec-list");
 
-  const page = _recRows.slice(_recCursor, _recCursor + PAGE_SIZE);
-  const el   = $("rec-list");
-  page.forEach(r => {
-    const mm = r.date.slice(5,7)+"/"+r.date.slice(8,10);
-    const div = document.createElement("div");
-    div.className = "ei";
+  page.forEach(r=>{
+    const mm=r.date.slice(5,7)+"/"+r.date.slice(8,10);
+    const div=document.createElement("div");
+    div.className="ei";
+
     if (r._type==="rev") {
-      const icon  = catIcon(r.revCat||"pos");
-      const label = catLabel(r.revCat||"pos");
-      const rid   = r.id;
-      div.innerHTML =
+      const icon  =catIcon(r.revCat||"pos");
+      const label =catLabel(r.revCat||"pos");
+      const rid   =r.id;
+      div.innerHTML=
         "<div class=\"ei-top\">" +
         "<span class=\"eico\">"+icon+"</span>" +
         "<div class=\"einf\">" +
           "<div class=\"ename\">"+label+"</div>" +
-          "<div class=\"emeta\">"+mm+" <span class=\"badge brev\">Revenue</span>"+(r.note?" - "+r.note:"")+"</div>" +
+          "<div class=\"emeta\">"+mm+" <span class=\"badge brev\">營收</span>"+(r.note?" - "+r.note:"")+"</div>" +
         "</div>" +
         "<span class=\"eamt\" style=\"color:var(--ac)\">+$"+fmt(r.amount)+"</span>" +
         "<div class=\"eact\">" +
-          "<button class=\"ab ab-e\">Edit</button>" +
-          "<button class=\"ab ab-d\">Delete</button>" +
-        "</div>" +
-        "</div>";
-      div.querySelector(".ab-e").onclick = () => requirePw(() => openRevEdit(C.revs.find(x=>x.id===rid)||r));
-      div.querySelector(".ab-d").onclick = () => requirePw(() => deleteRev(rid));
+          "<button class=\"ab ab-e\">修改</button>" +
+          "<button class=\"ab ab-d\">刪除</button>" +
+        "</div></div>";
+      div.querySelector(".ab-e").onclick=()=>requirePw(()=>openRevEdit(C.revs.find(x=>x.id===rid)||r));
+      div.querySelector(".ab-d").onclick=()=>requirePw(()=>deleteRev(rid));
+
     } else {
-      const eid = r.id;
-      div.innerHTML =
+      const eid=r.id;
+      div.innerHTML=
         "<div class=\"ei-top\">" +
-        "<span class=\"eico\">"+icon+"</span>" +
+        "<span class=\"eico\">"+catIcon(r.category)+"</span>" +
         "<div class=\"einf\">" +
           "<div class=\"ename\">"+r.name+"</div>" +
           "<div class=\"emeta\">"+mm+" <span class=\"badge "+catBadge(r.category)+"\">"+catLabel(r.category)+"</span>"+(r.note?" - "+r.note:"")+"</div>" +
         "</div>" +
         "<span class=\"eamt\" style=\"color:var(--rd)\">-$"+fmt(r.amount)+"</span>" +
         "<div class=\"eact\">" +
-          "<button class=\"ab ab-e\">Edit</button>" +
-          "<button class=\"ab ab-d\">Delete</button>" +
-        "</div>" +
-        "</div>";
-      div.querySelector(".ab-e").onclick = () => requirePw(() => openExpEdit(C.exps.find(x=>x.id===eid)||r));
-      div.querySelector(".ab-d").onclick = () => requirePw(() => deleteExp(eid));
+          "<button class=\"ab ab-e\">修改</button>" +
+          "<button class=\"ab ab-d\">刪除</button>" +
+        "</div></div>";
+      div.querySelector(".ab-e").onclick=()=>requirePw(()=>openExpEdit(C.exps.find(x=>x.id===eid)||r));
+      div.querySelector(".ab-d").onclick=()=>requirePw(()=>deleteExp(eid));
     }
     el.appendChild(div);
   });
 
-  _recCursor += page.length;
-  const btn = $("load-more-btn");
-  if (_recCursor < _recRows.length) {
-    btn.style.display   = "block";
-    btn.disabled        = false;
-    btn.textContent     = "Load More (" + (_recRows.length - _recCursor) + " remaining)";
+  _recCursor+=page.length;
+  const btn=$("load-more-btn");
+  if (_recCursor<_recRows.length) {
+    btn.style.display="block";
+    btn.disabled=false;
+    btn.textContent="載入更多（剩餘 "+(_recRows.length-_recCursor)+" 筆）";
   } else {
-    btn.style.display = "none";
+    btn.style.display="none";
   }
 }
 
-function loadMoreRecords() {
-  renderRecordsPage(false);
-}
-
+function loadMoreRecords() { renderRecordsPage(); }
 function renderRecords() { resetRecords(); }
 
-// ─── report ───────────────────────────────────────────────────
+// ─── 報表 ─────────────────────────────────────────────────────
 function renderReport() {
-  const m    = $("rpt-month").value;
-  const revs = C.revs.filter(r=>r.date.startsWith(m));
-  const exps = C.exps.filter(e=>e.date.startsWith(m));
-  const totR = revs.reduce((s,r)=>s+r.amount,0);
-  const totE = exps.reduce((s,e)=>s+e.amount,0);
-  const pnl  = totR-totE;
-  const mg   = totR>0 ? ((pnl/totR)*100).toFixed(1) : 0;
-  const days = [...new Set(revs.map(r=>r.date))].length;
-  const avg  = days>0 ? Math.round(totR/days) : 0;
+  const m   =$("rpt-month").value;
+  const revs=C.revs.filter(r=>r.date.startsWith(m));
+  const exps=C.exps.filter(e=>e.date.startsWith(m));
+  const totR=revs.reduce((s,r)=>s+r.amount,0);
+  const totE=exps.reduce((s,e)=>s+e.amount,0);
+  const pnl =totR-totE;
+  const mg  =totR>0?((pnl/totR)*100).toFixed(1):0;
+  const days=[...new Set(revs.map(r=>r.date))].length;
+  const avg =days>0?Math.round(totR/days):0;
 
-  const cats     = ["food","staff","utility","rent","supply","other"];
-  const catBreak = cats.map(c=>({
+  const cats    =["food","staff","utility","rent","supply","other"];
+  const catBreak=cats.map(c=>({
     key:c, label:catLabel(c), icon:catIcon(c),
-    amount: exps.filter(e=>e.category===c).reduce((s,e)=>s+e.amount,0),
-    items:  exps.filter(e=>e.category===c)
+    amount:exps.filter(e=>e.category===c).reduce((s,e)=>s+e.amount,0),
+    items: exps.filter(e=>e.category===c)
   })).filter(c=>c.amount>0).sort((a,b)=>b.amount-a.amount);
 
-  let html =
+  let html=
     "<div class=\"sg\">" +
-      "<div class=\"sc\"><div class=\"sl\">Total Revenue</div><div class=\"sv g\">$"+fmt(totR)+"</div><div class=\"ss\">Avg $"+fmt(avg)+"/day - "+days+" days</div></div>" +
-      "<div class=\"sc\"><div class=\"sl\">Total Expense</div><div class=\"sv r\">$"+fmt(totE)+"</div><div class=\"ss\">"+exps.length+" items</div></div>" +
+      "<div class=\"sc\"><div class=\"sl\">總營收</div><div class=\"sv g\">$"+fmt(totR)+"</div><div class=\"ss\">均 $"+fmt(avg)+"/天，共 "+days+" 天</div></div>" +
+      "<div class=\"sc\"><div class=\"sl\">總支出</div><div class=\"sv r\">$"+fmt(totE)+"</div><div class=\"ss\">"+exps.length+" 筆</div></div>" +
     "</div>" +
-    "<div class=\"pcard\"><div><div class=\"pl\">Net P&L</div><div class=\"pv "+(pnl>=0?"g":"r")+"\">$"+fmt(pnl)+"</div></div><div class=\"mbadge\">Margin "+mg+"%</div></div>" +
-    "<div class=\"card\"><div class=\"ch\">Expense Breakdown</div>";
+    "<div class=\"pcard\"><div><div class=\"pl\">淨損益</div><div class=\"pv "+(pnl>=0?"g":"r")+"\">$"+fmt(pnl)+"</div></div><div class=\"mbadge\">毛利率 "+mg+"%</div></div>" +
+    "<div class=\"card\"><div class=\"ch\">支出分類明細</div>";
 
   if (!catBreak.length) {
-    html += "<div class=\"empty\">No expenses this month</div>";
+    html+="<div class=\"empty\">本月無支出記錄</div>";
   } else {
-    catBreak.forEach(c => {
-      const ep = totE>0 ? ((c.amount/totE)*100).toFixed(1) : 0;
-      const rp = totR>0 ? ((c.amount/totR)*100).toFixed(1) : 0;
-      html +=
+    catBreak.forEach(c=>{
+      const ep=totE>0?((c.amount/totE)*100).toFixed(1):0;
+      const rp=totR>0?((c.amount/totR)*100).toFixed(1):0;
+      html+=
         "<div style=\"margin-bottom:16px\">" +
           "<div style=\"display:flex;justify-content:space-between;align-items:center\">" +
             "<span>"+c.icon+" <strong style=\"font-size:13px\">"+c.label+"</strong></span>" +
             "<span style=\"font-family:'DM Mono',monospace;color:var(--rd);font-size:13px\">$"+fmt(c.amount)+"</span>" +
           "</div>" +
           "<div style=\"display:flex;justify-content:space-between;margin:4px 0\">" +
-            "<span style=\"font-size:11px;color:var(--tx3)\">Of total exp: "+ep+"%</span>" +
-            "<span style=\"font-size:11px;color:var(--tx3)\">Cost ratio: "+rp+"%</span>" +
+            "<span style=\"font-size:11px;color:var(--tx3)\">佔支出 "+ep+"%</span>" +
+            "<span style=\"font-size:11px;color:var(--tx3)\">成本率 "+rp+"%</span>" +
           "</div>" +
           "<div class=\"pb\"><div class=\"pf\" style=\"width:"+ep+"%\"></div></div>" +
           "<div style=\"margin-top:7px\">" +
-            c.items.map(i=>"<div style=\"display:flex;justify-content:space-between;padding:3px 0;font-size:12px;border-bottom:1px solid rgba(42,48,80,.3)\"><span style=\"color:var(--tx2)\">"+i.name+"</span><span style=\"font-family:'DM Mono',monospace;color:var(--tx2)\">$"+fmt(i.amount)+"</span></div>").join("") +
+            c.items.map(i=>
+              "<div style=\"display:flex;justify-content:space-between;padding:3px 0;font-size:12px;border-bottom:1px solid rgba(42,48,80,.3)\">" +
+              "<span style=\"color:var(--tx2)\">"+i.name+"</span>" +
+              "<span style=\"font-family:'DM Mono',monospace;color:var(--tx2)\">$"+fmt(i.amount)+"</span>" +
+              "</div>"
+            ).join("") +
           "</div>" +
         "</div>";
     });
   }
-  html += "</div>";
+  html+="</div>";
 
-  // daily P&L
-  const dateSet = new Set([...revs.map(r=>r.date), ...exps.map(e=>e.date)]);
-  html += "<div class=\"card\"><div class=\"ch\">Daily P&L</div>";
+  // 每日損益
+  const dateSet=new Set([...revs.map(r=>r.date),...exps.map(e=>e.date)]);
+  html+="<div class=\"card\"><div class=\"ch\">每日損益</div>";
   if (!dateSet.size) {
-    html += "<div class=\"empty\">No data this month</div>";
+    html+="<div class=\"empty\">本月無資料</div>";
   } else {
-    [...dateSet].sort().reverse().forEach(d => {
-      const rv  = revs.filter(x=>x.date===d).reduce((s,x)=>s+x.amount,0);
-      const ex  = exps.filter(x=>x.date===d).reduce((s,x)=>s+x.amount,0);
-      const p   = rv-ex;
-      const mg2 = rv>0 ? ((p/rv)*100).toFixed(1) : null;
-      const mm  = d.slice(5,7)+"/"+d.slice(8,10);
-      const hasR = revs.some(x=>x.date===d);
-      html +=
+    [...dateSet].sort().reverse().forEach(d=>{
+      const rv=revs.filter(x=>x.date===d).reduce((s,x)=>s+x.amount,0);
+      const ex=exps.filter(x=>x.date===d).reduce((s,x)=>s+x.amount,0);
+      const p=rv-ex, mg2=rv>0?((p/rv)*100).toFixed(1):null;
+      const mm=d.slice(5,7)+"/"+d.slice(8,10);
+      const hasR=revs.some(x=>x.date===d);
+      html+=
         "<div class=\"dr\">" +
-          "<div><div class=\"dd\">"+mm+"</div><div style=\"font-size:11px;color:var(--tx3);margin-top:2px\">"+(hasR?"Rev $"+fmt(rv):"--")+(ex>0?" / Exp $"+fmt(ex):"")+"</div></div>" +
+          "<div><div class=\"dd\">"+mm+"</div>" +
+          "<div style=\"font-size:11px;color:var(--tx3);margin-top:2px\">"+(hasR?"收 $"+fmt(rv):"--")+(ex>0?" / 支 $"+fmt(ex):"")+"</div></div>" +
           "<div style=\"text-align:right\">" +
             "<div class=\"dpnl\" style=\"color:"+(hasR||ex>0?(p>=0?"var(--ac)":"var(--rd)"):"var(--tx3)")+"\">"+((hasR||ex>0)?"$"+fmt(p):"--")+"</div>" +
             (mg2!==null?"<div style=\"font-size:11px;color:var(--tx3)\">"+mg2+"%</div>":"") +
@@ -1104,42 +1169,42 @@ function renderReport() {
         "</div>";
     });
   }
-  html += "</div>";
-  $("rpt-content").innerHTML = html;
+  html+="</div>";
+  $("rpt-content").innerHTML=html;
 }
 
-// ─── CSV export ───────────────────────────────────────────────
+// ─── CSV 匯出 ─────────────────────────────────────────────────
 async function exportCSV() {
-  const from = $("csv-from").value, to = $("csv-to").value;
-  if (!from||!to)   { toast("Please select date range",true); return; }
-  if (from>to)      { toast("Start date must be before end date",true); return; }
+  const from=$("csv-from").value, to=$("csv-to").value;
+  if (!from||!to)  { toast("請選擇起始和結束日期",true); return; }
+  if (from>to)     { toast("起始日期不能晚於結束日期",true); return; }
 
-  // CSV title row first, then header, then data
-  const shopName = $("shop-title").textContent;
-  const titleRow = ['"'+shopName+' - Accounting Export"','','','','',''];
-  const rangeRow = ['"Period: '+from+' to '+to+'"','','','','',''];
-  const header   = ["Date","Type","Category","Item/Detail","Amount(NTD)","Note"];
+  const shopName=$("shop-title").textContent;
+  // Title rows first, then column header, then data
+  const titleRow=['"'+shopName+' - 帳務匯出"','','','','',''];
+  const rangeRow=['"期間：'+from+' 至 '+to+'"','','','','',''];
+  const header  =["日期","類型","分類","項目名稱/明細","金額（元）","備註"];
 
-  let rows = [];
+  let rows=[];
   C.revs
-    .filter(r=>r.date>=from && r.date<=to)
-    .forEach(r => rows.push([r.date,"Revenue",catLabel(r.revCat||"pos"),catLabel(r.revCat||"pos"),r.amount,r.note||""]));
+    .filter(r=>r.date>=from&&r.date<=to)
+    .forEach(r=>rows.push([r.date,"營收",catLabel(r.revCat||"pos"),catLabel(r.revCat||"pos"),r.amount,r.note||""]));
   C.exps
-    .filter(e=>e.date>=from && e.date<=to)
-    .forEach(e => rows.push([e.date,"Expense",catLabel(e.category),e.name,e.amount,e.note||""]));
+    .filter(e=>e.date>=from&&e.date<=to)
+    .forEach(e=>rows.push([e.date,"支出",catLabel(e.category),e.name,e.amount,e.note||""]));
   rows.sort((a,b)=>a[0].localeCompare(b[0]));
 
-  const toCSVRow = arr => arr.map(c => '"'+String(c).replace(/"/g,'""')+'"').join(",");
-  const csv = "\uFEFF" + [titleRow,rangeRow,header,...rows].map(toCSVRow).join("\n");
+  const toRow=arr=>arr.map(c=>'"'+String(c).replace(/"/g,'""')+'"').join(",");
+  const csv="\uFEFF"+[titleRow,rangeRow,header,...rows].map(toRow).join("\n");
 
-  const blob = new Blob([csv], { type:"text/csv;charset=utf-8" });
-  const url  = URL.createObjectURL(blob);
-  const a    = document.createElement("a");
-  a.href = url; a.download = "ice-shop_"+from+"_to_"+to+".csv";
+  const blob=new Blob([csv],{type:"text/csv;charset=utf-8"});
+  const url =URL.createObjectURL(blob);
+  const a   =document.createElement("a");
+  a.href=url; a.download="冰店帳務_"+from+"_至_"+to+".csv";
   document.body.appendChild(a); a.click();
   document.body.removeChild(a);
-  setTimeout(() => URL.revokeObjectURL(url), 1000);
-  toast("CSV downloaded ("+from+" to "+to+")");
+  setTimeout(()=>URL.revokeObjectURL(url),1000);
+  toast("CSV 已下載（"+from+" ~ "+to+"）");
 }
 </script>
 
