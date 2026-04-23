@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+
 <html lang="zh-TW">
 <head>
 <meta charset="UTF-8">
@@ -166,4 +167,981 @@ select{
 }
 select option{background:#141824}
 .btn{width:100%;padding:14px;border-radius:11px;border:none;cursor:pointer;font-family:inherit;font-size:15px;font-weight:600;transition:all .15s}
-.btn-p{background:var(--ac);color:#0
+.btn-p{background:var(--ac);color:#0b0e18}
+.btn-p:active{filter:brightness(.87);transform:scale(.98)}
+.btn-s{background:var(--sf2);color:var(--tx2);border:1px solid var(--bd)}
+.btn-s:active{filter:brightness(.87)}
+
+/* ── category grid (no edit btn) ────────── */
+.cg{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:11px}
+.cb{background:var(--sf2);border:2px solid var(--bd);border-radius:10px;padding:10px 4px;text-align:center;cursor:pointer;transition:all .15s;font-family:inherit;user-select:none}
+.cb .ci{font-size:19px;display:block;margin-bottom:3px}
+.cb .cn{font-size:10px;color:var(--tx2);line-height:1.3}
+.cb.on{border-color:var(--ac);background:rgba(94,231,200,.1)}
+.cb.on .cn{color:var(--ac)}
+
+/* ── expense list items ──────────────────── */
+.ei{padding:10px 0;border-bottom:1px solid rgba(42,48,80,.5)}
+.ei:last-child{border-bottom:none}
+.ei-top{display:flex;align-items:center;gap:7px}
+.eico{font-size:19px;flex-shrink:0}
+.einf{flex:1;min-width:0}
+.ename{font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.emeta{font-size:11px;color:var(--tx3);margin-top:2px}
+.eamt{font-family:"DM Mono",monospace;font-size:14px;flex-shrink:0}
+.eact{display:flex;gap:4px;flex-shrink:0}
+.ab{padding:5px 9px;border-radius:7px;font-size:11px;font-weight:500;font-family:inherit;cursor:pointer;white-space:nowrap;flex-shrink:0;border:1px solid;transition:opacity .1s}
+.ab-e{color:var(--ac);border-color:var(--ac);background:rgba(94,231,200,.07)}
+.ab-d{color:var(--rd);border-color:var(--rd);background:transparent}
+.ab:active{opacity:.6}
+
+/* ── day row ─────────────────────────────── */
+.dr{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid rgba(42,48,80,.4)}
+.dr:last-child{border-bottom:none}
+.dd{font-size:13px;color:var(--tx2)}
+.dpnl{font-family:"DM Mono",monospace;font-size:14px;font-weight:500}
+
+/* ── badges ──────────────────────────────── */
+.badge{display:inline-block;padding:2px 7px;border-radius:20px;font-size:10px;font-weight:500}
+.bf{background:rgba(94,231,200,.15);color:var(--ac)}
+.bs{background:rgba(162,155,254,.15);color:var(--pu)}
+.bu{background:rgba(255,217,61,.15);color:var(--wn)}
+.br{background:rgba(255,107,107,.15);color:var(--rd)}
+.bp{background:rgba(116,185,255,.15);color:var(--bl)}
+.bo{background:rgba(139,144,167,.15);color:var(--tx2)}
+.brev{background:rgba(94,231,200,.15);color:var(--ac)}
+
+/* ── chart ───────────────────────────────── */
+.cw{position:relative;height:185px;margin:5px 0}
+
+/* ── filter row ──────────────────────────── */
+.fr{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap}
+.fr>div{flex:1;min-width:100px}
+.fl{font-size:11px;color:var(--tx3);display:block;margin-bottom:3px}
+.fr input[type=month],.fr select{font-size:14px;padding:10px 11px}
+
+/* ── progress bar ────────────────────────── */
+.pb{height:5px;background:var(--sf2);border-radius:3px;margin-top:4px;overflow:hidden}
+.pf{height:100%;border-radius:3px;background:var(--pu)}
+
+/* ── today banner ────────────────────────── */
+.tbanner{background:var(--sf);border:1px solid var(--bd);border-radius:14px;padding:13px 15px;margin-bottom:12px;display:flex}
+.tbanner .tc{flex:1;text-align:center}
+.tbanner .tc+.tc{border-left:1px solid var(--bd)}
+.tcl{font-size:10px;color:var(--tx3);margin-bottom:3px}
+.tcv{font-family:"DM Mono",monospace;font-size:16px;font-weight:600}
+
+/* ── modal ───────────────────────────────── */
+.mov{position:fixed;inset:0;background:rgba(0,0,0,.72);display:none;align-items:flex-end;justify-content:center;z-index:200;backdrop-filter:blur(3px)}
+.mov.on{display:flex}
+.msh{background:var(--sf);border-radius:20px 20px 0 0;padding:18px 18px calc(18px + var(--sb));width:100%;max-width:480px;max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch;border-top:1px solid var(--bd)}
+.mhd{width:34px;height:4px;background:var(--bd);border-radius:2px;margin:0 auto 16px}
+.mt{font-size:17px;font-weight:700;margin-bottom:16px}
+.mbtns{display:flex;gap:9px;margin-top:16px}
+.mbtns .btn{flex:1}
+
+/* ── section title ───────────────────────── */
+.stitle{font-size:12px;font-weight:600;color:var(--tx3);text-transform:uppercase;letter-spacing:1px;margin:16px 0 7px}
+
+/* ── toast ───────────────────────────────── */
+.toast{position:fixed;bottom:calc(var(--nh) + var(--sb) + 11px);left:50%;transform:translateX(-50%) translateY(10px);background:var(--ac);color:#0b0e18;padding:9px 18px;border-radius:20px;font-size:13px;font-weight:600;white-space:nowrap;opacity:0;transition:all .25s;z-index:999;pointer-events:none;box-shadow:0 4px 20px rgba(0,0,0,.5)}
+.toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+.toast.err{background:var(--rd);color:#fff}
+
+/* ── load-more button ────────────────────── */
+.load-more-btn{width:100%;padding:12px;margin-top:10px;border-radius:10px;border:1px solid var(--bd);background:var(--sf2);color:var(--tx2);font-family:inherit;font-size:14px;font-weight:500;cursor:pointer;transition:all .15s}
+.load-more-btn:active{opacity:.7}
+.load-more-btn:disabled{opacity:.4;cursor:default}
+
+.empty{text-align:center;padding:28px 14px;color:var(--tx3);font-size:13px}
+::-webkit-scrollbar{width:3px}
+::-webkit-scrollbar-thumb{background:var(--bd);border-radius:2px}
+</style>
+
+</head>
+<body>
+
+<div id="loading-wrap">
+  <div class="spin"></div>
+  <div style="margin-top:13px;font-size:13px;color:var(--tx3)">Loading...</div>
+</div>
+
+<div id="auth-wrap">
+  <div class="a-logo">
+    <span class="em">🍧</span>
+    <h1 id="auth-title">Ice Shop Accounting</h1>
+    <p>Cost Management System</p>
+  </div>
+  <div class="a-card">
+    <div class="a-tabs">
+      <button class="a-tab on" onclick="authTab('login')">Login</button>
+      <button class="a-tab" onclick="authTab('register')">Register</button>
+    </div>
+    <div id="af-login" class="a-form on">
+      <div class="a-err" id="lerr"></div>
+      <div class="a-iw"><span class="ico">✉️</span><input type="email" id="l-email" placeholder="Email" autocomplete="email"></div>
+      <div class="a-iw"><span class="ico">🔒</span><input type="password" id="l-pw" placeholder="Password" autocomplete="current-password"></div>
+      <button class="a-btn" id="l-btn" onclick="doLogin()">Login</button>
+      <div class="a-lnk"><a onclick="authTab('reset')">Forgot password?</a></div>
+    </div>
+    <div id="af-register" class="a-form">
+      <div class="a-err" id="rerr"></div>
+      <div class="a-iw"><span class="ico">✉️</span><input type="email" id="r-email" placeholder="Email"></div>
+      <div class="a-iw"><span class="ico">🔒</span><input type="password" id="r-pw" placeholder="Password (min 6 chars)"></div>
+      <div class="a-iw"><span class="ico">🔒</span><input type="password" id="r-pw2" placeholder="Confirm password"></div>
+      <button class="a-btn" id="r-btn" onclick="doRegister()">Create Account</button>
+      <div class="a-lnk">Already have an account? <a onclick="authTab('login')">Login</a></div>
+    </div>
+    <div id="af-reset" class="a-form">
+      <div class="a-err" id="pwerr"></div>
+      <div class="a-ok" id="pwok"></div>
+      <p style="font-size:13px;color:var(--tx2);margin-bottom:13px">Enter your email to receive a password reset link.</p>
+      <div class="a-iw"><span class="ico">✉️</span><input type="email" id="pw-email" placeholder="Email"></div>
+      <button class="a-btn" id="pw-btn" onclick="doReset()">Send Reset Email</button>
+      <div class="a-lnk"><a onclick="authTab('login')">Back to Login</a></div>
+    </div>
+  </div>
+</div>
+
+<div id="app-wrap">
+  <div class="hdr">
+    <div class="hdr-inner">
+      <button class="logout-b" onclick="doLogout()">Logout</button>
+      <div class="hdr-mid">
+        <div class="shop-t" id="shop-title" onclick="openTitleModal()">🍧 Ice Shop</div>
+        <div id="hdr-email"></div>
+      </div>
+      <div style="width:48px"></div>
+    </div>
+  </div>
+
+  <div class="scr" id="scr">
+
+<div id="pg-home" class="pg on">
+  <div class="pcard">
+    <div>
+      <div class="pl">Monthly P&amp;L</div>
+      <div class="pv g" id="h-profit">$0</div>
+      <div class="ss" id="h-margin">Margin 0%</div>
+    </div>
+    <div class="mbadge" id="h-month"></div>
+  </div>
+  <div class="sg">
+    <div class="sc"><div class="sl">Monthly Revenue</div><div class="sv g" id="h-rev">$0</div><div class="ss" id="h-revd"></div></div>
+    <div class="sc"><div class="sl">Monthly Expense</div><div class="sv r" id="h-exp">$0</div><div class="ss" id="h-expi"></div></div>
+  </div>
+  <div class="card">
+    <div class="ch">Revenue vs Expense (this month)</div>
+    <div class="cw"><canvas id="trend-chart"></canvas></div>
+  </div>
+  <div class="card">
+    <div class="ch">Expense Breakdown (this month)</div>
+    <div class="cw" style="height:175px"><canvas id="pie-chart"></canvas></div>
+  </div>
+  <div class="card">
+    <div class="ch">Last 7 Days</div>
+    <div id="h-recent"></div>
+  </div>
+</div>
+
+<div id="pg-entry" class="pg">
+  <div class="tbanner">
+    <div class="tc"><div class="tcl">Today Revenue</div><div class="tcv" id="tb-rev" style="color:var(--tx3)">--</div></div>
+    <div class="tc"><div class="tcl">Today Expense</div><div class="tcv" style="color:var(--rd)" id="tb-exp">$0</div></div>
+    <div class="tc"><div class="tcl">Today P&amp;L</div><div class="tcv" id="tb-pnl" style="color:var(--tx3)">--</div></div>
+  </div>
+
+  <div class="card">
+    <div class="ch">📟 Revenue Input</div>
+    <div class="fg"><label>Category</label>
+      <select id="rev-cat">
+        <option value="pos">POS Revenue</option>
+        <option value="other_rev">Other Revenue</option>
+        <option value="delivery">Delivery Platform</option>
+      </select>
+    </div>
+    <div class="fg"><label>Date</label><input type="date" id="rev-date"></div>
+    <div class="fg"><label>Amount (NTD)</label><input type="number" id="rev-amt" inputmode="numeric" placeholder="e.g. 8500"></div>
+    <div class="fg"><label>Note (optional)</label><input type="text" id="rev-note" placeholder="e.g. Holiday, event..."></div>
+    <button class="btn btn-p" id="save-rev-btn" onclick="saveRev()">Save Revenue</button>
+  </div>
+
+  <div class="card">
+    <div class="ch">💸 Expense Input</div>
+    <div class="fg"><label>Date</label><input type="date" id="exp-date"></div>
+    <div class="fg">
+      <label>Category</label>
+      <div class="cg">
+        <button class="cb on" data-cat="food"    onclick="selCat(this)"><span class="ci">🥭</span><span class="cn" id="cn-food">Food/Ingredients</span></button>
+        <button class="cb"    data-cat="staff"   onclick="selCat(this)"><span class="ci">👥</span><span class="cn" id="cn-staff">Payroll/Family</span></button>
+        <button class="cb"    data-cat="utility" onclick="selCat(this)"><span class="ci">💡</span><span class="cn" id="cn-utility">Utility/Internet</span></button>
+        <button class="cb"    data-cat="rent"    onclick="selCat(this)"><span class="ci">🔧</span><span class="cn" id="cn-rent">Equipment/Repair</span></button>
+        <button class="cb"    data-cat="supply"  onclick="selCat(this)"><span class="ci">📦</span><span class="cn" id="cn-supply">Supplies</span></button>
+        <button class="cb"    data-cat="other"   onclick="selCat(this)"><span class="ci">📌</span><span class="cn" id="cn-other">Miscellaneous</span></button>
+      </div>
+    </div>
+    <div class="fg"><label>Item / Detail</label><input type="text" id="exp-name" placeholder="e.g. Mango restock; 3 staff x 5000"></div>
+    <div class="fg"><label>Amount (NTD)</label><input type="number" id="exp-amt" inputmode="numeric" placeholder="e.g. 15000"></div>
+    <div class="fg"><label>Note (optional)</label><input type="text" id="exp-note" placeholder="e.g. Vendor ABC"></div>
+    <button class="btn btn-p" id="save-exp-btn" onclick="saveExp()">Add Expense</button>
+  </div>
+
+  <div class="card">
+    <div class="ch">Today Expenses</div>
+    <div id="today-list"></div>
+  </div>
+</div>
+
+<div id="pg-records" class="pg">
+  <div class="fr">
+    <div><span class="fl">Month</span><input type="month" id="f-month" onchange="resetRecords()"></div>
+    <div><span class="fl">Category</span>
+      <select id="f-cat" onchange="resetRecords()">
+        <option value="all">All</option>
+        <option value="revenue">Revenue</option>
+        <option value="food">Food/Ingredients</option>
+        <option value="staff">Payroll/Family</option>
+        <option value="utility">Utility/Internet</option>
+        <option value="rent">Equipment/Repair</option>
+        <option value="supply">Supplies</option>
+        <option value="other">Miscellaneous</option>
+      </select>
+    </div>
+  </div>
+  <div class="card" id="rec-list"></div>
+  <button class="load-more-btn" id="load-more-btn" onclick="loadMoreRecords()" style="display:none">Load More</button>
+</div>
+
+<div id="pg-report" class="pg">
+  <div class="fr" style="flex-wrap:nowrap">
+    <input type="month" id="rpt-month" style="flex:1;font-size:14px;padding:10px 11px">
+    <button class="btn btn-p" style="width:auto;padding:10px 16px;font-size:13px;flex-shrink:0" onclick="renderReport()">Generate</button>
+  </div>
+  <div id="rpt-content"></div>
+</div>
+
+<div id="pg-more" class="pg">
+  <div class="stitle">Export CSV</div>
+  <div class="card">
+    <div class="fg"><label>From Date</label><input type="date" id="csv-from"></div>
+    <div class="fg"><label>To Date</label><input type="date" id="csv-to"></div>
+    <button class="btn btn-p" onclick="exportCSV()">📥 Download CSV</button>
+  </div>
+</div>
+
+  </div>
+
+  <nav class="bnav">
+    <div class="ntab on" id="nt-home"    onclick="goPg('home')">   <span class="ni">📊</span>Overview</div>
+    <div class="ntab"    id="nt-entry"   onclick="goPg('entry')">  <span class="ni">✏️</span>Entry</div>
+    <div class="ntab"    id="nt-records" onclick="goPg('records')"><span class="ni">📋</span>Records</div>
+    <div class="ntab"    id="nt-report"  onclick="goPg('report')"> <span class="ni">📈</span>Report</div>
+    <div class="ntab"    id="nt-more"    onclick="goPg('more')">   <span class="ni">⚙️</span>More</div>
+  </nav>
+</div>
+
+<div class="mov" id="m-exp">
+  <div class="msh">
+    <div class="mhd"></div>
+    <div class="mt">Edit Expense</div>
+    <input type="hidden" id="me-id">
+    <div class="fg"><label>Date</label><input type="date" id="me-date"></div>
+    <div class="fg"><label>Category</label>
+      <select id="me-cat">
+        <option value="food">🥭 Food/Ingredients</option>
+        <option value="staff">👥 Payroll/Family</option>
+        <option value="utility">💡 Utility/Internet</option>
+        <option value="rent">🔧 Equipment/Repair</option>
+        <option value="supply">📦 Supplies</option>
+        <option value="other">📌 Miscellaneous</option>
+      </select>
+    </div>
+    <div class="fg"><label>Item / Detail</label><input type="text" id="me-name"></div>
+    <div class="fg"><label>Amount (NTD)</label><input type="number" id="me-amt" inputmode="numeric"></div>
+    <div class="fg"><label>Note</label><input type="text" id="me-note"></div>
+    <div class="mbtns">
+      <button class="btn btn-s" onclick="closeMov('m-exp')">Cancel</button>
+      <button class="btn btn-p" onclick="saveExpEdit()">Save</button>
+    </div>
+  </div>
+</div>
+
+<div class="mov" id="m-rev">
+  <div class="msh">
+    <div class="mhd"></div>
+    <div class="mt">Edit Revenue</div>
+    <input type="hidden" id="mr-id">
+    <div class="fg"><label>Category</label>
+      <select id="mr-cat">
+        <option value="pos">POS Revenue</option>
+        <option value="other_rev">Other Revenue</option>
+        <option value="delivery">Delivery Platform</option>
+      </select>
+    </div>
+    <div class="fg"><label>Date</label><input type="date" id="mr-date"></div>
+    <div class="fg"><label>Amount (NTD)</label><input type="number" id="mr-amt" inputmode="numeric"></div>
+    <div class="fg"><label>Note</label><input type="text" id="mr-note"></div>
+    <div class="mbtns">
+      <button class="btn btn-s" onclick="closeMov('m-rev')">Cancel</button>
+      <button class="btn btn-p" onclick="saveRevEdit()">Save</button>
+    </div>
+  </div>
+</div>
+
+<div class="mov" id="m-title">
+  <div class="msh">
+    <div class="mhd"></div>
+    <div class="mt">Edit Shop Name</div>
+    <div class="fg"><label>Shop Name (emoji OK)</label><input type="text" id="title-inp" placeholder="e.g. My Ice Shop"></div>
+    <div class="mbtns">
+      <button class="btn btn-s" onclick="closeMov('m-title')">Cancel</button>
+      <button class="btn btn-p" onclick="saveTitleModal()">Save</button>
+    </div>
+  </div>
+</div>
+
+<div class="mov" id="m-pw">
+  <div class="msh">
+    <div class="mhd"></div>
+    <div class="mt">🔐 Edit Password Required</div>
+    <p style="font-size:13px;color:var(--tx2);margin-bottom:13px">Editing and deleting records requires password verification.</p>
+    <div class="fg"><input type="password" id="pw-inp" inputmode="numeric" placeholder="Enter password" maxlength="10"></div>
+    <div class="a-err" id="pw-err"></div>
+    <div class="mbtns">
+      <button class="btn btn-s" onclick="closeMov('m-pw')">Cancel</button>
+      <button class="btn btn-p" onclick="checkPw()">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ─── constants ────────────────────────────────────────────────
+const EDIT_PW = "9527";
+const PAGE_SIZE = 30;
+
+// ─── helpers ─────────────────────────────────────────────────
+const $ = id => document.getElementById(id);
+const fmt = n => Number(n).toLocaleString("zh-TW");
+const todayStr  = () => new Date().toISOString().slice(0,10);
+const monthStr  = () => new Date().toISOString().slice(0,7);
+
+// category meta
+const CAT_LABEL = {
+  food:"Food/Ingredients", staff:"Payroll/Family",
+  utility:"Utility/Internet", rent:"Equipment/Repair",
+  supply:"Supplies", other:"Miscellaneous"
+};
+const REV_LABEL = { pos:"POS Revenue", other_rev:"Other Revenue", delivery:"Delivery Platform" };
+const catLabel = c => CAT_LABEL[c] || REV_LABEL[c] || c;
+const catIcon  = c => ({food:"🥭",staff:"👥",utility:"💡",rent:"🔧",supply:"📦",other:"📌",pos:"💰",other_rev:"💵",delivery:"🛵"})[c] || "💰";
+const catBadge = c => ({food:"bf",staff:"bs",utility:"bu",rent:"br",supply:"bp",other:"bo"})[c] || "brev";
+
+function toast(msg, err=false) {
+  const t = $("toast");
+  t.textContent = msg;
+  t.className = "toast on" + (err ? " err" : "");
+  clearTimeout(t._t);
+  t._t = setTimeout(() => { t.className = "toast" + (err ? " err" : ""); }, 2600);
+}
+
+// ─── modal helpers ────────────────────────────────────────────
+function openMov(id)  { $(id).classList.add("on"); }
+function closeMov(id) { $(id).classList.remove("on"); }
+document.querySelectorAll(".mov").forEach(m => {
+  m.addEventListener("click", e => { if (e.target === m) m.classList.remove("on"); });
+});
+
+// ─── auth UI ─────────────────────────────────────────────────
+function authTab(tab) {
+  ["login","register","reset"].forEach(t => {
+    $("af-"+t).classList.toggle("on", t===tab);
+  });
+  document.querySelectorAll(".a-tab").forEach((el,i) => {
+    el.classList.toggle("on", (i===0 && tab==="login") || (i===1 && (tab==="register"||tab==="reset")));
+  });
+}
+function authLd(id, on) { $(id).classList.toggle("ld", on); }
+
+function fbErr(code) {
+  const MAP = {
+    "auth/user-not-found":        "Account not found",
+    "auth/wrong-password":        "Incorrect password",
+    "auth/email-already-in-use":  "Email already in use",
+    "auth/invalid-email":         "Invalid email format",
+    "auth/weak-password":         "Password too weak (min 6 chars)",
+    "auth/too-many-requests":     "Too many attempts, try later",
+    "auth/invalid-credential":    "Invalid email or password",
+    "auth/network-request-failed":"Network error, please retry"
+  };
+  return MAP[code] || ("Error: " + code);
+}
+
+async function doLogin() {
+  const email = $("l-email").value.trim(), pw = $("l-pw").value;
+  const err = $("lerr"); err.style.display = "none";
+  if (!email || !pw) { err.textContent = "Please fill in email and password"; err.style.display = "block"; return; }
+  authLd("l-btn", true);
+  try { await FB.signIn(FB.auth, email, pw); }
+  catch(e) { err.textContent = fbErr(e.code); err.style.display = "block"; authLd("l-btn", false); }
+}
+
+async function doRegister() {
+  const email=$("r-email").value.trim(), pw=$("r-pw").value, pw2=$("r-pw2").value;
+  const err=$("rerr"); err.style.display="none";
+  if (!email||!pw) { err.textContent="Please fill in all fields"; err.style.display="block"; return; }
+  if (pw!==pw2)    { err.textContent="Passwords do not match";    err.style.display="block"; return; }
+  if (pw.length<6) { err.textContent="Password min 6 characters"; err.style.display="block"; return; }
+  authLd("r-btn", true);
+  try { await FB.createUser(FB.auth, email, pw); }
+  catch(e) { err.textContent=fbErr(e.code); err.style.display="block"; authLd("r-btn",false); }
+}
+
+async function doReset() {
+  const email=$("pw-email").value.trim();
+  const err=$("pwerr"), ok=$("pwok");
+  err.style.display="none"; ok.style.display="none";
+  if (!email) { err.textContent="Please enter email"; err.style.display="block"; return; }
+  authLd("pw-btn", true);
+  try { await FB.resetPw(FB.auth, email); ok.textContent="Reset email sent. Check your inbox."; ok.style.display="block"; }
+  catch(e) { err.textContent=fbErr(e.code); err.style.display="block"; }
+  authLd("pw-btn", false);
+}
+
+async function doLogout() {
+  if (!confirm("Confirm logout?")) return;
+  await FB.signOut(FB.auth);
+}
+
+// ─── Firestore refs ───────────────────────────────────────────
+const rCol = () => FB.col(FB.db, "users", UID, "revenues");
+const eCol = () => FB.col(FB.db, "users", UID, "expenses");
+const mDoc = () => FB.doc(FB.db, "users", UID, "meta", "settings");
+
+// ─── local in-memory cache (populated by realtime listeners) ──
+let C = { revs:[], exps:[] };
+let _unsub = []; // unsubscribe functions for listeners
+
+// Stop all realtime listeners (called on logout)
+window.stopListeners = function() {
+  _unsub.forEach(fn => fn());
+  _unsub = [];
+  C = { revs:[], exps:[] };
+};
+
+// Start realtime listeners -- immediate update on any device change
+function startListeners() {
+  const unsub1 = FB.onSnapshot(rCol(), snap => {
+    C.revs = snap.docs.map(d => ({ id:d.id, ...d.data() }));
+    // refresh visible page immediately
+    refreshVisible();
+  });
+  const unsub2 = FB.onSnapshot(eCol(), snap => {
+    C.exps = snap.docs.map(d => ({ id:d.id, ...d.data() }));
+    refreshVisible();
+  });
+  _unsub = [unsub1, unsub2];
+}
+
+function refreshVisible() {
+  const active = document.querySelector(".pg.on");
+  if (!active) return;
+  const id = active.id.replace("pg-","");
+  if (id==="home")    renderHome();
+  if (id==="entry")   renderTodayBanner();
+  // records uses pagination, only refresh if already loaded
+  if (id==="records") { if (_recRows.length>0) { _recRows=[]; _recCursor=0; renderRecordsPage(true); } }
+}
+
+// ─── app boot ─────────────────────────────────────────────────
+window.appBoot = async function() {
+  const t=todayStr(), m=monthStr();
+  $("rev-date").value=t; $("exp-date").value=t;
+  $("f-month").value=m; $("rpt-month").value=m;
+  $("csv-from").value=m+"-01"; $("csv-to").value=t;
+
+  // load meta
+  try {
+    const snap = await FB.getDoc(mDoc());
+    if (snap.exists()) {
+      const d = snap.data();
+      if (d.shopTitle) { $("shop-title").textContent=d.shopTitle; $("auth-title").textContent=d.shopTitle; }
+    }
+  } catch(e) {}
+
+  // start realtime listeners -- they will call renderHome + renderTodayBanner
+  startListeners();
+};
+
+// ─── navigation ───────────────────────────────────────────────
+function goPg(id) {
+  document.querySelectorAll(".pg").forEach(p=>p.classList.remove("on"));
+  document.querySelectorAll(".ntab").forEach(t=>t.classList.remove("on"));
+  $("pg-"+id).classList.add("on");
+  $("nt-"+id).classList.add("on");
+  $("scr").scrollTop = 0;
+  if (id==="home")    renderHome();
+  if (id==="entry")   renderTodayBanner();
+  if (id==="records") { $("f-month").value=monthStr(); resetRecords(); }
+  if (id==="report")  { $("rpt-month").value=monthStr(); renderReport(); }
+}
+
+// ─── category select ──────────────────────────────────────────
+function selCat(el) {
+  document.querySelectorAll(".cb").forEach(b=>b.classList.remove("on"));
+  el.classList.add("on");
+}
+function getCat() {
+  const s = document.querySelector(".cb.on");
+  return s ? s.dataset.cat : "food";
+}
+
+// ─── shop title ───────────────────────────────────────────────
+function openTitleModal() {
+  $("title-inp").value = $("shop-title").textContent;
+  openMov("m-title");
+}
+async function saveTitleModal() {
+  const val = $("title-inp").value.trim(); if (!val) return;
+  $("shop-title").textContent = val; $("auth-title").textContent = val;
+  closeMov("m-title"); toast("Shop name updated");
+  try { await FB.setDoc(mDoc(), { shopTitle:val }, { merge:true }); } catch(e) {}
+}
+
+// ─── revenue CRUD ─────────────────────────────────────────────
+async function saveRev() {
+  const cat  = $("rev-cat").value;
+  const date = $("rev-date").value;
+  const amt  = parseFloat($("rev-amt").value);
+  const note = $("rev-note").value.trim();
+  if (!date || isNaN(amt) || amt<0) { toast("Please fill in date and amount", true); return; }
+  const ex = C.revs.find(r => r.date===date && r.revCat===cat);
+  if (ex && !confirm(date+" already has a "+catLabel(cat)+" entry ("+fmt(ex.amount)+" NTD). Overwrite?")) return;
+  const btn = $("save-rev-btn");
+  btn.disabled = true;
+  try {
+    const id = ex ? ex.id : "rev_"+cat+"_"+date+"_"+UID.slice(-6);
+    await FB.setDoc(FB.doc(rCol(), id), { date, revCat:cat, amount:amt, note, uid:UID });
+    $("rev-amt").value=""; $("rev-note").value="";
+    toast("Saved: "+catLabel(cat)+" $"+fmt(amt));
+    // listener will trigger renderTodayBanner automatically
+  } catch(e) { toast("Save failed", true); }
+  finally { btn.disabled = false; }
+}
+
+function openRevEdit(r) {
+  $("mr-id").value   = r.id;
+  $("mr-cat").value  = r.revCat || "pos";
+  $("mr-date").value = r.date;
+  $("mr-amt").value  = r.amount;
+  $("mr-note").value = r.note || "";
+  openMov("m-rev");
+}
+async function saveRevEdit() {
+  const id   = $("mr-id").value;
+  const cat  = $("mr-cat").value;
+  const date = $("mr-date").value;
+  const amt  = parseFloat($("mr-amt").value);
+  const note = $("mr-note").value.trim();
+  if (!date||isNaN(amt)) { toast("Incomplete data",true); return; }
+  try {
+    await FB.setDoc(FB.doc(rCol(),id), { date, revCat:cat, amount:amt, note, uid:UID });
+    closeMov("m-rev"); toast("Updated");
+  } catch(e) { toast("Update failed",true); }
+}
+async function deleteRev(id) {
+  if (!confirm("Delete this revenue record?")) return;
+  try { await FB.deleteDoc(FB.doc(rCol(),id)); toast("Deleted"); }
+  catch(e) { toast("Delete failed",true); }
+}
+
+// ─── expense CRUD ─────────────────────────────────────────────
+async function saveExp() {
+  const date = $("exp-date").value;
+  const cat  = getCat();
+  const name = $("exp-name").value.trim();
+  const amt  = parseFloat($("exp-amt").value);
+  const note = $("exp-note").value.trim();
+  if (!date||!name||isNaN(amt)||amt<0) { toast("Please fill in all expense fields",true); return; }
+  const btn = $("save-exp-btn");
+  btn.disabled = true;
+  try {
+    const id = "exp_"+Date.now()+"_"+UID.slice(-6);
+    await FB.setDoc(FB.doc(eCol(),id), { date, category:cat, name, amount:amt, note, uid:UID });
+    $("exp-name").value=""; $("exp-amt").value=""; $("exp-note").value="";
+    toast("Added: "+catLabel(cat)+" $"+fmt(amt));
+  } catch(e) { toast("Save failed",true); }
+  finally { btn.disabled = false; }
+}
+
+function openExpEdit(e) {
+  $("me-id").value   = e.id;
+  $("me-date").value = e.date;
+  $("me-cat").value  = e.category;
+  $("me-name").value = e.name;
+  $("me-amt").value  = e.amount;
+  $("me-note").value = e.note||"";
+  openMov("m-exp");
+}
+async function saveExpEdit() {
+  const id   = $("me-id").value;
+  const date = $("me-date").value;
+  const cat  = $("me-cat").value;
+  const name = $("me-name").value.trim();
+  const amt  = parseFloat($("me-amt").value);
+  const note = $("me-note").value.trim();
+  if (!date||!name||isNaN(amt)) { toast("Incomplete data",true); return; }
+  try {
+    await FB.setDoc(FB.doc(eCol(),id), { date, category:cat, name, amount:amt, note, uid:UID });
+    closeMov("m-exp"); toast("Updated");
+  } catch(e) { toast("Update failed",true); }
+}
+async function deleteExp(id) {
+  if (!confirm("Delete this expense record?")) return;
+  try { await FB.deleteDoc(FB.doc(eCol(),id)); toast("Deleted"); }
+  catch(e) { toast("Delete failed",true); }
+}
+
+// ─── password gate ────────────────────────────────────────────
+let _pwQ = null;
+function requirePw(action) {
+  _pwQ = action;
+  $("pw-inp").value = "";
+  $("pw-err").style.display = "none";
+  openMov("m-pw");
+}
+function checkPw() {
+  if ($("pw-inp").value !== EDIT_PW) {
+    $("pw-err").textContent = "Incorrect password";
+    $("pw-err").style.display = "block";
+    $("pw-inp").value = ""; return;
+  }
+  closeMov("m-pw");
+  if (_pwQ) { _pwQ(); _pwQ = null; }
+}
+
+// ─── today banner (entry page) ────────────────────────────────
+function renderTodayBanner() {
+  const d    = todayStr();
+  const revs = C.revs.filter(x=>x.date===d);
+  const exps = C.exps.filter(x=>x.date===d);
+  const totR = revs.reduce((s,r)=>s+r.amount,0);
+  const totE = exps.reduce((s,e)=>s+e.amount,0);
+  const hasRev = revs.length>0;
+  const pnl  = hasRev ? totR-totE : null;
+
+  const tbR = $("tb-rev");
+  tbR.textContent = hasRev ? "$"+fmt(totR) : "--";
+  tbR.style.color = hasRev ? "var(--ac)" : "var(--tx3)";
+  $("tb-exp").textContent = "$"+fmt(totE);
+  const tbP = $("tb-pnl");
+  if (pnl!==null){ tbP.textContent="$"+fmt(pnl); tbP.style.color=pnl>=0?"var(--ac)":"var(--rd)"; }
+  else { tbP.textContent="--"; tbP.style.color="var(--tx3)"; }
+
+  // today expense list -- display only, no edit/delete buttons
+  const list = $("today-list");
+  if (!exps.length) { list.innerHTML="<div class=\"empty\">No expenses today</div>"; return; }
+  list.innerHTML = exps.map(e =>
+    "<div class=\"ei\"><div class=\"ei-top\">" +
+    "<span class=\"eico\">"+catIcon(e.category)+"</span>" +
+    "<div class=\"einf\">" +
+      "<div class=\"ename\">"+e.name+"</div>" +
+      "<div class=\"emeta\">"+catLabel(e.category)+(e.note?" - "+e.note:"")+"</div>" +
+    "</div>" +
+    "<span class=\"eamt\" style=\"color:var(--rd)\">-$"+fmt(e.amount)+"</span>" +
+    "</div></div>"
+  ).join("");
+}
+
+// ─── home page ────────────────────────────────────────────────
+let tChart=null, pChart=null;
+
+function renderHome() {
+  const now=new Date(), m=monthStr();
+  $("h-month").textContent = m;
+  const revs = C.revs.filter(r=>r.date.startsWith(m));
+  const exps = C.exps.filter(e=>e.date.startsWith(m));
+  const totR = revs.reduce((s,r)=>s+r.amount,0);
+  const totE = exps.reduce((s,e)=>s+e.amount,0);
+  const pnl  = totR-totE;
+  const mg   = totR>0 ? ((pnl/totR)*100).toFixed(1) : 0;
+
+  const hp = $("h-profit");
+  hp.textContent = "$"+fmt(pnl); hp.className = "pv "+(pnl>=0?"g":"r");
+  $("h-margin").textContent = "Margin "+mg+"%";
+  $("h-rev").textContent    = "$"+fmt(totR); $("h-revd").textContent = revs.length+" days";
+  $("h-exp").textContent    = "$"+fmt(totE); $("h-expi").textContent = exps.length+" items";
+
+  // trend chart
+  const dim = new Date(now.getFullYear(), now.getMonth()+1, 0).getDate();
+  const lbs=[], rArr=[], eArr=[];
+  for (let d=1; d<=dim; d++) {
+    const ds = m+"-"+String(d).padStart(2,"0");
+    lbs.push(d);
+    const rv = C.revs.filter(x=>x.date===ds).reduce((s,x)=>s+x.amount,0);
+    const ex = C.exps.filter(x=>x.date===ds).reduce((s,x)=>s+x.amount,0);
+    rArr.push(rv>0?rv:null); eArr.push(ex>0?ex:null);
+  }
+  if (tChart) { tChart.destroy(); tChart=null; }
+  tChart = new Chart($("trend-chart").getContext("2d"), {
+    type:"line",
+    data:{ labels:lbs, datasets:[
+      { label:"Revenue", data:rArr, borderColor:"#5ee7c8", backgroundColor:"rgba(94,231,200,.07)", tension:.3, spanGaps:true, pointRadius:2, borderWidth:2 },
+      { label:"Expense", data:eArr, borderColor:"#ff6b6b", backgroundColor:"rgba(255,107,107,.07)", tension:.3, spanGaps:true, pointRadius:2, borderWidth:2 }
+    ]},
+    options:{ responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{ labels:{ color:"#8b90a7", font:{size:10}, boxWidth:10, padding:10 } } },
+      scales:{
+        x:{ ticks:{ color:"#4e5470", font:{size:9}, maxTicksLimit:8 }, grid:{ color:"rgba(42,48,80,.4)" } },
+        y:{ ticks:{ color:"#4e5470", font:{size:9}, callback:v=>"$"+fmt(v) }, grid:{ color:"rgba(42,48,80,.4)" } }
+      }
+    }
+  });
+
+  // pie chart
+  const cats   = ["food","staff","utility","rent","supply","other"];
+  const colors = ["#5ee7c8","#a29bfe","#ffd93d","#ff6b6b","#74b9ff","#8b90a7"];
+  const tots   = cats.map(c => exps.filter(e=>e.category===c).reduce((s,e)=>s+e.amount,0));
+  if (pChart) { pChart.destroy(); pChart=null; }
+  pChart = new Chart($("pie-chart").getContext("2d"), {
+    type:"doughnut",
+    data:{ labels:cats.map(catLabel), datasets:[{ data:tots, backgroundColor:colors.map(c=>c+"bb"), borderColor:colors, borderWidth:1.5 }] },
+    options:{ responsive:true, maintainAspectRatio:false,
+      plugins:{
+        legend:{ position:"right", labels:{ color:"#8b90a7", font:{size:10}, boxWidth:10, padding:5 } },
+        tooltip:{ callbacks:{ label: ctx=>" "+ctx.label+": $"+fmt(ctx.raw) } }
+      }
+    }
+  });
+
+  // last 7 days
+  const ds = new Set([...C.revs.map(r=>r.date), ...C.exps.map(e=>e.date)]);
+  const recent = [...ds].sort().reverse().slice(0,7);
+  const rl = $("h-recent");
+  if (!recent.length) { rl.innerHTML="<div class=\"empty\">No data yet</div>"; return; }
+  rl.innerHTML = recent.map(d => {
+    const rv = C.revs.filter(x=>x.date===d).reduce((s,x)=>s+x.amount,0);
+    const ex = C.exps.filter(x=>x.date===d).reduce((s,x)=>s+x.amount,0);
+    const p  = rv-ex, mm=d.slice(5,7)+"/"+d.slice(8,10);
+    const hasR = C.revs.some(x=>x.date===d);
+    return "<div class=\"dr\">" +
+      "<div><div class=\"dd\">"+mm+"</div><div style=\"font-size:11px;color:var(--tx3);margin-top:2px\">"+(hasR?"Rev $"+fmt(rv):"No revenue")+(ex>0?" / Exp $"+fmt(ex):"")+"</div></div>" +
+      "<div class=\"dpnl\" style=\"color:"+(hasR||ex>0?(p>=0?"var(--ac)":"var(--rd)"):"var(--tx3)")+"\">"+((hasR||ex>0)?"$"+fmt(p):"--")+"</div>" +
+      "</div>";
+  }).join("");
+}
+
+// ─── records (paginated) ──────────────────────────────────────
+let _recRows   = [];  // all merged rows for current filter (rebuilt on filter change)
+let _recCursor = 0;   // how many rows already rendered
+
+function resetRecords() {
+  _recRows   = [];
+  _recCursor = 0;
+  $("rec-list").innerHTML = "";
+  $("load-more-btn").style.display = "none";
+  renderRecordsPage(true);
+}
+
+function renderRecordsPage(firstLoad=false) {
+  const m   = $("f-month").value;
+  const cat = $("f-cat").value;
+
+  // rebuild full list if first load
+  if (firstLoad) {
+    _recRows = [];
+    if (cat==="all" || cat==="revenue")
+      C.revs.filter(r=>r.date.startsWith(m)).forEach(r=>_recRows.push({...r, _type:"rev"}));
+    if (cat!=="revenue")
+      C.exps.filter(e=>e.date.startsWith(m)&&(cat==="all"||e.category===cat)).forEach(e=>_recRows.push({...e, _type:"exp"}));
+    _recRows.sort((a,b)=>b.date.localeCompare(a.date));
+    _recCursor = 0;
+    $("rec-list").innerHTML = "";
+  }
+
+  if (!_recRows.length) {
+    $("rec-list").innerHTML = "<div class=\"empty\">No records this month</div>";
+    $("load-more-btn").style.display = "none";
+    return;
+  }
+
+  const page = _recRows.slice(_recCursor, _recCursor + PAGE_SIZE);
+  const el   = $("rec-list");
+  page.forEach(r => {
+    const mm = r.date.slice(5,7)+"/"+r.date.slice(8,10);
+    const div = document.createElement("div");
+    div.className = "ei";
+    if (r._type==="rev") {
+      const icon  = catIcon(r.revCat||"pos");
+      const label = catLabel(r.revCat||"pos");
+      const rid   = r.id;
+      div.innerHTML =
+        "<div class=\"ei-top\">" +
+        "<span class=\"eico\">"+icon+"</span>" +
+        "<div class=\"einf\">" +
+          "<div class=\"ename\">"+label+"</div>" +
+          "<div class=\"emeta\">"+mm+" <span class=\"badge brev\">Revenue</span>"+(r.note?" - "+r.note:"")+"</div>" +
+        "</div>" +
+        "<span class=\"eamt\" style=\"color:var(--ac)\">+$"+fmt(r.amount)+"</span>" +
+        "<div class=\"eact\">" +
+          "<button class=\"ab ab-e\">Edit</button>" +
+          "<button class=\"ab ab-d\">Delete</button>" +
+        "</div>" +
+        "</div>";
+      div.querySelector(".ab-e").onclick = () => requirePw(() => openRevEdit(C.revs.find(x=>x.id===rid)||r));
+      div.querySelector(".ab-d").onclick = () => requirePw(() => deleteRev(rid));
+    } else {
+      const eid = r.id;
+      div.innerHTML =
+        "<div class=\"ei-top\">" +
+        "<span class=\"eico\">"+icon+"</span>" +
+        "<div class=\"einf\">" +
+          "<div class=\"ename\">"+r.name+"</div>" +
+          "<div class=\"emeta\">"+mm+" <span class=\"badge "+catBadge(r.category)+"\">"+catLabel(r.category)+"</span>"+(r.note?" - "+r.note:"")+"</div>" +
+        "</div>" +
+        "<span class=\"eamt\" style=\"color:var(--rd)\">-$"+fmt(r.amount)+"</span>" +
+        "<div class=\"eact\">" +
+          "<button class=\"ab ab-e\">Edit</button>" +
+          "<button class=\"ab ab-d\">Delete</button>" +
+        "</div>" +
+        "</div>";
+      div.querySelector(".ab-e").onclick = () => requirePw(() => openExpEdit(C.exps.find(x=>x.id===eid)||r));
+      div.querySelector(".ab-d").onclick = () => requirePw(() => deleteExp(eid));
+    }
+    el.appendChild(div);
+  });
+
+  _recCursor += page.length;
+  const btn = $("load-more-btn");
+  if (_recCursor < _recRows.length) {
+    btn.style.display   = "block";
+    btn.disabled        = false;
+    btn.textContent     = "Load More (" + (_recRows.length - _recCursor) + " remaining)";
+  } else {
+    btn.style.display = "none";
+  }
+}
+
+function loadMoreRecords() {
+  renderRecordsPage(false);
+}
+
+function renderRecords() { resetRecords(); }
+
+// ─── report ───────────────────────────────────────────────────
+function renderReport() {
+  const m    = $("rpt-month").value;
+  const revs = C.revs.filter(r=>r.date.startsWith(m));
+  const exps = C.exps.filter(e=>e.date.startsWith(m));
+  const totR = revs.reduce((s,r)=>s+r.amount,0);
+  const totE = exps.reduce((s,e)=>s+e.amount,0);
+  const pnl  = totR-totE;
+  const mg   = totR>0 ? ((pnl/totR)*100).toFixed(1) : 0;
+  const days = [...new Set(revs.map(r=>r.date))].length;
+  const avg  = days>0 ? Math.round(totR/days) : 0;
+
+  const cats     = ["food","staff","utility","rent","supply","other"];
+  const catBreak = cats.map(c=>({
+    key:c, label:catLabel(c), icon:catIcon(c),
+    amount: exps.filter(e=>e.category===c).reduce((s,e)=>s+e.amount,0),
+    items:  exps.filter(e=>e.category===c)
+  })).filter(c=>c.amount>0).sort((a,b)=>b.amount-a.amount);
+
+  let html =
+    "<div class=\"sg\">" +
+      "<div class=\"sc\"><div class=\"sl\">Total Revenue</div><div class=\"sv g\">$"+fmt(totR)+"</div><div class=\"ss\">Avg $"+fmt(avg)+"/day - "+days+" days</div></div>" +
+      "<div class=\"sc\"><div class=\"sl\">Total Expense</div><div class=\"sv r\">$"+fmt(totE)+"</div><div class=\"ss\">"+exps.length+" items</div></div>" +
+    "</div>" +
+    "<div class=\"pcard\"><div><div class=\"pl\">Net P&L</div><div class=\"pv "+(pnl>=0?"g":"r")+"\">$"+fmt(pnl)+"</div></div><div class=\"mbadge\">Margin "+mg+"%</div></div>" +
+    "<div class=\"card\"><div class=\"ch\">Expense Breakdown</div>";
+
+  if (!catBreak.length) {
+    html += "<div class=\"empty\">No expenses this month</div>";
+  } else {
+    catBreak.forEach(c => {
+      const ep = totE>0 ? ((c.amount/totE)*100).toFixed(1) : 0;
+      const rp = totR>0 ? ((c.amount/totR)*100).toFixed(1) : 0;
+      html +=
+        "<div style=\"margin-bottom:16px\">" +
+          "<div style=\"display:flex;justify-content:space-between;align-items:center\">" +
+            "<span>"+c.icon+" <strong style=\"font-size:13px\">"+c.label+"</strong></span>" +
+            "<span style=\"font-family:'DM Mono',monospace;color:var(--rd);font-size:13px\">$"+fmt(c.amount)+"</span>" +
+          "</div>" +
+          "<div style=\"display:flex;justify-content:space-between;margin:4px 0\">" +
+            "<span style=\"font-size:11px;color:var(--tx3)\">Of total exp: "+ep+"%</span>" +
+            "<span style=\"font-size:11px;color:var(--tx3)\">Cost ratio: "+rp+"%</span>" +
+          "</div>" +
+          "<div class=\"pb\"><div class=\"pf\" style=\"width:"+ep+"%\"></div></div>" +
+          "<div style=\"margin-top:7px\">" +
+            c.items.map(i=>"<div style=\"display:flex;justify-content:space-between;padding:3px 0;font-size:12px;border-bottom:1px solid rgba(42,48,80,.3)\"><span style=\"color:var(--tx2)\">"+i.name+"</span><span style=\"font-family:'DM Mono',monospace;color:var(--tx2)\">$"+fmt(i.amount)+"</span></div>").join("") +
+          "</div>" +
+        "</div>";
+    });
+  }
+  html += "</div>";
+
+  // daily P&L
+  const dateSet = new Set([...revs.map(r=>r.date), ...exps.map(e=>e.date)]);
+  html += "<div class=\"card\"><div class=\"ch\">Daily P&L</div>";
+  if (!dateSet.size) {
+    html += "<div class=\"empty\">No data this month</div>";
+  } else {
+    [...dateSet].sort().reverse().forEach(d => {
+      const rv  = revs.filter(x=>x.date===d).reduce((s,x)=>s+x.amount,0);
+      const ex  = exps.filter(x=>x.date===d).reduce((s,x)=>s+x.amount,0);
+      const p   = rv-ex;
+      const mg2 = rv>0 ? ((p/rv)*100).toFixed(1) : null;
+      const mm  = d.slice(5,7)+"/"+d.slice(8,10);
+      const hasR = revs.some(x=>x.date===d);
+      html +=
+        "<div class=\"dr\">" +
+          "<div><div class=\"dd\">"+mm+"</div><div style=\"font-size:11px;color:var(--tx3);margin-top:2px\">"+(hasR?"Rev $"+fmt(rv):"--")+(ex>0?" / Exp $"+fmt(ex):"")+"</div></div>" +
+          "<div style=\"text-align:right\">" +
+            "<div class=\"dpnl\" style=\"color:"+(hasR||ex>0?(p>=0?"var(--ac)":"var(--rd)"):"var(--tx3)")+"\">"+((hasR||ex>0)?"$"+fmt(p):"--")+"</div>" +
+            (mg2!==null?"<div style=\"font-size:11px;color:var(--tx3)\">"+mg2+"%</div>":"") +
+          "</div>" +
+        "</div>";
+    });
+  }
+  html += "</div>";
+  $("rpt-content").innerHTML = html;
+}
+
+// ─── CSV export ───────────────────────────────────────────────
+async function exportCSV() {
+  const from = $("csv-from").value, to = $("csv-to").value;
+  if (!from||!to)   { toast("Please select date range",true); return; }
+  if (from>to)      { toast("Start date must be before end date",true); return; }
+
+  // CSV title row first, then header, then data
+  const shopName = $("shop-title").textContent;
+  const titleRow = ['"'+shopName+' - Accounting Export"','','','','',''];
+  const rangeRow = ['"Period: '+from+' to '+to+'"','','','','',''];
+  const header   = ["Date","Type","Category","Item/Detail","Amount(NTD)","Note"];
+
+  let rows = [];
+  C.revs
+    .filter(r=>r.date>=from && r.date<=to)
+    .forEach(r => rows.push([r.date,"Revenue",catLabel(r.revCat||"pos"),catLabel(r.revCat||"pos"),r.amount,r.note||""]));
+  C.exps
+    .filter(e=>e.date>=from && e.date<=to)
+    .forEach(e => rows.push([e.date,"Expense",catLabel(e.category),e.name,e.amount,e.note||""]));
+  rows.sort((a,b)=>a[0].localeCompare(b[0]));
+
+  const toCSVRow = arr => arr.map(c => '"'+String(c).replace(/"/g,'""')+'"').join(",");
+  const csv = "\uFEFF" + [titleRow,rangeRow,header,...rows].map(toCSVRow).join("\n");
+
+  const blob = new Blob([csv], { type:"text/csv;charset=utf-8" });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement("a");
+  a.href = url; a.download = "ice-shop_"+from+"_to_"+to+".csv";
+  document.body.appendChild(a); a.click();
+  document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+  toast("CSV downloaded ("+from+" to "+to+")");
+}
+</script>
+
+</body>
+</html>
