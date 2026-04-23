@@ -1,11 +1,10 @@
 <!DOCTYPE html>
-
 <html lang="zh-TW">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>冰店記帳</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <script type="module">
@@ -20,12 +19,12 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const cfg = {
-apiKey: "AIzaSyBVp9cEW4maC1oLdJGnduD8Gnpct2FvIaY",
-authDomain: "ice-shop-account.firebaseapp.com",
-projectId: "ice-shop-account",
-storageBucket: "ice-shop-account.firebasestorage.app",
-messagingSenderId: "115443037159",
-appId: "1:115443037159:web:3748852558c426e7acc342"
+  apiKey: "AIzaSyBVp9cEW4maC1oLdJGnduD8Gnpct2FvIaY",
+  authDomain: "ice-shop-account.firebaseapp.com",
+  projectId: "ice-shop-account",
+  storageBucket: "ice-shop-account.firebasestorage.app",
+  messagingSenderId: "115443037159",
+  appId: "1:115443037159:web:3748852558c426e7acc342"
 };
 
 const fbApp  = initializeApp(cfg);
@@ -33,30 +32,30 @@ const fbAuth = getAuth(fbApp);
 const fbDb   = getFirestore(fbApp);
 
 window.FB = {
-auth: fbAuth, db: fbDb,
-createUser: createUserWithEmailAndPassword,
-signIn:     signInWithEmailAndPassword,
-resetPw:    sendPasswordResetEmail,
-signOut,
-col: collection, doc, setDoc, getDoc,
-deleteDoc, onSnapshot
+  auth: fbAuth, db: fbDb,
+  createUser: createUserWithEmailAndPassword,
+  signIn:     signInWithEmailAndPassword,
+  resetPw:    sendPasswordResetEmail,
+  signOut,
+  col: collection, doc, setDoc, getDoc,
+  deleteDoc, onSnapshot
 };
 
 onAuthStateChanged(fbAuth, user => {
-if (user) {
-window.UID = user.uid;
-document.getElementById("loading-wrap").style.display = "none";
-document.getElementById("auth-wrap").style.display   = "none";
-document.getElementById("app-wrap").style.display    = "flex";
-document.getElementById("hdr-email").textContent     = user.email;
-window.appBoot();
-} else {
-window.UID = null;
-document.getElementById("loading-wrap").style.display = "none";
-document.getElementById("auth-wrap").style.display    = "flex";
-document.getElementById("app-wrap").style.display     = "none";
-if (window.stopListeners) window.stopListeners();
-}
+  if (user) {
+    window.UID = user.uid;
+    document.getElementById("loading-wrap").style.display = "none";
+    document.getElementById("auth-wrap").style.display   = "none";
+    document.getElementById("app-wrap").style.display    = "flex";
+    document.getElementById("hdr-email").textContent     = user.email;
+    window.appBoot();
+  } else {
+    window.UID = null;
+    document.getElementById("loading-wrap").style.display = "none";
+    document.getElementById("auth-wrap").style.display    = "flex";
+    document.getElementById("app-wrap").style.display     = "none";
+    if (window.stopListeners) window.stopListeners();
+  }
 });
 </script>
 
@@ -66,7 +65,7 @@ if (window.stopListeners) window.stopListeners();
 :root {
   --bg:#0b0e18; --sf:#141824; --sf2:#1e2235; --bd:#2a3050;
   --ac:#5ee7c8; --rd:#ff6b6b; --wn:#ffd93d; --pu:#a29bfe; --bl:#74b9ff;
-  --tx:#e8eaf0; --tx2:#8b90a7; --tx3:#4e5470;
+  --tx:#e8eaf0; --tx2:#b0b8d0; --tx3:#7a849e;
   --nh:64px; --sb:env(safe-area-inset-bottom,0px); --st:env(safe-area-inset-top,0px);
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
@@ -82,19 +81,21 @@ html,body{height:100%;overflow:hidden;font-family:"Noto Sans TC",sans-serif;back
   display:none;
   flex-direction:column;
   align-items:center;
-  min-height:100vh;
+  width:100%;
+  min-height:100%;
   overflow-y:auto;
   -webkit-overflow-scrolling:touch;
-  padding:48px 20px 40px;
+  padding:56px 20px 48px;
+  gap:0;
   background:var(--bg);
   background-image:
     radial-gradient(ellipse at 20% 20%,rgba(94,231,200,.08) 0%,transparent 60%),
     radial-gradient(ellipse at 80% 80%,rgba(162,155,254,.07) 0%,transparent 60%);
 }
-.a-logo{text-align:center;margin-bottom:32px;flex-shrink:0}
-.a-logo .em{font-size:52px;display:block;margin-bottom:12px;filter:drop-shadow(0 0 16px rgba(94,231,200,.45))}
-.a-logo h1{font-size:26px;font-weight:900;color:var(--ac);letter-spacing:1px}
-.a-logo p{font-size:13px;color:var(--tx3);margin-top:6px}
+.a-logo{text-align:center;margin-bottom:28px;flex-shrink:0;width:100%}
+.a-logo .em{font-size:56px;display:block;margin-bottom:10px;filter:drop-shadow(0 0 16px rgba(94,231,200,.45))}
+.a-logo h1{font-size:26px;font-weight:900;color:var(--ac);letter-spacing:1px;display:block}
+.a-logo p{font-size:13px;color:#a0aabf;margin-top:6px;display:block}
 .a-card{width:100%;max-width:380px;background:var(--sf);border:1px solid var(--bd);border-radius:20px;padding:24px 20px;box-shadow:0 8px 40px rgba(0,0,0,.5);flex-shrink:0}
 .a-tabs{display:flex;gap:6px;margin-bottom:20px}
 .a-tab{flex:1;padding:9px;border-radius:10px;border:none;cursor:pointer;font-family:inherit;font-size:13px;font-weight:600;background:var(--sf2);color:var(--tx2);transition:all .15s}
@@ -121,12 +122,12 @@ html,body{height:100%;overflow:hidden;font-family:"Noto Sans TC",sans-serif;back
 .hdr-mid{flex:1;display:flex;flex-direction:column;align-items:center}
 .shop-t{font-size:21px;font-weight:900;color:var(--ac);letter-spacing:1px;cursor:pointer;border-bottom:1.5px dashed transparent;transition:border-color .2s;padding:0 4px}
 .shop-t:active{border-bottom-color:var(--ac)}
-#hdr-email{font-size:10px;color:var(--tx3);margin-top:2px}
+#hdr-email{font-size:10px;color:var(--tx2);margin-top:2px}
 .logout-b{background:transparent;border:1px solid var(--bd);color:var(--tx2);border-radius:8px;padding:6px 9px;font-size:11px;font-family:inherit;cursor:pointer;flex-shrink:0}
 .logout-b:active{opacity:.65}
 .scr{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;padding:13px;padding-bottom:calc(var(--nh) + var(--sb) + 20px)}
 .bnav{height:calc(var(--nh) + var(--sb));padding-bottom:var(--sb);background:var(--sf);border-top:1px solid var(--bd);display:flex;flex-shrink:0;z-index:50}
-.ntab{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;cursor:pointer;color:var(--tx3);font-size:10px;font-weight:500;transition:color .15s;padding-top:2px;user-select:none}
+.ntab{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;cursor:pointer;color:var(--tx2);font-size:10px;font-weight:500;transition:color .15s;padding-top:2px;user-select:none}
 .ntab.on{color:var(--ac)}
 .ntab .ni{font-size:22px;line-height:1}
 
@@ -137,19 +138,19 @@ html,body{height:100%;overflow:hidden;font-family:"Noto Sans TC",sans-serif;back
 /* stat cards */
 .sg{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
 .sc{background:var(--sf);border:1px solid var(--bd);border-radius:14px;padding:14px}
-.sl{font-size:11px;color:var(--tx3);margin-bottom:6px}
+.sl{font-size:11px;color:var(--tx2);margin-bottom:6px;font-weight:500;text-transform:uppercase;letter-spacing:.5px}
 .sv{font-family:"DM Mono",monospace;font-size:20px;font-weight:500}
 .sv.g{color:var(--ac)}
 .sv.r{color:var(--rd)}
-.ss{font-size:11px;color:var(--tx3);margin-top:3px}
+.ss{font-size:12px;color:var(--tx2);margin-top:4px}
 .pcard{background:var(--sf);border:1px solid var(--bd);border-radius:14px;padding:15px;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between}
-.pcard .pl{font-size:12px;color:var(--tx3);margin-bottom:3px}
+.pcard .pl{font-size:12px;color:var(--tx2);margin-bottom:3px;font-weight:500}
 .pcard .pv{font-family:"DM Mono",monospace;font-size:27px;font-weight:700}
 .pcard .pv.g{color:var(--ac)}
 .pcard .pv.r{color:var(--rd)}
 .mbadge{font-size:12px;color:var(--tx2);background:var(--sf2);padding:4px 10px;border-radius:20px}
 .card{background:var(--sf);border:1px solid var(--bd);border-radius:14px;padding:13px 15px;margin-bottom:12px}
-.ch{font-size:12px;font-weight:600;color:var(--tx3);text-transform:uppercase;letter-spacing:.8px;margin-bottom:11px}
+.ch{font-size:12px;font-weight:600;color:var(--tx2);text-transform:uppercase;letter-spacing:.8px;margin-bottom:11px}
 
 /* forms */
 .fg{margin-bottom:11px}
@@ -184,14 +185,14 @@ select option{background:#141824}
 /* expense list items */
 .ei{padding:10px 0;border-bottom:1px solid rgba(42,48,80,.5)}
 .ei:last-child{border-bottom:none}
-.ei-top{display:flex;align-items:center;gap:7px}
-.eico{font-size:19px;flex-shrink:0}
-.einf{flex:1;min-width:0}
-.ename{font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.emeta{font-size:11px;color:var(--tx3);margin-top:2px}
-.eamt{font-family:"DM Mono",monospace;font-size:14px;flex-shrink:0}
-.eact{display:flex;gap:4px;flex-shrink:0}
-.ab{padding:5px 9px;border-radius:7px;font-size:11px;font-weight:500;font-family:inherit;cursor:pointer;white-space:nowrap;flex-shrink:0;border:1px solid;transition:opacity .1s}
+.ei-top{display:flex;align-items:center;gap:6px;flex-wrap:nowrap}
+.eico{font-size:18px;flex-shrink:0}
+.einf{flex:1;min-width:0;overflow:hidden}
+.ename{font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.emeta{font-size:11px;color:var(--tx2);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.eamt{font-family:"DM Mono",monospace;font-size:13px;flex-shrink:0;white-space:nowrap}
+.eact{display:flex;gap:4px;flex-shrink:0;margin-left:2px}
+.ab{padding:5px 8px;border-radius:7px;font-size:11px;font-weight:500;font-family:inherit;cursor:pointer;white-space:nowrap;flex-shrink:0;border:1px solid;transition:opacity .1s}
 .ab-e{color:var(--ac);border-color:var(--ac);background:rgba(94,231,200,.07)}
 .ab-d{color:var(--rd);border-color:var(--rd);background:transparent}
 .ab:active{opacity:.6}
@@ -199,8 +200,8 @@ select option{background:#141824}
 /* day row */
 .dr{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid rgba(42,48,80,.4)}
 .dr:last-child{border-bottom:none}
-.dd{font-size:13px;color:var(--tx2)}
-.dpnl{font-family:"DM Mono",monospace;font-size:14px;font-weight:500}
+.dd{font-size:13px;color:var(--tx2);font-weight:500}
+.dpnl{font-family:"DM Mono",monospace;font-size:14px;font-weight:600}
 
 /* badges */
 .badge{display:inline-block;padding:2px 7px;border-radius:20px;font-size:10px;font-weight:500}
@@ -218,7 +219,7 @@ select option{background:#141824}
 /* filter row */
 .fr{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap}
 .fr>div{flex:1;min-width:100px}
-.fl{font-size:11px;color:var(--tx3);display:block;margin-bottom:3px}
+.fl{font-size:11px;color:var(--tx2);display:block;margin-bottom:3px;font-weight:500}
 .fr input[type=month],.fr select{font-size:14px;padding:10px 11px}
 
 /* progress */
@@ -229,7 +230,7 @@ select option{background:#141824}
 .tbanner{background:var(--sf);border:1px solid var(--bd);border-radius:14px;padding:13px 15px;margin-bottom:12px;display:flex}
 .tbanner .tc{flex:1;text-align:center}
 .tbanner .tc+.tc{border-left:1px solid var(--bd)}
-.tcl{font-size:10px;color:var(--tx3);margin-bottom:3px}
+.tcl{font-size:10px;color:var(--tx2);margin-bottom:3px;font-weight:500}
 .tcv{font-family:"DM Mono",monospace;font-size:16px;font-weight:600}
 
 /* modal */
@@ -254,17 +255,16 @@ select option{background:#141824}
 .toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
 .toast.err{background:var(--rd);color:#fff}
 
-.empty{text-align:center;padding:28px 14px;color:var(--tx3);font-size:13px}
+.empty{text-align:center;padding:28px 14px;color:var(--tx2);font-size:13px}
 ::-webkit-scrollbar{width:3px}
 ::-webkit-scrollbar-thumb{background:var(--bd);border-radius:2px}
 </style>
-
 </head>
 <body>
 
 <div id="loading-wrap">
   <div class="spin"></div>
-  <div style="margin-top:13px;font-size:13px;color:var(--tx3)">載入中...</div>
+  <div style="margin-top:13px;font-size:13px;color:var(--tx2)">載入中...</div>
 </div>
 
 <div id="auth-wrap">
@@ -317,119 +317,114 @@ select option{background:#141824}
   </div>
 
   <div class="scr" id="scr">
-
-<div id="pg-home" class="pg on">
-  <div class="pcard">
-    <div>
-      <div class="pl">本月損益</div>
-      <div class="pv g" id="h-profit">$0</div>
-      <div class="ss" id="h-margin">毛利率 0%</div>
-    </div>
-    <div class="mbadge" id="h-month"></div>
-  </div>
-  <div class="sg">
-    <div class="sc"><div class="sl">本月營收</div><div class="sv g" id="h-rev">$0</div><div class="ss" id="h-revd"></div></div>
-    <div class="sc"><div class="sl">本月支出</div><div class="sv r" id="h-exp">$0</div><div class="ss" id="h-expi"></div></div>
-  </div>
-  <div class="card">
-    <div class="ch">收支趨勢（本月）</div>
-    <div class="cw"><canvas id="trend-chart"></canvas></div>
-  </div>
-  <div class="card">
-    <div class="ch">支出分類（本月）</div>
-    <div class="cw" style="height:175px"><canvas id="pie-chart"></canvas></div>
-  </div>
-  <div class="card">
-    <div class="ch">最近 7 天</div>
-    <div id="h-recent"></div>
-  </div>
-</div>
-
-<div id="pg-entry" class="pg">
-  <div class="tbanner">
-    <div class="tc"><div class="tcl">今日營收</div><div class="tcv" id="tb-rev" style="color:var(--tx3)">--</div></div>
-    <div class="tc"><div class="tcl">今日支出</div><div class="tcv" style="color:var(--rd)" id="tb-exp">$0</div></div>
-    <div class="tc"><div class="tcl">今日損益</div><div class="tcv" id="tb-pnl" style="color:var(--tx3)">--</div></div>
-  </div>
-
-  <div class="card">
-    <div class="ch">📟 輸入營收</div>
-    <div class="fg"><label>營收類別</label>
-      <select id="rev-cat">
-        <option value="pos">POS 收款</option>
-        <option value="delivery">外送平台</option>
-        <option value="other_rev">其他收入</option>
-      </select>
-    </div>
-    <div class="fg"><label>日期</label><input type="date" id="rev-date"></div>
-    <div class="fg"><label>金額（元）</label><input type="number" id="rev-amt" inputmode="numeric" placeholder="例：8500"></div>
-    <div class="fg"><label>備註（選填）</label><input type="text" id="rev-note" placeholder="例：假日、活動..."></div>
-    <button class="btn btn-p" id="save-rev-btn" onclick="saveRev()">儲存營收</button>
-  </div>
-
-  <div class="card">
-    <div class="ch">💸 新增支出</div>
-    <div class="fg"><label>日期</label><input type="date" id="exp-date"></div>
-    <div class="fg">
-      <label>支出分類</label>
-      <div class="cg">
-        <button class="cb on" data-cat="food"    onclick="selCat(this)"><span class="ci">🥭</span><span class="cn">食材原料</span></button>
-        <button class="cb"    data-cat="staff"   onclick="selCat(this)"><span class="ci">👥</span><span class="cn">人事支出/<br>孝親費</span></button>
-        <button class="cb"    data-cat="utility" onclick="selCat(this)"><span class="ci">💡</span><span class="cn">水電費/<br>網路電話</span></button>
-        <button class="cb"    data-cat="rent"    onclick="selCat(this)"><span class="ci">🔧</span><span class="cn">設備採買<br>或維修</span></button>
-        <button class="cb"    data-cat="supply"  onclick="selCat(this)"><span class="ci">📦</span><span class="cn">耗材包材</span></button>
-        <button class="cb"    data-cat="other"   onclick="selCat(this)"><span class="ci">📌</span><span class="cn">其他雜費</span></button>
+    <div id="pg-home" class="pg on">
+      <div class="pcard">
+        <div>
+          <div class="pl">本月損益</div>
+          <div class="pv g" id="h-profit">$0</div>
+          <div class="ss" id="h-margin">毛利率 0%</div>
+        </div>
+        <div class="mbadge" id="h-month"></div>
+      </div>
+      <div class="sg">
+        <div class="sc"><div class="sl">本月營收</div><div class="sv g" id="h-rev">$0</div><div class="ss" id="h-revd"></div></div>
+        <div class="sc"><div class="sl">本月支出</div><div class="sv r" id="h-exp">$0</div><div class="ss" id="h-expi"></div></div>
+      </div>
+      <div class="card">
+        <div class="ch">收支趨勢（本月）</div>
+        <div class="cw"><canvas id="trend-chart"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="ch">支出分類（本月）</div>
+        <div class="cw" style="height:175px"><canvas id="pie-chart"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="ch">最近 7 天</div>
+        <div id="h-recent"></div>
       </div>
     </div>
-    <div class="fg"><label>項目名稱 / 明細說明</label><input type="text" id="exp-name" placeholder="例：芒果補貨；員工3人x5000"></div>
-    <div class="fg"><label>金額（元）</label><input type="number" id="exp-amt" inputmode="numeric" placeholder="例：15000"></div>
-    <div class="fg"><label>備註（選填）</label><input type="text" id="rev-note" placeholder="例：向OO廠商採購"></div>
-    <button class="btn btn-p" id="save-exp-btn" onclick="saveExp()">新增支出</button>
-  </div>
 
-  <div class="card">
-    <div class="ch">今日支出明細</div>
-    <div id="today-list"></div>
-  </div>
-</div>
-
-<div id="pg-records" class="pg">
-  <div class="fr">
-    <div><span class="fl">月份</span><input type="month" id="f-month" onchange="resetRecords()"></div>
-    <div><span class="fl">類別</span>
-      <select id="f-cat" onchange="resetRecords()">
-        <option value="all">全部</option>
-        <option value="revenue">營收</option>
-        <option value="food">食材原料</option>
-        <option value="staff">人事支出/孝親費</option>
-        <option value="utility">水電費/網路電話</option>
-        <option value="rent">設備採買或維修</option>
-        <option value="supply">耗材包材</option>
-        <option value="other">其他雜費</option>
-      </select>
+    <div id="pg-entry" class="pg">
+      <div class="tbanner">
+        <div class="tc"><div class="tcl">今日營收</div><div class="tcv" id="tb-rev" style="color:var(--tx2)">--</div></div>
+        <div class="tc"><div class="tcl">今日支出</div><div class="tcv" style="color:var(--rd)" id="tb-exp">$0</div></div>
+        <div class="tc"><div class="tcl">今日損益</div><div class="tcv" id="tb-pnl" style="color:var(--tx2)">--</div></div>
+      </div>
+      <div class="card">
+        <div class="ch">📟 輸入營收</div>
+        <div class="fg"><label>營收類別</label>
+          <select id="rev-cat">
+            <option value="pos">POS 收款</option>
+            <option value="delivery">外送平台</option>
+            <option value="other_rev">其他收入</option>
+          </select>
+        </div>
+        <div class="fg"><label>日期</label><input type="date" id="rev-date"></div>
+        <div class="fg"><label>金額（元）</label><input type="number" id="rev-amt" inputmode="numeric" placeholder="例：8500"></div>
+        <div class="fg"><label>備註（選填）</label><input type="text" id="rev-note" placeholder="例：假日、活動..."></div>
+        <button class="btn btn-p" id="save-rev-btn" onclick="saveRev()">儲存營收</button>
+      </div>
+      <div class="card">
+        <div class="ch">💸 新增支出</div>
+        <div class="fg"><label>日期</label><input type="date" id="exp-date"></div>
+        <div class="fg">
+          <label>支出分類</label>
+          <div class="cg">
+            <button class="cb on" data-cat="food"    onclick="selCat(this)"><span class="ci">🥭</span><span class="cn">食材原料</span></button>
+            <button class="cb"    data-cat="staff"   onclick="selCat(this)"><span class="ci">👥</span><span class="cn">人事支出/<br>孝親費</span></button>
+            <button class="cb"    data-cat="utility" onclick="selCat(this)"><span class="ci">💡</span><span class="cn">水電費/<br>網路電話</span></button>
+            <button class="cb"    data-cat="rent"    onclick="selCat(this)"><span class="ci">🔧</span><span class="cn">設備採買<br>或維修</span></button>
+            <button class="cb"    data-cat="supply"  onclick="selCat(this)"><span class="ci">📦</span><span class="cn">耗材包材</span></button>
+            <button class="cb"    data-cat="other"   onclick="selCat(this)"><span class="ci">📌</span><span class="cn">其他雜費</span></button>
+          </div>
+        </div>
+        <div class="fg"><label>項目名稱 / 明細說明</label><input type="text" id="exp-name" placeholder="例：芒果補貨；員工3人x5000"></div>
+        <div class="fg"><label>金額（元）</label><input type="number" id="exp-amt" inputmode="numeric" placeholder="例：15000"></div>
+        <div class="fg"><label>備註（選填）</label><input type="text" id="exp-note" placeholder="例：向OO廠商採購"></div>
+        <button class="btn btn-p" id="save-exp-btn" onclick="saveExp()">新增支出</button>
+      </div>
+      <div class="card">
+        <div class="ch">今日支出明細</div>
+        <div id="today-list"></div>
+      </div>
     </div>
-  </div>
-  <div class="card" id="rec-list"></div>
-  <button class="load-more-btn" id="load-more-btn" onclick="loadMoreRecords()" style="display:none">載入更多</button>
-</div>
 
-<div id="pg-report" class="pg">
-  <div class="fr" style="flex-wrap:nowrap">
-    <input type="month" id="rpt-month" style="flex:1;font-size:14px;padding:10px 11px">
-    <button class="btn btn-p" style="width:auto;padding:10px 16px;font-size:13px;flex-shrink:0" onclick="renderReport()">產生報表</button>
-  </div>
-  <div id="rpt-content"></div>
-</div>
+    <div id="pg-records" class="pg">
+      <div class="fr">
+        <div><span class="fl">月份</span><input type="month" id="f-month" onchange="resetRecords()"></div>
+        <div><span class="fl">類別</span>
+          <select id="f-cat" onchange="resetRecords()">
+            <option value="all">全部</option>
+            <option value="revenue">營收</option>
+            <option value="food">食材原料</option>
+            <option value="staff">人事支出/孝親費</option>
+            <option value="utility">水電費/網路電話</option>
+            <option value="rent">設備採買或維修</option>
+            <option value="supply">耗材包材</option>
+            <option value="other">其他雜費</option>
+          </select>
+        </div>
+      </div>
+      <div class="card" id="rec-list"></div>
+      <button class="load-more-btn" id="load-more-btn" onclick="loadMoreRecords()" style="display:none">載入更多</button>
+    </div>
 
-<div id="pg-more" class="pg">
-  <div class="stitle">匯出 CSV</div>
-  <div class="card">
-    <div class="fg"><label>起始日期</label><input type="date" id="csv-from"></div>
-    <div class="fg"><label>結束日期</label><input type="date" id="csv-to"></div>
-    <button class="btn btn-p" onclick="exportCSV()">📥 下載 CSV（可用 Excel 開啟）</button>
-  </div>
-</div>
+    <div id="pg-report" class="pg">
+      <div class="fr" style="flex-wrap:nowrap">
+        <input type="month" id="rpt-month" style="flex:1;font-size:14px;padding:10px 11px">
+        <button class="btn btn-p" style="width:auto;padding:10px 16px;font-size:13px;flex-shrink:0" onclick="renderReport()">產生報表</button>
+      </div>
+      <div id="rpt-content"></div>
+    </div>
 
+    <div id="pg-more" class="pg">
+      <div class="stitle">匯出 CSV</div>
+      <div class="card">
+        <div class="fg"><label>起始日期</label><input type="date" id="csv-from"></div>
+        <div class="fg"><label>結束日期</label><input type="date" id="csv-to"></div>
+        <button class="btn btn-p" onclick="exportCSV()">📥 下載 CSV（可用 Excel 開啟）</button>
+      </div>
+    </div>
   </div>
 
   <nav class="bnav">
@@ -518,11 +513,9 @@ select option{background:#141824}
 <div class="toast" id="toast"></div>
 
 <script>
-// ─── 常數 ─────────────────────────────────────────────────────
 const EDIT_PW  = "9527";
 const PAGE_SIZE = 30;
 
-// ─── 工具函式 ─────────────────────────────────────────────────
 const $       = id => document.getElementById(id);
 const fmt     = n  => Number(n).toLocaleString("zh-TW");
 const todayStr  = () => new Date().toISOString().slice(0,10);
@@ -535,13 +528,13 @@ const CAT_LABEL = {
 };
 const REV_LABEL = { pos:"POS 收款", delivery:"外送平台", other_rev:"其他收入" };
 const catLabel = c => CAT_LABEL[c] || REV_LABEL[c] || c;
-const catIcon  = c => (
-  {food:"🥭",staff:"👥",utility:"💡",rent:"🔧",supply:"📦",other:"📌",
-   pos:"💰",delivery:"🛵",other_rev:"💵"}
-)[c] || "💰";
-const catBadge = c => (
-  {food:"bf",staff:"bs",utility:"bu",rent:"br",supply:"bp",other:"bo"}
-)[c] || "brev";
+const catIcon  = c => ({
+  food:"🥭",staff:"👥",utility:"💡",rent:"🔧",supply:"📦",other:"📌",
+  pos:"💰",delivery:"🛵",other_rev:"💵"
+})[c] || "💰";
+const catBadge = c => ({
+  food:"bf",staff:"bs",utility:"bu",rent:"br",supply:"bp",other:"bo"
+})[c] || "brev";
 
 function toast(msg, err=false) {
   const t = $("toast");
@@ -562,9 +555,7 @@ function authTab(tab) {
     $("af-"+t).classList.toggle("on", t===tab);
   });
   document.querySelectorAll(".a-tab").forEach((el,i) => {
-    el.classList.toggle("on",
-      (i===0 && tab==="login") || (i===1 && (tab==="register"||tab==="reset"))
-    );
+    el.classList.toggle("on", (i===0 && tab==="login") || (i===1 && (tab==="register"||tab==="reset")));
   });
 }
 function authLd(id, on) { $(id).classList.toggle("ld", on); }
@@ -579,7 +570,7 @@ function fbErr(code) {
     "auth/too-many-requests":     "嘗試次數過多，請稍後再試",
     "auth/invalid-credential":    "帳號或密碼錯誤",
     "auth/network-request-failed":"網路連線失敗，請重試"
-  })[code] || ("失敗 (" + code + ")");
+  })[code] || ("登入失敗 (" + code + ")");
 }
 
 async function doLogin() {
@@ -625,45 +616,38 @@ const eCol = () => FB.col(FB.db,"users",UID,"expenses");
 const mDoc = () => FB.doc(FB.db,"users",UID,"meta","settings");
 
 let C = { revs:[], exps:[] };
-let _listenersReady = 0;
+let _bootDone = false;
 let _unsub = [];
 
 window.stopListeners = function() {
   _unsub.forEach(fn => fn());
   _unsub = [];
   C = { revs:[], exps:[] };
-  _listenersReady = 0;
+  _bootDone = false;
 };
 
 function startListeners() {
-  _listenersReady = 0;
+  let revReady = false, expReady = false;
   const unsub1 = FB.onSnapshot(rCol(), snap => {
     C.revs = snap.docs.map(d => ({ id:d.id, ...d.data() }));
-    _listenersReady = Math.max(_listenersReady, 1);
-    if (_listenersReady >= 2) onDataReady();
-    onCacheUpdate();
+    revReady = true;
+    if (revReady && expReady) {
+      if (!_bootDone) { _bootDone=true; renderHome(); renderTodayBanner(); }
+      else onCacheUpdate();
+    }
   });
   const unsub2 = FB.onSnapshot(eCol(), snap => {
     C.exps = snap.docs.map(d => ({ id:d.id, ...d.data() }));
-    _listenersReady = Math.max(_listenersReady, 2);
-    onDataReady();
-    onCacheUpdate();
+    expReady = true;
+    if (revReady && expReady) {
+      if (!_bootDone) { _bootDone=true; renderHome(); renderTodayBanner(); }
+      else onCacheUpdate();
+    }
   });
   _unsub = [unsub1, unsub2];
 }
 
-let _bootDone = false;
-function onDataReady() {
-  if (_listenersReady < 2) return;
-  if (!_bootDone) {
-    _bootDone = true;
-    renderHome();
-    renderTodayBanner();
-  }
-}
-
 function onCacheUpdate() {
-  if (!_bootDone) return;
   const active = document.querySelector(".pg.on");
   if (!active) return;
   const id = active.id.replace("pg-","");
@@ -730,7 +714,7 @@ async function saveRev() {
   const note = $("rev-note").value.trim();
   if (!date||isNaN(amt)||amt<0) { toast("請填寫日期與金額",true); return; }
   const ex = C.revs.find(r=>r.date===date && (r.revCat||"pos")===cat);
-  if (ex && !confirm(date+" 已有記錄，確定覆蓋？")) return;
+  if (ex && !confirm(date+" 已有 "+catLabel(cat)+" 記錄，確定覆蓋？")) return;
   const btn=$("save-rev-btn"); btn.disabled=true;
   try {
     const id = ex ? ex.id : "rev_"+cat+"_"+date+"_"+UID.slice(-6);
@@ -750,11 +734,9 @@ function openRevEdit(r) {
   openMov("m-rev");
 }
 async function saveRevEdit() {
-  const id=  $("mr-id").value;
-  const cat= $("mr-cat").value;
-  const date=$("mr-date").value;
-  const amt= parseFloat($("mr-amt").value);
-  const note=$("mr-note").value.trim();
+  const id=  $("mr-id").value, cat= $("mr-cat").value, date=$("mr-date").value;
+  const amt= parseFloat($("mr-amt").value), note=$("mr-note").value.trim();
+  if (!date||isNaN(amt)) { toast("資料不完整",true); return; }
   try {
     await FB.setDoc(FB.doc(rCol(),id),{date,revCat:cat,amount:amt,note,uid:UID});
     closeMov("m-rev"); toast("已更新");
@@ -767,18 +749,15 @@ async function deleteRev(id) {
 }
 
 async function saveExp() {
-  const date=$("exp-date").value;
-  const cat= getCat();
-  const name=$("exp-name").value.trim();
-  const amt= parseFloat($("exp-amt").value);
-  const note=$("rev-note").value.trim(); // 修正：此處應對應 UI ID
-  if (!date||!name||isNaN(amt)||amt<0) { toast("請填寫完整資訊",true); return; }
+  const date=$("exp-date").value, cat= getCat(), name=$("exp-name").value.trim();
+  const amt= parseFloat($("exp-amt").value), note=$("exp-note").value.trim();
+  if (!date||!name||isNaN(amt)||amt<0) { toast("請填寫完整支出資訊",true); return; }
   const btn=$("save-exp-btn"); btn.disabled=true;
   try {
     const id="exp_"+Date.now()+"_"+UID.slice(-6);
     await FB.setDoc(FB.doc(eCol(),id),{date,category:cat,name,amount:amt,note,uid:UID});
-    $("exp-name").value=""; $("exp-amt").value="";
-    toast("已新增支出 $"+fmt(amt));
+    $("exp-name").value=""; $("exp-amt").value=""; $("exp-note").value="";
+    toast("已新增 "+catLabel(cat)+" $"+fmt(amt));
   } catch(e) { toast("儲存失敗",true); }
   finally { btn.disabled=false; }
 }
@@ -793,12 +772,9 @@ function openExpEdit(e) {
   openMov("m-exp");
 }
 async function saveExpEdit() {
-  const id=  $("me-id").value;
-  const date=$("me-date").value;
-  const cat= $("me-cat").value;
-  const name=$("me-name").value.trim();
-  const amt= parseFloat($("me-amt").value);
-  const note=$("me-note").value.trim();
+  const id=  $("me-id").value, date=$("me-date").value, cat= $("me-cat").value;
+  const name=$("me-name").value.trim(), amt= parseFloat($("me-amt").value), note=$("me-note").value.trim();
+  if (!date||!name||isNaN(amt)) { toast("資料不完整",true); return; }
   try {
     await FB.setDoc(FB.doc(eCol(),id),{date,category:cat,name,amount:amt,note,uid:UID});
     closeMov("m-exp"); toast("已更新");
@@ -836,40 +812,41 @@ function renderTodayBanner() {
 
   const tbR=$("tb-rev");
   tbR.textContent = hasRev ? "$"+fmt(totR) : "--";
-  tbR.style.color = hasRev ? "var(--ac)" : "var(--tx3)";
+  tbR.style.color = hasRev ? "var(--ac)" : "var(--tx2)";
   $("tb-exp").textContent="$"+fmt(totE);
   const tbP=$("tb-pnl");
   if (pnl!==null) { tbP.textContent="$"+fmt(pnl); tbP.style.color=pnl>=0?"var(--ac)":"var(--rd)"; }
-  else { tbP.textContent="--"; tbP.style.color="var(--tx3)"; }
+  else { tbP.textContent="--"; tbP.style.color="var(--tx2)"; }
 
   const list=$("today-list");
-  if (!exps.length) { list.innerHTML="<div class='empty'>今日尚無支出</div>"; return; }
+  if (!exps.length) { list.innerHTML="<div class=\"empty\">今日尚無支出</div>"; return; }
   list.innerHTML = exps.map(e =>
-    "<div class='ei'><div class='ei-top'>" +
-    "<span class='eico'>"+catIcon(e.category)+"</span>" +
-    "<div class='einf'>" +
-      "<div class='ename'>"+e.name+"</div>" +
-      "<div class='emeta'>"+catLabel(e.category)+(e.note?" - "+e.note:"")+"</div>" +
-    "</div>" +
-    "<span class='eamt' style='color:var(--rd)'>-$"+fmt(e.amount)+"</span>" +
-    "</div></div>"
+    `<div class="ei"><div class="ei-top">
+    <span class="eico">${catIcon(e.category)}</span>
+    <div class="einf">
+      <div class="ename">${e.name}</div>
+      <div class="emeta">${catLabel(e.category)}${e.note?" - "+e.note:""}</div>
+    </div>
+    <span class="eamt" style="color:var(--rd)">-$${fmt(e.amount)}</span>
+    </div></div>`
   ).join("");
 }
 
 let tChart=null, pChart=null;
+
 function renderHome() {
   const now=new Date(), m=monthStr();
   $("h-month").textContent=m;
   const revs=C.revs.filter(r=>r.date.startsWith(m));
   const exps=C.exps.filter(e=>e.date.startsWith(m));
-  const totR=revs.reduce((s,r)=>s+r.amount,0);
-  const totE=exps.reduce((s,e)=>s+e.amount,0);
+  const totR=revs.reduce((s,r)=>s+r.amount,0), totE=exps.reduce((s,e)=>s+e.amount,0);
   const pnl=totR-totE, mg=totR>0?((pnl/totR)*100).toFixed(1):0;
 
   const hp=$("h-profit");
   hp.textContent="$"+fmt(pnl); hp.className="pv "+(pnl>=0?"g":"r");
   $("h-margin").textContent="毛利率 "+mg+"%";
-  $("h-rev").textContent="$"+fmt(totR); $("h-exp").textContent="$"+fmt(totE);
+  $("h-rev").textContent="$"+fmt(totR); $("h-revd").textContent=revs.length+" 天";
+  $("h-exp").textContent="$"+fmt(totE); $("h-expi").textContent=exps.length+" 筆";
 
   const dim=new Date(now.getFullYear(),now.getMonth()+1,0).getDate();
   const lbs=[],rArr=[],eArr=[];
@@ -880,69 +857,163 @@ function renderHome() {
     const ex=C.exps.filter(x=>x.date===ds).reduce((s,x)=>s+x.amount,0);
     rArr.push(rv>0?rv:null); eArr.push(ex>0?ex:null);
   }
-  if (tChart) tChart.destroy();
-  tChart = new Chart($("trend-chart"),{
+  if (tChart) { tChart.destroy(); tChart=null; }
+  tChart = new Chart($("trend-chart").getContext("2d"),{
     type:"line",
     data:{labels:lbs,datasets:[
-      {label:"營收",data:rArr,borderColor:"#5ee7c8",backgroundColor:"rgba(94,231,200,.07)",tension:.3,spanGaps:true,pointRadius:2},
-      {label:"支出",data:eArr,borderColor:"#ff6b6b",backgroundColor:"rgba(255,107,107,.07)",tension:.3,spanGaps:true,pointRadius:2}
+      {label:"營收",data:rArr,borderColor:"#5ee7c8",backgroundColor:"rgba(94,231,200,.07)",tension:.3,spanGaps:true,pointRadius:2,borderWidth:2},
+      {label:"支出",data:eArr,borderColor:"#ff6b6b",backgroundColor:"rgba(255,107,107,.07)",tension:.3,spanGaps:true,pointRadius:2,borderWidth:2}
     ]},
-    options:{responsive:true,maintainAspectRatio:false}
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{labels:{color:"#8b90a7",font:{size:10},boxWidth:10,padding:10}}},
+      scales:{
+        x:{ticks:{color:"#4e5470",font:{size:9},maxTicksLimit:8},grid:{color:"rgba(42,48,80,.4)"}},
+        y:{ticks:{color:"#4e5470",font:{size:9},callback:v=>"$"+fmt(v)},grid:{color:"rgba(42,48,80,.4)"}}
+      }
+    }
   });
 
-  const cats=["food","staff","utility","rent","supply","other"];
-  const tots=cats.map(c=>exps.filter(e=>e.category===c).reduce((s,e)=>s+e.amount,0));
-  if (pChart) pChart.destroy();
-  pChart = new Chart($("pie-chart"),{
+  const cats  =["food","staff","utility","rent","supply","other"];
+  const colors=["#5ee7c8","#a29bfe","#ffd93d","#ff6b6b","#74b9ff","#8b90a7"];
+  const tots  =cats.map(c=>exps.filter(e=>e.category===c).reduce((s,e)=>s+e.amount,0));
+  if (pChart) { pChart.destroy(); pChart=null; }
+  pChart = new Chart($("pie-chart").getContext("2d"),{
     type:"doughnut",
-    data:{labels:cats.map(catLabel),datasets:[{data:tots,backgroundColor:["#5ee7c8","#a29bfe","#ffd93d","#ff6b6b","#74b9ff","#8b90a7"]}]},
-    options:{responsive:true,maintainAspectRatio:false}
+    data:{labels:cats.map(catLabel),datasets:[{data:tots,backgroundColor:colors.map(c=>c+"bb"),borderColor:colors,borderWidth:1.5}]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{
+        legend:{position:"right",labels:{color:"#8b90a7",font:{size:10},boxWidth:10,padding:5}},
+        tooltip:{callbacks:{label:ctx=>" "+ctx.label+": $"+fmt(ctx.raw)}}
+      }
+    }
   });
+
+  const ds=new Set([...C.revs.map(r=>r.date),...C.exps.map(e=>e.date)]);
+  const recent=[...ds].sort().reverse().slice(0,7);
+  const rl=$("h-recent");
+  if (!recent.length) { rl.innerHTML="<div class=\"empty\">尚無資料</div>"; return; }
+  rl.innerHTML=recent.map(d=>{
+    const rv=C.revs.filter(x=>x.date===d).reduce((s,x)=>s+x.amount,0);
+    const ex=C.exps.filter(x=>x.date===d).reduce((s,x)=>s+x.amount,0);
+    const p=rv-ex, mm=d.slice(5,7)+"/"+d.slice(8,10), hasR=C.revs.some(x=>x.date===d);
+    return `<div class="dr"><div><div class="dd">${mm}</div>
+      <div style="font-size:11px;color:var(--tx2);margin-top:2px">${hasR?"收 $"+fmt(rv):"無營收"}${ex>0?" / 支 $"+fmt(ex):""}</div></div>
+      <div class="dpnl" style="color:${hasR||ex>0?(p>=0?"var(--ac)":"var(--rd)"):"var(--tx2)"}">${(hasR||ex>0)?"$"+fmt(p):"--"}</div></div>`;
+  }).join("");
 }
 
-let _recRows=[], _recCursor=0;
-function resetRecords() { _recRows=[]; _recCursor=0; $("rec-list").innerHTML=""; buildRecordsRows(); renderRecordsPage(); }
+let _recRows  = [], _recCursor = 0;
+
+function resetRecords() {
+  _recRows   = []; _recCursor = 0;
+  $("rec-list").innerHTML=""; $("load-more-btn").style.display="none";
+  buildRecordsRows(); renderRecordsPage();
+}
+
 function buildRecordsRows() {
   const m=$("f-month").value, cat=$("f-cat").value;
+  _recRows=[];
   if (cat==="all"||cat==="revenue") C.revs.filter(r=>r.date.startsWith(m)).forEach(r=>_recRows.push({...r,_type:"rev"}));
   if (cat!=="revenue") C.exps.filter(e=>e.date.startsWith(m) && (cat==="all"||e.category===cat)).forEach(e=>_recRows.push({...e,_type:"exp"}));
   _recRows.sort((a,b)=>b.date.localeCompare(a.date));
 }
 
 function renderRecordsPage() {
+  if (!_recRows.length) {
+    $("rec-list").innerHTML="<div class=\"empty\">此月份無資料</div>";
+    $("load-more-btn").style.display="none"; return;
+  }
   const page=_recRows.slice(_recCursor,_recCursor+PAGE_SIZE);
   const el=$("rec-list");
-  if (!_recRows.length) { el.innerHTML="<div class='empty'>無資料</div>"; return; }
+
   page.forEach(r=>{
-    const div=document.createElement("div"); div.className="ei";
-    const mm=r.date.slice(5,10);
+    const mm=r.date.slice(5,7)+"/"+r.date.slice(8,10), div=document.createElement("div");
+    div.className="ei";
     if (r._type==="rev") {
-      div.innerHTML=`<div class='ei-top'><span class='eico'>${catIcon(r.revCat)}</span><div class='einf'><div class='ename'>${catLabel(r.revCat)}</div><div class='emeta'>${mm} 營收</div></div><span class='eamt' style='color:var(--ac)'>+$${fmt(r.amount)}</span><div class='eact'><button class='ab ab-e' onclick='requirePw(()=>openRevEdit(C.revs.find(x=>x.id==="${r.id}")))'>修改</button></div></div>`;
+      const rid=r.id;
+      div.innerHTML=`<div class="ei-top"><span class="eico">${catIcon(r.revCat||"pos")}</span>
+        <div class="einf"><div class="ename">${catLabel(r.revCat||"pos")}</div><div class="emeta">${mm} <span class="badge brev">營收</span>${r.note?" - "+r.note:""}</div></div>
+        <span class="eamt" style="color:var(--ac)">+$${fmt(r.amount)}</span><div class="eact"><button class="ab ab-e">修改</button><button class="ab ab-d">刪除</button></div></div>`;
+      div.querySelector(".ab-e").onclick=()=>requirePw(()=>openRevEdit(C.revs.find(x=>x.id===rid)||r));
+      div.querySelector(".ab-d").onclick=()=>requirePw(()=>deleteRev(rid));
     } else {
-      div.innerHTML=`<div class='ei-top'><span class='eico'>${catIcon(r.category)}</span><div class='einf'><div class='ename'>${r.name}</div><div class='emeta'>${mm} ${catLabel(r.category)}</div></div><span class='eamt' style='color:var(--rd)'>-$${fmt(r.amount)}</span><div class='eact'><button class='ab ab-e' onclick='requirePw(()=>openExpEdit(C.exps.find(x=>x.id==="${r.id}")))'>修改</button></div></div>`;
+      const eid=r.id;
+      div.innerHTML=`<div class="ei-top"><span class="eico">${catIcon(r.category)}</span>
+        <div class="einf"><div class="ename">${r.name}</div><div class="emeta">${mm} <span class="badge ${catBadge(r.category)}">${catLabel(r.category)}</span>${r.note?" - "+r.note:""}</div></div>
+        <span class="eamt" style="color:var(--rd)">-$${fmt(r.amount)}</span><div class="eact"><button class="ab ab-e">修改</button><button class="ab ab-d">刪除</button></div></div>`;
+      div.querySelector(".ab-e").onclick=()=>requirePw(()=>openExpEdit(C.exps.find(x=>x.id===eid)||r));
+      div.querySelector(".ab-d").onclick=()=>requirePw(()=>deleteExp(eid));
     }
     el.appendChild(div);
   });
+
   _recCursor+=page.length;
+  const btn=$("load-more-btn");
+  if (_recCursor<_recRows.length) {
+    btn.style.display="block"; btn.disabled=false;
+    btn.textContent="載入更多（剩餘 "+(_recRows.length-_recCursor)+" 筆）";
+  } else btn.style.display="none";
 }
 
+function loadMoreRecords() { renderRecordsPage(); }
+
 function renderReport() {
-  const m=$("rpt-month").value;
-  const revs=C.revs.filter(r=>r.date.startsWith(m)), exps=C.exps.filter(e=>e.date.startsWith(m));
+  const m=$("rpt-month").value, revs=C.revs.filter(r=>r.date.startsWith(m)), exps=C.exps.filter(e=>e.date.startsWith(m));
   const totR=revs.reduce((s,r)=>s+r.amount,0), totE=exps.reduce((s,e)=>s+e.amount,0);
-  $("rpt-content").innerHTML=`<div class='sc'>總營收: $${fmt(totR)}</div><div class='sc'>總支出: $${fmt(totE)}</div><div class='sc'>淨利: $${fmt(totR-totE)}</div>`;
+  const pnl=totR-totE, mg=totR>0?((pnl/totR)*100).toFixed(1):0, days=[...new Set(revs.map(r=>r.date))].length, avg=days>0?Math.round(totR/days):0;
+  const cats=["food","staff","utility","rent","supply","other"];
+  const catBreak=cats.map(c=>({
+    key:c, label:catLabel(c), icon:catIcon(c), amount:exps.filter(e=>e.category===c).reduce((s,e)=>s+e.amount,0), items: exps.filter(e=>e.category===c)
+  })).filter(c=>c.amount>0).sort((a,b)=>b.amount-a.amount);
+
+  let html=`<div class="sg"><div class="sc"><div class="sl">總營收</div><div class="sv g">$${fmt(totR)}</div><div class="ss">均 $${fmt(avg)}/天，共 ${days} 天</div></div>
+    <div class="sc"><div class="sl">總支出</div><div class="sv r">$${fmt(totE)}</div><div class="ss">${exps.length} 筆</div></div></div>
+    <div class="pcard"><div><div class="pl">淨損益</div><div class="pv ${pnl>=0?"g":"r"}">$${fmt(pnl)}</div></div><div class="mbadge">毛利率 ${mg}%</div></div>
+    <div class="card"><div class="ch">支出分類明細</div>`;
+
+  if (!catBreak.length) html+="<div class=\"empty\">本月無支出記錄</div>";
+  else {
+    catBreak.forEach(c=>{
+      const ep=totE>0?((c.amount/totE)*100).toFixed(1):0, rp=totR>0?((c.amount/totR)*100).toFixed(1):0;
+      html+=`<div style="margin-bottom:16px"><div style="display:flex;justify-content:space-between;align-items:center"><span>${c.icon} <strong style="font-size:13px">${c.label}</strong></span><span style="font-family:'DM Mono',monospace;color:var(--rd);font-size:13px">$${fmt(c.amount)}</span></div>
+        <div style="display:flex;justify-content:space-between;margin:4px 0"><span style="font-size:11px;color:var(--tx2)">佔支出 ${ep}%</span><span style="font-size:11px;color:var(--tx2)">成本率 ${rp}%</span></div>
+        <div class="pb"><div class="pf" style="width:${ep}%"></div></div><div style="margin-top:7px">${c.items.map(i=>`<div style="display:flex;justify-content:space-between;padding:3px 0;font-size:12px;border-bottom:1px solid rgba(42,48,80,.3)"><span style="color:var(--tx2)">${i.name}</span><span style="font-family:'DM Mono',monospace;color:var(--tx2)">$${fmt(i.amount)}</span></div>`).join("")}</div></div>`;
+    });
+  }
+  html+="</div>";
+  const dateSet=new Set([...revs.map(r=>r.date),...exps.map(e=>e.date)]);
+  html+="<div class=\"card\"><div class=\"ch\">每日損益</div>";
+  if (!dateSet.size) html+="<div class=\"empty\">本月無資料</div>";
+  else {
+    [...dateSet].sort().reverse().forEach(d=>{
+      const rv=revs.filter(x=>x.date===d).reduce((s,x)=>s+x.amount,0), ex=exps.filter(x=>x.date===d).reduce((s,x)=>s+x.amount,0);
+      const p=rv-ex, mg2=rv>0?((p/rv)*100).toFixed(1):null, mm=d.slice(5,7)+"/"+d.slice(8,10), hasR=revs.some(x=>x.date===d);
+      html+=`<div class="dr"><div><div class="dd">${mm}</div><div style="font-size:11px;color:var(--tx2);margin-top:2px">${hasR?"收 $"+fmt(rv):"--"}${ex>0?" / 支 $"+fmt(ex):""}</div></div>
+        <div style="text-align:right"><div class="dpnl" style="color:${hasR||ex>0?(p>=0?"var(--ac)":"var(--rd)"):"var(--tx2)"}">${(hasR||ex>0)?"$"+fmt(p):"--"}</div>${mg2!==null?`<div style="font-size:11px;color:var(--tx2)">${mg2}%</div>`:""}</div></div>`;
+    });
+  }
+  html+="</div>";
+  $("rpt-content").innerHTML=html;
 }
 
 async function exportCSV() {
   const from=$("csv-from").value, to=$("csv-to").value;
-  let rows=[["日期","類型","分類","項目","金額"]];
-  C.revs.filter(r=>r.date>=from&&r.date<=to).forEach(r=>rows.push([r.date,"營收",catLabel(r.revCat),catLabel(r.revCat),r.amount]));
-  C.exps.filter(e=>e.date>=from&&e.date<=to).forEach(e=>rows.push([e.date,"支出",catLabel(e.category),e.name,e.amount]));
-  const csv="\uFEFF"+rows.map(r=>r.join(",")).join("\n");
-  const blob=new Blob([csv],{type:"text/csv"});
-  const a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download="帳務匯出.csv"; a.click();
+  if (!from||!to)  { toast("請選擇起始和結束日期",true); return; }
+  if (from>to)     { toast("起始日期不能晚於結束日期",true); return; }
+  const shopName=$("shop-title").textContent;
+  const titleRow=['"'+shopName+' - 帳務匯出"','','','','',''], rangeRow=['"期間：'+from+' 至 '+to+'"','','','','',''], header=["日期","類型","分類","項目名稱/明細","金額（元）","備註"];
+  let rows=[];
+  C.revs.filter(r=>r.date>=from&&r.date<=to).forEach(r=>rows.push([r.date,"營收",catLabel(r.revCat||"pos"),catLabel(r.revCat||"pos"),r.amount,r.note||""]));
+  C.exps.filter(e=>e.date>=from&&e.date<=to).forEach(e=>rows.push([e.date,"支出",catLabel(e.category),e.name,e.amount,e.note||""]));
+  rows.sort((a,b)=>a[0].localeCompare(b[0]));
+  const toRow=arr=>arr.map(c=>'"'+String(c).replace(/"/g,'""')+'"').join(",");
+  const csv="\uFEFF"+[titleRow,rangeRow,header,...rows].map(toRow).join("\n");
+  const blob=new Blob([csv],{type:"text/csv;charset=utf-8"}), url=URL.createObjectURL(blob), a=document.createElement("a");
+  a.href=url; a.download="冰店帳務_"+from+"_至_"+to+".csv";
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  setTimeout(()=>URL.revokeObjectURL(url),1000);
+  toast("CSV 已下載");
 }
 </script>
-
 </body>
 </html>
