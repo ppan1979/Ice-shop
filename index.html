@@ -1,57 +1,69 @@
 <!DOCTYPE html>
+
 <html lang="zh-TW">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>冰店記帳</title>
+<title>Ice Shop</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendPasswordResetEmail, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { getFirestore, collection, doc, setDoc, getDoc, getDocs, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import {
+  getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword,
+  sendPasswordResetEmail, onAuthStateChanged, signOut
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import {
+  getFirestore, collection, doc, setDoc, getDoc, getDocs,
+  deleteDoc, onSnapshot, query, orderBy, limit, startAfter
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-const firebaseConfig = {
-apiKey: "AIzaSyBVp9cEW4maC1oLdJGnduD8Gnpct2FvIaY",
-authDomain: "ice-shop-account.firebaseapp.com",
-projectId: "ice-shop-account",
-storageBucket: "ice-shop-account.firebasestorage.app",
-messagingSenderId: "115443037159",
-appId: "1:115443037159:web:3748852558c426e7acc342"
+const cfg = {
+apiKey: “AIzaSyBVp9cEW4maC1oLdJGnduD8Gnpct2FvIaY”,
+authDomain: “ice-shop-account.firebaseapp.com”,
+projectId: “ice-shop-account”,
+storageBucket: “ice-shop-account.firebasestorage.app”,
+messagingSenderId: “115443037159”,
+appId: “1:115443037159:web:3748852558c426e7acc342”
 };
 
-const fbApp = initializeApp(firebaseConfig);
+const fbApp  = initializeApp(cfg);
 const fbAuth = getAuth(fbApp);
-const fbDb = getFirestore(fbApp);
+const fbDb   = getFirestore(fbApp);
 
-window.FB = { auth: fbAuth, db: fbDb,
+// expose to global script tag
+window.FB = {
+auth: fbAuth, db: fbDb,
 createUser: createUserWithEmailAndPassword,
 signIn: signInWithEmailAndPassword,
 resetPw: sendPasswordResetEmail,
-signOut: signOut,
-col: collection, doc, setDoc, getDoc, getDocs, deleteDoc
+signOut,
+col: collection, doc, setDoc, getDoc, getDocs,
+deleteDoc, onSnapshot, query, orderBy, limit, startAfter
 };
 
 onAuthStateChanged(fbAuth, user => {
 if (user) {
 window.UID = user.uid;
-document.getElementById('auth-wrap').style.display = 'none';
-document.getElementById('app-wrap').style.display = 'flex';
-document.getElementById('hdr-email').textContent = user.email;
-document.getElementById('loading-wrap').style.display = 'none';
+document.getElementById(“loading-wrap”).style.display = “none”;
+document.getElementById(“auth-wrap”).style.display   = “none”;
+document.getElementById(“app-wrap”).style.display    = “flex”;
+document.getElementById(“hdr-email”).textContent     = user.email;
 window.appBoot();
 } else {
 window.UID = null;
-document.getElementById('loading-wrap').style.display = 'none';
-document.getElementById('auth-wrap').style.display = 'flex';
-document.getElementById('app-wrap').style.display = 'none';
+document.getElementById(“loading-wrap”).style.display = “none”;
+document.getElementById(“auth-wrap”).style.display    = “flex”;
+document.getElementById(“app-wrap”).style.display     = “none”;
+window.stopListeners && window.stopListeners();
 }
 });
 </script>
 
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=DM+Mono:wght@400;500&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=DM+Mono:wght@400;500&display=swap");
+
 :root {
   --bg:#0b0e18; --sf:#141824; --sf2:#1e2235; --bd:#2a3050;
   --ac:#5ee7c8; --rd:#ff6b6b; --wn:#ffd93d; --pu:#a29bfe; --bl:#74b9ff;
@@ -59,83 +71,100 @@ document.getElementById('app-wrap').style.display = 'none';
   --nh:64px; --sb:env(safe-area-inset-bottom,0px); --st:env(safe-area-inset-top,0px);
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-html,body{height:100%;overflow:hidden;font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--tx);font-size:15px}
+html,body{height:100%;overflow:hidden;font-family:"Noto Sans TC",sans-serif;background:var(--bg);color:var(--tx);font-size:15px}
 
-/* Loading */
+/* ── loading ─────────────────────────────── */
 #loading-wrap{position:fixed;inset:0;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:999}
 .spin{width:36px;height:36px;border:3px solid var(--bd);border-top-color:var(--ac);border-radius:50%;animation:spin .8s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
 
-/* Auth */
-#auth-wrap{display:none;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:24px 20px;background:var(--bg);background-image:radial-gradient(ellipse at 20% 20%,rgba(94,231,200,.08) 0%,transparent 60%),radial-gradient(ellipse at 80% 80%,rgba(162,155,254,.07) 0%,transparent 60%)}
-.a-logo{text-align:center;margin-bottom:32px}
-.a-logo .em{font-size:54px;display:block;margin-bottom:8px;filter:drop-shadow(0 0 18px rgba(94,231,200,.45))}
+/* ── auth ────────────────────────────────── */
+#auth-wrap{
+  display:none;flex-direction:column;align-items:center;
+  min-height:100vh;padding:32px 20px 24px;overflow-y:auto;
+  background:var(--bg);
+  background-image:
+    radial-gradient(ellipse at 20% 20%,rgba(94,231,200,.08) 0%,transparent 60%),
+    radial-gradient(ellipse at 80% 80%,rgba(162,155,254,.07) 0%,transparent 60%);
+}
+.a-logo{text-align:center;margin-bottom:28px;flex-shrink:0}
+.a-logo .em{font-size:52px;display:block;margin-bottom:10px;filter:drop-shadow(0 0 16px rgba(94,231,200,.45))}
 .a-logo h1{font-size:26px;font-weight:900;color:var(--ac);letter-spacing:1px}
-.a-logo p{font-size:13px;color:var(--tx3);margin-top:3px}
-.a-card{width:100%;max-width:380px;background:var(--sf);border:1px solid var(--bd);border-radius:20px;padding:26px 22px;box-shadow:0 8px 40px rgba(0,0,0,.5)}
+.a-logo p{font-size:13px;color:var(--tx3);margin-top:4px}
+.a-card{width:100%;max-width:380px;background:var(--sf);border:1px solid var(--bd);border-radius:20px;padding:24px 20px;box-shadow:0 8px 40px rgba(0,0,0,.5);flex-shrink:0}
 .a-tabs{display:flex;gap:6px;margin-bottom:20px}
 .a-tab{flex:1;padding:9px;border-radius:10px;border:none;cursor:pointer;font-family:inherit;font-size:13px;font-weight:600;background:var(--sf2);color:var(--tx2);transition:all .15s}
 .a-tab.on{background:var(--ac);color:#0b0e18}
 .a-form{display:none}
 .a-form.on{display:block}
-.a-iw{position:relative;margin-bottom:13px}
+.a-iw{position:relative;margin-bottom:12px}
 .a-iw .ico{position:absolute;left:13px;top:50%;transform:translateY(-50%);font-size:15px;pointer-events:none}
 .a-iw input{width:100%;background:var(--sf2);border:1px solid var(--bd);border-radius:11px;color:var(--tx);padding:13px 13px 13px 40px;font-family:inherit;font-size:16px;outline:none;transition:border-color .15s;-webkit-appearance:none}
 .a-iw input:focus{border-color:var(--ac)}
 .a-iw input::placeholder{color:var(--tx3)}
-.a-btn{width:100%;padding:14px;border-radius:11px;border:none;cursor:pointer;font-family:inherit;font-size:15px;font-weight:700;background:var(--ac);color:#0b0e18;margin-top:3px;letter-spacing:.4px;transition:all .15s}
+.a-btn{width:100%;padding:14px;border-radius:11px;border:none;cursor:pointer;font-family:inherit;font-size:15px;font-weight:700;background:var(--ac);color:#0b0e18;margin-top:4px;letter-spacing:.4px;transition:all .15s}
 .a-btn:active{filter:brightness(.87);transform:scale(.98)}
 .a-btn.ld{opacity:.55;pointer-events:none}
 .a-lnk{text-align:center;margin-top:14px;font-size:13px;color:var(--tx2)}
 .a-lnk a{color:var(--ac);text-decoration:none;cursor:pointer}
-.a-err{background:rgba(255,107,107,.1);border:1px solid rgba(255,107,107,.3);border-radius:9px;padding:9px 13px;font-size:13px;color:var(--rd);margin-bottom:13px;display:none}
-.a-ok{background:rgba(94,231,200,.1);border:1px solid rgba(94,231,200,.3);border-radius:9px;padding:9px 13px;font-size:13px;color:var(--ac);margin-bottom:13px;display:none}
+.a-err{background:rgba(255,107,107,.1);border:1px solid rgba(255,107,107,.3);border-radius:9px;padding:9px 13px;font-size:13px;color:var(--rd);margin-bottom:12px;display:none}
+.a-ok{background:rgba(94,231,200,.1);border:1px solid rgba(94,231,200,.3);border-radius:9px;padding:9px 13px;font-size:13px;color:var(--ac);margin-bottom:12px;display:none}
 
-/* App shell */
+/* ── app shell ───────────────────────────── */
 #app-wrap{display:none;flex-direction:column;height:100%}
 .hdr{padding-top:var(--st);background:var(--sf);border-bottom:1px solid var(--bd);flex-shrink:0}
 .hdr-inner{display:flex;align-items:center;justify-content:space-between;padding:9px 15px}
 .hdr-mid{flex:1;display:flex;flex-direction:column;align-items:center}
-.shop-t{font-size:22px;font-weight:900;color:var(--ac);letter-spacing:1px;cursor:pointer;border-bottom:1.5px dashed transparent;transition:border-color .2s;padding:0 4px}
+.shop-t{font-size:21px;font-weight:900;color:var(--ac);letter-spacing:1px;cursor:pointer;border-bottom:1.5px dashed transparent;transition:border-color .2s;padding:0 4px;line-height:1.2}
 .shop-t:active{border-bottom-color:var(--ac)}
-#hdr-email{font-size:10px;color:var(--tx3);margin-top:1px}
+#hdr-email{font-size:10px;color:var(--tx3);margin-top:2px}
 .logout-b{background:transparent;border:1px solid var(--bd);color:var(--tx2);border-radius:8px;padding:6px 9px;font-size:11px;font-family:inherit;cursor:pointer;flex-shrink:0}
 .logout-b:active{opacity:.65}
-.scr{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;padding:13px 13px;padding-bottom:calc(var(--nh) + var(--sb) + 20px)}
+
+/* ── scroll + nav ────────────────────────── */
+.scr{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;padding:13px;padding-bottom:calc(var(--nh) + var(--sb) + 20px)}
 .bnav{height:calc(var(--nh) + var(--sb));padding-bottom:var(--sb);background:var(--sf);border-top:1px solid var(--bd);display:flex;flex-shrink:0;z-index:50}
 .ntab{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;cursor:pointer;color:var(--tx3);font-size:10px;font-weight:500;transition:color .15s;padding-top:2px;user-select:none}
 .ntab.on{color:var(--ac)}
 .ntab .ni{font-size:22px;line-height:1}
 
-/* Pages */
+/* ── pages ───────────────────────────────── */
 .pg{display:none}
 .pg.on{display:block}
 
-/* Stat cards */
+/* ── stat cards ──────────────────────────── */
 .sg{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
 .sc{background:var(--sf);border:1px solid var(--bd);border-radius:14px;padding:14px}
 .sl{font-size:11px;color:var(--tx3);margin-bottom:6px}
-.sv{font-family:'DM Mono',monospace;font-size:20px;font-weight:500}
+.sv{font-family:"DM Mono",monospace;font-size:20px;font-weight:500}
 .sv.g{color:var(--ac)}
 .sv.r{color:var(--rd)}
 .ss{font-size:11px;color:var(--tx3);margin-top:3px}
-
 .pcard{background:var(--sf);border:1px solid var(--bd);border-radius:14px;padding:15px;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between}
 .pcard .pl{font-size:12px;color:var(--tx3);margin-bottom:3px}
-.pcard .pv{font-family:'DM Mono',monospace;font-size:27px;font-weight:700}
+.pcard .pv{font-family:"DM Mono",monospace;font-size:27px;font-weight:700}
 .pcard .pv.g{color:var(--ac)}
 .pcard .pv.r{color:var(--rd)}
 .mbadge{font-size:12px;color:var(--tx2);background:var(--sf2);padding:4px 10px;border-radius:20px}
 
+/* ── card ────────────────────────────────── */
 .card{background:var(--sf);border:1px solid var(--bd);border-radius:14px;padding:13px 15px;margin-bottom:12px}
-.ch{font-size:12px;font-weight:600;color:var(--tx3);text-transform:uppercase;letter-spacing:.8px;margin-bottom:11px;display:flex;align-items:center;justify-content:space-between}
+.ch{font-size:12px;font-weight:600;color:var(--tx3);text-transform:uppercase;letter-spacing:.8px;margin-bottom:11px}
 
-/* Forms */
+/* ── form ────────────────────────────────── */
 .fg{margin-bottom:11px}
 label{display:block;font-size:12px;color:var(--tx2);font-weight:500;margin-bottom:5px}
-input[type=text],input[type=number],input[type=date],input[type=month],input[type=password],input[type=email],select,textarea{width:100%;background:var(--sf2);border:1px solid var(--bd);border-radius:10px;color:var(--tx);padding:12px 13px;font-family:inherit;font-size:16px;outline:none;transition:border-color .15s;-webkit-appearance:none;appearance:none}
+input[type=text],input[type=number],input[type=date],input[type=month],
+input[type=password],input[type=email],select,textarea{
+  width:100%;background:var(--sf2);border:1px solid var(--bd);border-radius:10px;
+  color:var(--tx);padding:12px 13px;font-family:inherit;font-size:16px;
+  outline:none;transition:border-color .15s;-webkit-appearance:none;appearance:none
+}
 input:focus,select:focus{border-color:var(--ac)}
-select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%235a5f78' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 13px center;padding-right:34px}
+select{
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%235a5f78' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 13px center;padding-right:34px
+}
 select option{background:#141824}
 .btn{width:100%;padding:14px;border-radius:11px;border:none;cursor:pointer;font-family:inherit;font-size:15px;font-weight:600;transition:all .15s}
 .btn-p{background:var(--ac);color:#0b0e18}
@@ -143,16 +172,15 @@ select option{background:#141824}
 .btn-s{background:var(--sf2);color:var(--tx2);border:1px solid var(--bd)}
 .btn-s:active{filter:brightness(.87)}
 
-/* Cat grid */
+/* ── category grid (no edit btn) ────────── */
 .cg{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:11px}
-.cb{background:var(--sf2);border:2px solid var(--bd);border-radius:10px;padding:9px 3px;text-align:center;cursor:pointer;transition:all .15s;font-family:inherit;user-select:none;position:relative}
-.cb .ci{font-size:19px;display:block;margin-bottom:2px}
-.cb .cn{font-size:10px;color:var(--tx2);line-height:1.25}
+.cb{background:var(--sf2);border:2px solid var(--bd);border-radius:10px;padding:10px 4px;text-align:center;cursor:pointer;transition:all .15s;font-family:inherit;user-select:none}
+.cb .ci{font-size:19px;display:block;margin-bottom:3px}
+.cb .cn{font-size:10px;color:var(--tx2);line-height:1.3}
 .cb.on{border-color:var(--ac);background:rgba(94,231,200,.1)}
 .cb.on .cn{color:var(--ac)}
-.cb .ce{position:absolute;top:3px;right:3px;font-size:9px;background:rgba(94,231,200,.15);color:var(--ac);border:none;border-radius:4px;padding:1px 4px;cursor:pointer;font-family:inherit;font-weight:600}
 
-/* Expense items */
+/* ── expense list items ──────────────────── */
 .ei{padding:10px 0;border-bottom:1px solid rgba(42,48,80,.5)}
 .ei:last-child{border-bottom:none}
 .ei-top{display:flex;align-items:center;gap:7px}
@@ -160,17 +188,20 @@ select option{background:#141824}
 .einf{flex:1;min-width:0}
 .ename{font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .emeta{font-size:11px;color:var(--tx3);margin-top:2px}
-.eamt{font-family:'DM Mono',monospace;font-size:14px;flex-shrink:0}
+.eamt{font-family:"DM Mono",monospace;font-size:14px;flex-shrink:0}
 .eact{display:flex;gap:4px;flex-shrink:0}
-.edtl{font-size:11px;color:var(--tx3);margin-top:5px;padding-left:26px;background:rgba(94,231,200,.04);border-radius:6px;padding:4px 8px 4px 26px;margin-top:4px}
+.ab{padding:5px 9px;border-radius:7px;font-size:11px;font-weight:500;font-family:inherit;cursor:pointer;white-space:nowrap;flex-shrink:0;border:1px solid;transition:opacity .1s}
+.ab-e{color:var(--ac);border-color:var(--ac);background:rgba(94,231,200,.07)}
+.ab-d{color:var(--rd);border-color:var(--rd);background:transparent}
+.ab:active{opacity:.6}
 
-/* Day row */
+/* ── day row ─────────────────────────────── */
 .dr{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid rgba(42,48,80,.4)}
 .dr:last-child{border-bottom:none}
 .dd{font-size:13px;color:var(--tx2)}
-.dpnl{font-family:'DM Mono',monospace;font-size:14px;font-weight:500}
+.dpnl{font-family:"DM Mono",monospace;font-size:14px;font-weight:500}
 
-/* Badges */
+/* ── badges ──────────────────────────────── */
 .badge{display:inline-block;padding:2px 7px;border-radius:20px;font-size:10px;font-weight:500}
 .bf{background:rgba(94,231,200,.15);color:var(--ac)}
 .bs{background:rgba(162,155,254,.15);color:var(--pu)}
@@ -180,33 +211,27 @@ select option{background:#141824}
 .bo{background:rgba(139,144,167,.15);color:var(--tx2)}
 .brev{background:rgba(94,231,200,.15);color:var(--ac)}
 
-/* Chart */
+/* ── chart ───────────────────────────────── */
 .cw{position:relative;height:185px;margin:5px 0}
 
-/* Filter row */
+/* ── filter row ──────────────────────────── */
 .fr{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap}
 .fr>div{flex:1;min-width:100px}
 .fl{font-size:11px;color:var(--tx3);display:block;margin-bottom:3px}
 .fr input[type=month],.fr select{font-size:14px;padding:10px 11px}
 
-/* Progress */
+/* ── progress bar ────────────────────────── */
 .pb{height:5px;background:var(--sf2);border-radius:3px;margin-top:4px;overflow:hidden}
 .pf{height:100%;border-radius:3px;background:var(--pu)}
 
-/* Today banner */
+/* ── today banner ────────────────────────── */
 .tbanner{background:var(--sf);border:1px solid var(--bd);border-radius:14px;padding:13px 15px;margin-bottom:12px;display:flex}
 .tbanner .tc{flex:1;text-align:center}
 .tbanner .tc+.tc{border-left:1px solid var(--bd)}
 .tcl{font-size:10px;color:var(--tx3);margin-bottom:3px}
-.tcv{font-family:'DM Mono',monospace;font-size:16px;font-weight:600}
+.tcv{font-family:"DM Mono",monospace;font-size:16px;font-weight:600}
 
-/* Action buttons */
-.ab{padding:5px 9px;border-radius:7px;font-size:11px;font-weight:500;font-family:inherit;cursor:pointer;white-space:nowrap;flex-shrink:0;border:1px solid;transition:opacity .1s}
-.ab-e{color:var(--ac);border-color:var(--ac);background:rgba(94,231,200,.07)}
-.ab-d{color:var(--rd);border-color:var(--rd);background:transparent}
-.ab:active{opacity:.6}
-
-/* Modal */
+/* ── modal ───────────────────────────────── */
 .mov{position:fixed;inset:0;background:rgba(0,0,0,.72);display:none;align-items:flex-end;justify-content:center;z-index:200;backdrop-filter:blur(3px)}
 .mov.on{display:flex}
 .msh{background:var(--sf);border-radius:20px 20px 0 0;padding:18px 18px calc(18px + var(--sb));width:100%;max-width:480px;max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch;border-top:1px solid var(--bd)}
@@ -215,14 +240,18 @@ select option{background:#141824}
 .mbtns{display:flex;gap:9px;margin-top:16px}
 .mbtns .btn{flex:1}
 
-/* Section title */
+/* ── section title ───────────────────────── */
 .stitle{font-size:12px;font-weight:600;color:var(--tx3);text-transform:uppercase;letter-spacing:1px;margin:16px 0 7px}
-.stitle:first-child{margin-top:0}
 
-/* Toast */
+/* ── toast ───────────────────────────────── */
 .toast{position:fixed;bottom:calc(var(--nh) + var(--sb) + 11px);left:50%;transform:translateX(-50%) translateY(10px);background:var(--ac);color:#0b0e18;padding:9px 18px;border-radius:20px;font-size:13px;font-weight:600;white-space:nowrap;opacity:0;transition:all .25s;z-index:999;pointer-events:none;box-shadow:0 4px 20px rgba(0,0,0,.5)}
 .toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
 .toast.err{background:var(--rd);color:#fff}
+
+/* ── load-more button ────────────────────── */
+.load-more-btn{width:100%;padding:12px;margin-top:10px;border-radius:10px;border:1px solid var(--bd);background:var(--sf2);color:var(--tx2);font-family:inherit;font-size:14px;font-weight:500;cursor:pointer;transition:all .15s}
+.load-more-btn:active{opacity:.7}
+.load-more-btn:disabled{opacity:.4;cursor:default}
 
 .empty{text-align:center;padding:28px 14px;color:var(--tx3);font-size:13px}
 ::-webkit-scrollbar{width:3px}
@@ -232,246 +261,284 @@ select option{background:#141824}
 </head>
 <body>
 
+<!-- loading screen -->
+
 <div id="loading-wrap">
   <div class="spin"></div>
-  <div style="margin-top:13px;font-size:13px;color:var(--tx3)">載入中...</div>
+  <div style="margin-top:13px;font-size:13px;color:var(--tx3)">Loading...</div>
 </div>
+
+<!-- AUTH SCREEN -->
 
 <div id="auth-wrap">
   <div class="a-logo">
     <span class="em">🍧</span>
-    <h1 id="auth-title">冰店記帳</h1>
-    <p>成本管控系統</p>
+    <h1 id="auth-title">Ice Shop Accounting</h1>
+    <p>Cost Management System</p>
   </div>
   <div class="a-card">
     <div class="a-tabs">
-      <button class="a-tab on" onclick="authTab('login')">登入</button>
-      <button class="a-tab" onclick="authTab('register')">註冊帳號</button>
+      <button class="a-tab on" onclick="authTab('login')">Login</button>
+      <button class="a-tab" onclick="authTab('register')">Register</button>
     </div>
+    <!-- login -->
     <div id="af-login" class="a-form on">
       <div class="a-err" id="lerr"></div>
-      <div class="a-iw"><span class="ico">✉️</span><input type="email" id="l-email" placeholder="電子郵件" autocomplete="email"></div>
-      <div class="a-iw"><span class="ico">🔒</span><input type="password" id="l-pw" placeholder="密碼" autocomplete="current-password"></div>
-      <button class="a-btn" id="l-btn" onclick="doLogin()">登入</button>
-      <div class="a-lnk"><a onclick="authTab('reset')">忘記密碼？</a></div>
+      <div class="a-iw"><span class="ico">✉️</span><input type="email" id="l-email" placeholder="Email" autocomplete="email"></div>
+      <div class="a-iw"><span class="ico">🔒</span><input type="password" id="l-pw" placeholder="Password" autocomplete="current-password"></div>
+      <button class="a-btn" id="l-btn" onclick="doLogin()">Login</button>
+      <div class="a-lnk"><a onclick="authTab('reset')">Forgot password?</a></div>
     </div>
+    <!-- register -->
     <div id="af-register" class="a-form">
       <div class="a-err" id="rerr"></div>
-      <div class="a-iw"><span class="ico">✉️</span><input type="email" id="r-email" placeholder="電子郵件"></div>
-      <div class="a-iw"><span class="ico">🔒</span><input type="password" id="r-pw" placeholder="密碼（至少 6 位）"></div>
-      <div class="a-iw"><span class="ico">🔒</span><input type="password" id="r-pw2" placeholder="確認密碼"></div>
-      <button class="a-btn" id="r-btn" onclick="doRegister()">建立帳號</button>
-      <div class="a-lnk">已有帳號？<a onclick="authTab('login')">登入</a></div>
+      <div class="a-iw"><span class="ico">✉️</span><input type="email" id="r-email" placeholder="Email"></div>
+      <div class="a-iw"><span class="ico">🔒</span><input type="password" id="r-pw" placeholder="Password (min 6 chars)"></div>
+      <div class="a-iw"><span class="ico">🔒</span><input type="password" id="r-pw2" placeholder="Confirm password"></div>
+      <button class="a-btn" id="r-btn" onclick="doRegister()">Create Account</button>
+      <div class="a-lnk">Already have an account? <a onclick="authTab('login')">Login</a></div>
     </div>
+    <!-- reset -->
     <div id="af-reset" class="a-form">
       <div class="a-err" id="pwerr"></div>
       <div class="a-ok" id="pwok"></div>
-      <p style="font-size:13px;color:var(--tx2);margin-bottom:13px">輸入電子郵件，我們將發送重設密碼連結。</p>
-      <div class="a-iw"><span class="ico">✉️</span><input type="email" id="pw-email" placeholder="電子郵件"></div>
-      <button class="a-btn" id="pw-btn" onclick="doReset()">發送重設郵件</button>
-      <div class="a-lnk"><a onclick="authTab('login')">← 返回登入</a></div>
+      <p style="font-size:13px;color:var(--tx2);margin-bottom:13px">Enter your email to receive a password reset link.</p>
+      <div class="a-iw"><span class="ico">✉️</span><input type="email" id="pw-email" placeholder="Email"></div>
+      <button class="a-btn" id="pw-btn" onclick="doReset()">Send Reset Email</button>
+      <div class="a-lnk"><a onclick="authTab('login')">Back to Login</a></div>
     </div>
   </div>
 </div>
 
+<!-- MAIN APP -->
+
 <div id="app-wrap">
   <div class="hdr">
     <div class="hdr-inner">
-      <button class="logout-b" onclick="doLogout()">登出</button>
+      <button class="logout-b" onclick="doLogout()">Logout</button>
       <div class="hdr-mid">
-        <div class="shop-t" id="shop-title" onclick="openTitleModal()">🍧 冰店記帳</div>
+        <div class="shop-t" id="shop-title" onclick="openTitleModal()">🍧 Ice Shop</div>
         <div id="hdr-email"></div>
       </div>
-      <div style="width:46px"></div>
+      <div style="width:48px"></div>
     </div>
   </div>
 
   <div class="scr" id="scr">
 
+```
+<!-- HOME page -->
 <div id="pg-home" class="pg on">
   <div class="pcard">
-    <div><div class="pl">本月損益</div><div class="pv g" id="h-profit">$0</div><div class="ss" id="h-margin">毛利率 0%</div></div>
+    <div>
+      <div class="pl">Monthly P&amp;L</div>
+      <div class="pv g" id="h-profit">$0</div>
+      <div class="ss" id="h-margin">Margin 0%</div>
+    </div>
     <div class="mbadge" id="h-month"></div>
   </div>
   <div class="sg">
-    <div class="sc"><div class="sl">本月收入</div><div class="sv g" id="h-rev">$0</div><div class="ss" id="h-revd"></div></div>
-    <div class="sc"><div class="sl">本月支出</div><div class="sv r" id="h-exp">$0</div><div class="ss" id="h-expi"></div></div>
+    <div class="sc"><div class="sl">Monthly Revenue</div><div class="sv g" id="h-rev">$0</div><div class="ss" id="h-revd"></div></div>
+    <div class="sc"><div class="sl">Monthly Expense</div><div class="sv r" id="h-exp">$0</div><div class="ss" id="h-expi"></div></div>
   </div>
   <div class="card">
-    <div class="ch">收支趨勢（本月）</div>
+    <div class="ch">Revenue vs Expense (this month)</div>
     <div class="cw"><canvas id="trend-chart"></canvas></div>
   </div>
   <div class="card">
-    <div class="ch">支出分類（本月）</div>
+    <div class="ch">Expense Breakdown (this month)</div>
     <div class="cw" style="height:175px"><canvas id="pie-chart"></canvas></div>
   </div>
   <div class="card">
-    <div class="ch">最近 7 天</div>
+    <div class="ch">Last 7 Days</div>
     <div id="h-recent"></div>
   </div>
 </div>
 
+<!-- ENTRY page -->
 <div id="pg-entry" class="pg">
   <div class="tbanner">
-    <div class="tc"><div class="tcl">今日收入</div><div class="tcv" id="tb-rev" style="color:var(--tx3)">未記錄</div></div>
-    <div class="tc"><div class="tcl">今日支出</div><div class="tcv" style="color:var(--rd)" id="tb-exp">$0</div></div>
-    <div class="tc"><div class="tcl">今日損益</div><div class="tcv" id="tb-pnl" style="color:var(--tx3)">—</div></div>
+    <div class="tc"><div class="tcl">Today Revenue</div><div class="tcv" id="tb-rev" style="color:var(--tx3)">--</div></div>
+    <div class="tc"><div class="tcl">Today Expense</div><div class="tcv" style="color:var(--rd)" id="tb-exp">$0</div></div>
+    <div class="tc"><div class="tcl">Today P&amp;L</div><div class="tcv" id="tb-pnl" style="color:var(--tx3)">--</div></div>
   </div>
+
+  <!-- revenue input -->
   <div class="card">
-    <div class="ch">📟 輸入營業額</div>
-    <div class="fg"><label>日期</label><input type="date" id="rev-date"></div>
-    <div class="fg"><label>POS 營業額（元）</label><input type="number" id="rev-amt" inputmode="numeric" placeholder="例：8500"></div>
-    <div class="fg"><label>備註（選填）</label><input type="text" id="rev-note" placeholder="例：假日、活動..."></div>
-    <button class="btn btn-p" onclick="saveRev()">儲存營業額</button>
+    <div class="ch">📟 Revenue Input</div>
+    <div class="fg"><label>Category</label>
+      <select id="rev-cat">
+        <option value="pos">POS Revenue</option>
+        <option value="other_rev">Other Revenue</option>
+        <option value="delivery">Delivery Platform</option>
+      </select>
+    </div>
+    <div class="fg"><label>Date</label><input type="date" id="rev-date"></div>
+    <div class="fg"><label>Amount (NTD)</label><input type="number" id="rev-amt" inputmode="numeric" placeholder="e.g. 8500"></div>
+    <div class="fg"><label>Note (optional)</label><input type="text" id="rev-note" placeholder="e.g. Holiday, event..."></div>
+    <button class="btn btn-p" id="save-rev-btn" onclick="saveRev()">Save Revenue</button>
   </div>
+
+  <!-- expense input -->
   <div class="card">
-    <div class="ch">💸 新增支出</div>
-    <div class="fg"><label>日期</label><input type="date" id="exp-date"></div>
+    <div class="ch">💸 Expense Input</div>
+    <div class="fg"><label>Date</label><input type="date" id="exp-date"></div>
     <div class="fg">
-      <label>支出分類 <span style="font-size:10px;color:var(--tx3);font-weight:400">（點右上角可編輯分類名稱）</span></label>
-      <div class="cg" id="cat-grid">
-        <button class="cb on" data-cat="food" onclick="selCat(this)"><span class="ci">🥭</span><span class="cn" id="cn-food">食材原料</span><button class="ce" onclick="editCatName(event,'food')">編輯</button></button>
-        <button class="cb" data-cat="staff" onclick="selCat(this)"><span class="ci">👥</span><span class="cn" id="cn-staff">人事支出/孝親費</span><button class="ce" onclick="editCatName(event,'staff')">編輯</button></button>
-        <button class="cb" data-cat="utility" onclick="selCat(this)"><span class="ci">💡</span><span class="cn" id="cn-utility">水電費/網路電話費</span><button class="ce" onclick="editCatName(event,'utility')">編輯</button></button>
-        <button class="cb" data-cat="rent" onclick="selCat(this)"><span class="ci">🔧</span><span class="cn" id="cn-rent">設備採買或維修</span><button class="ce" onclick="editCatName(event,'rent')">編輯</button></button>
-        <button class="cb" data-cat="supply" onclick="selCat(this)"><span class="ci">📦</span><span class="cn" id="cn-supply">耗材包材</span><button class="ce" onclick="editCatName(event,'supply')">編輯</button></button>
-        <button class="cb" data-cat="other" onclick="selCat(this)"><span class="ci">📌</span><span class="cn" id="cn-other">其他雜費</span><button class="ce" onclick="editCatName(event,'other')">編輯</button></button>
+      <label>Category</label>
+      <div class="cg">
+        <button class="cb on" data-cat="food"    onclick="selCat(this)"><span class="ci">🥭</span><span class="cn" id="cn-food">Food/Ingredients</span></button>
+        <button class="cb"    data-cat="staff"   onclick="selCat(this)"><span class="ci">👥</span><span class="cn" id="cn-staff">Payroll/Family</span></button>
+        <button class="cb"    data-cat="utility" onclick="selCat(this)"><span class="ci">💡</span><span class="cn" id="cn-utility">Utility/Internet</span></button>
+        <button class="cb"    data-cat="rent"    onclick="selCat(this)"><span class="ci">🔧</span><span class="cn" id="cn-rent">Equipment/Repair</span></button>
+        <button class="cb"    data-cat="supply"  onclick="selCat(this)"><span class="ci">📦</span><span class="cn" id="cn-supply">Supplies</span></button>
+        <button class="cb"    data-cat="other"   onclick="selCat(this)"><span class="ci">📌</span><span class="cn" id="cn-other">Miscellaneous</span></button>
       </div>
     </div>
-    <div class="fg"><label>項目名稱 / 明細說明</label><input type="text" id="exp-name" placeholder="例：芒果補貨；員工3人×5000 7月份"></div>
-    <div class="fg"><label>金額（元）</label><input type="number" id="exp-amt" inputmode="numeric" placeholder="例：15000"></div>
-    <div class="fg"><label>備註（選填）</label><input type="text" id="exp-note" placeholder="例：向OO廠商採購"></div>
-    <button class="btn btn-p" onclick="saveExp()">新增支出</button>
+    <div class="fg"><label>Item / Detail</label><input type="text" id="exp-name" placeholder="e.g. Mango restock; 3 staff x 5000"></div>
+    <div class="fg"><label>Amount (NTD)</label><input type="number" id="exp-amt" inputmode="numeric" placeholder="e.g. 15000"></div>
+    <div class="fg"><label>Note (optional)</label><input type="text" id="exp-note" placeholder="e.g. Vendor ABC"></div>
+    <button class="btn btn-p" id="save-exp-btn" onclick="saveExp()">Add Expense</button>
   </div>
+
+  <!-- today expense list (view only, no edit buttons) -->
   <div class="card">
-    <div class="ch">今日支出明細</div>
+    <div class="ch">Today Expenses</div>
     <div id="today-list"></div>
   </div>
 </div>
 
+<!-- RECORDS page (paginated) -->
 <div id="pg-records" class="pg">
   <div class="fr">
-    <div><span class="fl">月份</span><input type="month" id="f-month" onchange="renderRecords()"></div>
-    <div><span class="fl">類別</span>
-      <select id="f-cat" onchange="renderRecords()">
-        <option value="all">全部</option>
-        <option value="revenue">收入</option>
-        <option value="food">食材原料</option>
-        <option value="staff">人事支出/孝親費</option>
-        <option value="utility">水電費/網路電話費</option>
-        <option value="rent">設備採買或維修</option>
-        <option value="supply">耗材包材</option>
-        <option value="other">其他雜費</option>
+    <div><span class="fl">Month</span><input type="month" id="f-month" onchange="resetRecords()"></div>
+    <div><span class="fl">Category</span>
+      <select id="f-cat" onchange="resetRecords()">
+        <option value="all">All</option>
+        <option value="revenue">Revenue</option>
+        <option value="food">Food/Ingredients</option>
+        <option value="staff">Payroll/Family</option>
+        <option value="utility">Utility/Internet</option>
+        <option value="rent">Equipment/Repair</option>
+        <option value="supply">Supplies</option>
+        <option value="other">Miscellaneous</option>
       </select>
     </div>
   </div>
   <div class="card" id="rec-list"></div>
+  <button class="load-more-btn" id="load-more-btn" onclick="loadMoreRecords()" style="display:none">Load More</button>
 </div>
 
+<!-- REPORT page -->
 <div id="pg-report" class="pg">
   <div class="fr" style="flex-wrap:nowrap">
     <input type="month" id="rpt-month" style="flex:1;font-size:14px;padding:10px 11px">
-    <button class="btn btn-p" style="width:auto;padding:10px 16px;font-size:13px;flex-shrink:0" onclick="renderReport()">產生</button>
+    <button class="btn btn-p" style="width:auto;padding:10px 16px;font-size:13px;flex-shrink:0" onclick="renderReport()">Generate</button>
   </div>
   <div id="rpt-content"></div>
 </div>
 
+<!-- MORE page -->
 <div id="pg-more" class="pg">
-  <div class="stitle">匯出 CSV</div>
+  <div class="stitle">Export CSV</div>
   <div class="card">
-    <div class="fg"><label>起始日期</label><input type="date" id="csv-from"></div>
-    <div class="fg"><label>結束日期</label><input type="date" id="csv-to"></div>
-    <button class="btn btn-p" onclick="exportCSV()">📥 下載 CSV（可用 Excel 開啟）</button>
+    <div class="fg"><label>From Date</label><input type="date" id="csv-from"></div>
+    <div class="fg"><label>To Date</label><input type="date" id="csv-to"></div>
+    <button class="btn btn-p" onclick="exportCSV()">📥 Download CSV</button>
   </div>
 </div>
+```
 
   </div>
 
   <nav class="bnav">
-    <div class="ntab on" id="nt-home" onclick="goPg('home')"><span class="ni">📊</span>總覽</div>
-    <div class="ntab" id="nt-entry" onclick="goPg('entry')"><span class="ni">✏️</span>記帳</div>
-    <div class="ntab" id="nt-records" onclick="goPg('records')"><span class="ni">📋</span>明細</div>
-    <div class="ntab" id="nt-report" onclick="goPg('report')"><span class="ni">📈</span>報表</div>
-    <div class="ntab" id="nt-more" onclick="goPg('more')"><span class="ni">⚙️</span>更多</div>
+    <div class="ntab on" id="nt-home"    onclick="goPg('home')">   <span class="ni">📊</span>Overview</div>
+    <div class="ntab"    id="nt-entry"   onclick="goPg('entry')">  <span class="ni">✏️</span>Entry</div>
+    <div class="ntab"    id="nt-records" onclick="goPg('records')"><span class="ni">📋</span>Records</div>
+    <div class="ntab"    id="nt-report"  onclick="goPg('report')"> <span class="ni">📈</span>Report</div>
+    <div class="ntab"    id="nt-more"    onclick="goPg('more')">   <span class="ni">⚙️</span>More</div>
   </nav>
 </div>
+
+<!-- MODALS -->
+
+<!-- edit expense -->
 
 <div class="mov" id="m-exp">
   <div class="msh">
     <div class="mhd"></div>
-    <div class="mt">✏️ 修改支出</div>
+    <div class="mt">Edit Expense</div>
     <input type="hidden" id="me-id">
-    <div class="fg"><label>日期</label><input type="date" id="me-date"></div>
-    <div class="fg"><label>支出分類</label>
+    <div class="fg"><label>Date</label><input type="date" id="me-date"></div>
+    <div class="fg"><label>Category</label>
       <select id="me-cat">
-        <option value="food">🥭 食材原料</option>
-        <option value="staff">👥 人事支出/孝親費</option>
-        <option value="utility">💡 水電費/網路電話費</option>
-        <option value="rent">🔧 設備採買或維修</option>
-        <option value="supply">📦 耗材包材</option>
-        <option value="other">📌 其他雜費</option>
+        <option value="food">🥭 Food/Ingredients</option>
+        <option value="staff">👥 Payroll/Family</option>
+        <option value="utility">💡 Utility/Internet</option>
+        <option value="rent">🔧 Equipment/Repair</option>
+        <option value="supply">📦 Supplies</option>
+        <option value="other">📌 Miscellaneous</option>
       </select>
     </div>
-    <div class="fg"><label>項目名稱 / 明細說明</label><input type="text" id="me-name"></div>
-    <div class="fg"><label>金額（元）</label><input type="number" id="me-amt" inputmode="numeric"></div>
-    <div class="fg"><label>備註</label><input type="text" id="me-note"></div>
+    <div class="fg"><label>Item / Detail</label><input type="text" id="me-name"></div>
+    <div class="fg"><label>Amount (NTD)</label><input type="number" id="me-amt" inputmode="numeric"></div>
+    <div class="fg"><label>Note</label><input type="text" id="me-note"></div>
     <div class="mbtns">
-      <button class="btn btn-s" onclick="closeMov('m-exp')">取消</button>
-      <button class="btn btn-p" onclick="saveExpEdit()">儲存修改</button>
+      <button class="btn btn-s" onclick="closeMov('m-exp')">Cancel</button>
+      <button class="btn btn-p" onclick="saveExpEdit()">Save</button>
     </div>
   </div>
 </div>
+
+<!-- edit revenue -->
 
 <div class="mov" id="m-rev">
   <div class="msh">
     <div class="mhd"></div>
-    <div class="mt">✏️ 修改營業額</div>
+    <div class="mt">Edit Revenue</div>
     <input type="hidden" id="mr-id">
-    <div class="fg"><label>日期</label><input type="date" id="mr-date"></div>
-    <div class="fg"><label>營業額（元）</label><input type="number" id="mr-amt" inputmode="numeric"></div>
-    <div class="fg"><label>備註</label><input type="text" id="mr-note"></div>
+    <div class="fg"><label>Category</label>
+      <select id="mr-cat">
+        <option value="pos">POS Revenue</option>
+        <option value="other_rev">Other Revenue</option>
+        <option value="delivery">Delivery Platform</option>
+      </select>
+    </div>
+    <div class="fg"><label>Date</label><input type="date" id="mr-date"></div>
+    <div class="fg"><label>Amount (NTD)</label><input type="number" id="mr-amt" inputmode="numeric"></div>
+    <div class="fg"><label>Note</label><input type="text" id="mr-note"></div>
     <div class="mbtns">
-      <button class="btn btn-s" onclick="closeMov('m-rev')">取消</button>
-      <button class="btn btn-p" onclick="saveRevEdit()">儲存修改</button>
+      <button class="btn btn-s" onclick="closeMov('m-rev')">Cancel</button>
+      <button class="btn btn-p" onclick="saveRevEdit()">Save</button>
     </div>
   </div>
 </div>
+
+<!-- edit shop title -->
 
 <div class="mov" id="m-title">
   <div class="msh">
     <div class="mhd"></div>
-    <div class="mt">✏️ 修改店名</div>
-    <div class="fg"><label>店名（可加 emoji）</label><input type="text" id="title-inp" placeholder="例：我的冰店"></div>
+    <div class="mt">Edit Shop Name</div>
+    <div class="fg"><label>Shop Name (emoji OK)</label><input type="text" id="title-inp" placeholder="e.g. My Ice Shop"></div>
     <div class="mbtns">
-      <button class="btn btn-s" onclick="closeMov('m-title')">取消</button>
-      <button class="btn btn-p" onclick="saveTitleModal()">儲存</button>
+      <button class="btn btn-s" onclick="closeMov('m-title')">Cancel</button>
+      <button class="btn btn-p" onclick="saveTitleModal()">Save</button>
     </div>
   </div>
 </div>
 
-<div class="mov" id="m-catname">
-  <div class="msh">
-    <div class="mhd"></div>
-    <div class="mt">✏️ 編輯分類名稱</div>
-    <input type="hidden" id="mcn-key">
-    <div class="fg"><label>分類名稱</label><input type="text" id="mcn-val" placeholder="輸入新的分類名稱"></div>
-    <div class="mbtns">
-      <button class="btn btn-s" onclick="closeMov('m-catname')">取消</button>
-      <button class="btn btn-p" onclick="saveCatName()">儲存</button>
-    </div>
-  </div>
-</div>
+<!-- password gate -->
 
 <div class="mov" id="m-pw">
   <div class="msh">
     <div class="mhd"></div>
-    <div class="mt">🔐 請輸入編輯密碼</div>
-    <p style="font-size:13px;color:var(--tx2);margin-bottom:13px">明細編輯及刪除功能需要密碼驗證</p>
-    <div class="fg"><input type="password" id="pw-inp" inputmode="numeric" placeholder="請輸入密碼" maxlength="10"></div>
+    <div class="mt">🔐 Edit Password Required</div>
+    <p style="font-size:13px;color:var(--tx2);margin-bottom:13px">Editing and deleting records requires password verification.</p>
+    <div class="fg"><input type="password" id="pw-inp" inputmode="numeric" placeholder="Enter password" maxlength="10"></div>
     <div class="a-err" id="pw-err"></div>
     <div class="mbtns">
-      <button class="btn btn-s" onclick="closeMov('m-pw')">取消</button>
-      <button class="btn btn-p" onclick="checkPw()">確認</button>
+      <button class="btn btn-s" onclick="closeMov('m-pw')">Cancel</button>
+      <button class="btn btn-p" onclick="checkPw()">Confirm</button>
     </div>
   </div>
 </div>
@@ -479,536 +546,629 @@ select option{background:#141824}
 <div class="toast" id="toast"></div>
 
 <script>
-// --- Helpers --------------------------------------------------
-const EDIT_PW = '9527';
-const $ = id => document.getElementById(id);
-const fmt = n => Number(n).toLocaleString('zh-TW');
-const todayStr = () => new Date().toISOString().slice(0,10);
-const monthStr = () => new Date().toISOString().slice(0,7);
+// ─── constants ────────────────────────────────────────────────
+const EDIT_PW = "9527";
+const PAGE_SIZE = 30;
 
-// Custom category names stored in memory + Firebase
-const DEFAULT_CATS = {
-  food:'食材原料', staff:'人事支出/孝親費',
-  utility:'水電費/網路電話費', rent:'設備採買或維修',
-  supply:'耗材包材', other:'其他雜費'
+// ─── helpers ─────────────────────────────────────────────────
+const $ = id => document.getElementById(id);
+const fmt = n => Number(n).toLocaleString("zh-TW");
+const todayStr  = () => new Date().toISOString().slice(0,10);
+const monthStr  = () => new Date().toISOString().slice(0,7);
+
+// category meta
+const CAT_LABEL = {
+  food:"Food/Ingredients", staff:"Payroll/Family",
+  utility:"Utility/Internet", rent:"Equipment/Repair",
+  supply:"Supplies", other:"Miscellaneous"
 };
-let _catNames = {...DEFAULT_CATS};
-const catLabel = c => _catNames[c] || DEFAULT_CATS[c] || c;
-const catIcon = c => ({food:'🥭',staff:'👥',utility:'💡',rent:'🔧',supply:'📦',other:'📌'})[c]||'📌';
-const catBadgeCls = c => ({food:'bf',staff:'bs',utility:'bu',rent:'br',supply:'bp',other:'bo'})[c]||'bo';
+const REV_LABEL = { pos:"POS Revenue", other_rev:"Other Revenue", delivery:"Delivery Platform" };
+const catLabel = c => CAT_LABEL[c] || REV_LABEL[c] || c;
+const catIcon  = c => ({food:"🥭",staff:"👥",utility:"💡",rent:"🔧",supply:"📦",other:"📌",pos:"💰",other_rev:"💵",delivery:"🛵"})[c] || "💰";
+const catBadge = c => ({food:"bf",staff:"bs",utility:"bu",rent:"br",supply:"bp",other:"bo"})[c] || "brev";
 
 function toast(msg, err=false) {
-  const t = $('toast');
+  const t = $("toast");
   t.textContent = msg;
-  t.className = 'toast on' + (err?' err':'');
+  t.className = "toast on" + (err ? " err" : "");
   clearTimeout(t._t);
-  t._t = setTimeout(() => t.className='toast'+(err?' err':''), 2500);
+  t._t = setTimeout(() => { t.className = "toast" + (err ? " err" : ""); }, 2600);
 }
 
-// --- Modal helpers --------------------------------------------
-function openMov(id) { $(id).classList.add('on'); }
-function closeMov(id) { $(id).classList.remove('on'); }
-document.querySelectorAll('.mov').forEach(m => {
-  m.addEventListener('click', e => { if (e.target===m) m.classList.remove('on'); });
+// ─── modal helpers ────────────────────────────────────────────
+function openMov(id)  { $(id).classList.add("on"); }
+function closeMov(id) { $(id).classList.remove("on"); }
+document.querySelectorAll(".mov").forEach(m => {
+  m.addEventListener("click", e => { if (e.target === m) m.classList.remove("on"); });
 });
 
-// --- Auth -----------------------------------------------------
+// ─── auth UI ─────────────────────────────────────────────────
 function authTab(tab) {
-  ['login','register','reset'].forEach(t => {
-    $('af-'+t).classList.toggle('on', t===tab);
+  ["login","register","reset"].forEach(t => {
+    $("af-"+t).classList.toggle("on", t===tab);
   });
-  document.querySelectorAll('.a-tab').forEach((el,i) => {
-    el.classList.toggle('on', (i===0&&tab==='login')||(i===1&&(tab==='register'||tab==='reset')));
+  document.querySelectorAll(".a-tab").forEach((el,i) => {
+    el.classList.toggle("on", (i===0 && tab==="login") || (i===1 && (tab==="register"||tab==="reset")));
   });
 }
-function authLd(id, on) { $(id).classList.toggle('ld', on); }
+function authLd(id, on) { $(id).classList.toggle("ld", on); }
 
 function fbErr(code) {
-  return ({
-    'auth/user-not-found':'找不到此帳號',
-    'auth/wrong-password':'密碼錯誤',
-    'auth/email-already-in-use':'此電子郵件已被使用',
-    'auth/invalid-email':'電子郵件格式不正確',
-    'auth/weak-password':'密碼強度不足（至少6位）',
-    'auth/too-many-requests':'嘗試次數過多，請稍後再試',
-    'auth/invalid-credential':'帳號或密碼錯誤',
-    'auth/network-request-failed':'網路連線失敗，請重試'
-  })[code] || ('登入失敗 ('+code+')');
+  const MAP = {
+    "auth/user-not-found":        "Account not found",
+    "auth/wrong-password":        "Incorrect password",
+    "auth/email-already-in-use":  "Email already in use",
+    "auth/invalid-email":         "Invalid email format",
+    "auth/weak-password":         "Password too weak (min 6 chars)",
+    "auth/too-many-requests":     "Too many attempts, try later",
+    "auth/invalid-credential":    "Invalid email or password",
+    "auth/network-request-failed":"Network error, please retry"
+  };
+  return MAP[code] || ("Error: " + code);
 }
 
 async function doLogin() {
-  const email = $('l-email').value.trim(), pw = $('l-pw').value;
-  const err = $('lerr'); err.style.display='none';
-  if (!email||!pw) { err.textContent='請填寫電子郵件和密碼'; err.style.display='block'; return; }
-  authLd('l-btn',true);
+  const email = $("l-email").value.trim(), pw = $("l-pw").value;
+  const err = $("lerr"); err.style.display = "none";
+  if (!email || !pw) { err.textContent = "Please fill in email and password"; err.style.display = "block"; return; }
+  authLd("l-btn", true);
   try { await FB.signIn(FB.auth, email, pw); }
-  catch(e) { err.textContent=fbErr(e.code); err.style.display='block'; authLd('l-btn',false); }
+  catch(e) { err.textContent = fbErr(e.code); err.style.display = "block"; authLd("l-btn", false); }
 }
 
 async function doRegister() {
-  const email=$('r-email').value.trim(), pw=$('r-pw').value, pw2=$('r-pw2').value;
-  const err=$('rerr'); err.style.display='none';
-  if (!email||!pw) { err.textContent='請填寫所有欄位'; err.style.display='block'; return; }
-  if (pw!==pw2) { err.textContent='兩次密碼不一致'; err.style.display='block'; return; }
-  if (pw.length<6) { err.textContent='密碼至少需要 6 個字元'; err.style.display='block'; return; }
-  authLd('r-btn',true);
+  const email=$("r-email").value.trim(), pw=$("r-pw").value, pw2=$("r-pw2").value;
+  const err=$("rerr"); err.style.display="none";
+  if (!email||!pw) { err.textContent="Please fill in all fields"; err.style.display="block"; return; }
+  if (pw!==pw2)    { err.textContent="Passwords do not match";    err.style.display="block"; return; }
+  if (pw.length<6) { err.textContent="Password min 6 characters"; err.style.display="block"; return; }
+  authLd("r-btn", true);
   try { await FB.createUser(FB.auth, email, pw); }
-  catch(e) { err.textContent=fbErr(e.code); err.style.display='block'; authLd('r-btn',false); }
+  catch(e) { err.textContent=fbErr(e.code); err.style.display="block"; authLd("r-btn",false); }
 }
 
 async function doReset() {
-  const email=$('pw-email').value.trim();
-  const err=$('pwerr'), ok=$('pwok');
-  err.style.display='none'; ok.style.display='none';
-  if (!email) { err.textContent='請輸入電子郵件'; err.style.display='block'; return; }
-  authLd('pw-btn',true);
-  try {
-    await FB.resetPw(FB.auth, email);
-    ok.textContent='✅ 重設郵件已發送，請查收收件匣'; ok.style.display='block';
-  } catch(e) { err.textContent=fbErr(e.code); err.style.display='block'; }
-  authLd('pw-btn',false);
+  const email=$("pw-email").value.trim();
+  const err=$("pwerr"), ok=$("pwok");
+  err.style.display="none"; ok.style.display="none";
+  if (!email) { err.textContent="Please enter email"; err.style.display="block"; return; }
+  authLd("pw-btn", true);
+  try { await FB.resetPw(FB.auth, email); ok.textContent="Reset email sent. Check your inbox."; ok.style.display="block"; }
+  catch(e) { err.textContent=fbErr(e.code); err.style.display="block"; }
+  authLd("pw-btn", false);
 }
 
 async function doLogout() {
-  if (!confirm('確定要登出？')) return;
+  if (!confirm("Confirm logout?")) return;
   await FB.signOut(FB.auth);
 }
 
-// --- Firestore refs -------------------------------------------
-const rCol = () => FB.col(FB.db,'users',UID,'revenues');
-const eCol = () => FB.col(FB.db,'users',UID,'expenses');
-const mDoc = () => FB.doc(FB.db,'users',UID,'meta','settings');
+// ─── Firestore refs ───────────────────────────────────────────
+const rCol = () => FB.col(FB.db, "users", UID, "revenues");
+const eCol = () => FB.col(FB.db, "users", UID, "expenses");
+const mDoc = () => FB.doc(FB.db, "users", UID, "meta", "settings");
 
-// --- Cache ----------------------------------------------------
-let C = { revs:null, exps:null, ts:0 };
-const TTL = 25000;
+// ─── local in-memory cache (populated by realtime listeners) ──
+let C = { revs:[], exps:[] };
+let _unsub = []; // unsubscribe functions for listeners
 
-async function load(force=false) {
-  if (!force && C.revs && (Date.now()-C.ts)<TTL) return C;
-  const [rs,es] = await Promise.all([FB.getDocs(rCol()), FB.getDocs(eCol())]);
-  C.revs = rs.docs.map(d=>({id:d.id,...d.data()}));
-  C.exps = es.docs.map(d=>({id:d.id,...d.data()}));
-  C.ts = Date.now();
-  return C;
+// Stop all realtime listeners (called on logout)
+window.stopListeners = function() {
+  _unsub.forEach(fn => fn());
+  _unsub = [];
+  C = { revs:[], exps:[] };
+};
+
+// Start realtime listeners -- immediate update on any device change
+function startListeners() {
+  const unsub1 = FB.onSnapshot(rCol(), snap => {
+    C.revs = snap.docs.map(d => ({ id:d.id, ...d.data() }));
+    // refresh visible page immediately
+    refreshVisible();
+  });
+  const unsub2 = FB.onSnapshot(eCol(), snap => {
+    C.exps = snap.docs.map(d => ({ id:d.id, ...d.data() }));
+    refreshVisible();
+  });
+  _unsub = [unsub1, unsub2];
 }
-function bust() { C.ts=0; }
 
-// --- App Boot -------------------------------------------------
+function refreshVisible() {
+  const active = document.querySelector(".pg.on");
+  if (!active) return;
+  const id = active.id.replace("pg-","");
+  if (id==="home")    renderHome();
+  if (id==="entry")   renderTodayBanner();
+  // records uses pagination, only refresh if already loaded
+  if (id==="records") { if (_recRows.length>0) { _recRows=[]; _recCursor=0; renderRecordsPage(true); } }
+}
+
+// ─── app boot ─────────────────────────────────────────────────
 window.appBoot = async function() {
   const t=todayStr(), m=monthStr();
-  $('rev-date').value=t; $('exp-date').value=t;
-  $('f-month').value=m; $('rpt-month').value=m;
-  $('csv-from').value=m+'-01'; $('csv-to').value=t;
-  // Load meta (title + cat names)
+  $("rev-date").value=t; $("exp-date").value=t;
+  $("f-month").value=m; $("rpt-month").value=m;
+  $("csv-from").value=m+"-01"; $("csv-to").value=t;
+
+  // load meta
   try {
     const snap = await FB.getDoc(mDoc());
     if (snap.exists()) {
       const d = snap.data();
-      if (d.shopTitle) { $('shop-title').textContent=d.shopTitle; $('auth-title').textContent=d.shopTitle; }
-      if (d.catNames) {
-        Object.assign(_catNames, d.catNames);
-        Object.keys(_catNames).forEach(k => {
-          const el = $('cn-'+k); if (el) el.textContent=_catNames[k];
-        });
-        // Update select options in edit modal and filter
-        updateCatSelects();
-      }
+      if (d.shopTitle) { $("shop-title").textContent=d.shopTitle; $("auth-title").textContent=d.shopTitle; }
     }
   } catch(e) {}
-  await load(true);
-  renderHome();
-  renderTodayBanner();
+
+  // start realtime listeners -- they will call renderHome + renderTodayBanner
+  startListeners();
 };
 
-function updateCatSelects() {
-  ['me-cat','f-cat'].forEach(sid => {
-    const sel = $(sid); if (!sel) return;
-    sel.querySelectorAll('option').forEach(opt => {
-      if (opt.value && opt.value !== 'all' && opt.value !== 'revenue') {
-        const icon = ({food:'🥭',staff:'👥',utility:'💡',rent:'🔧',supply:'📦',other:'📌'})[opt.value]||'';
-        opt.textContent = icon+' '+catLabel(opt.value);
-      }
-    });
-  });
-}
-
-// --- Nav ------------------------------------------------------
+// ─── navigation ───────────────────────────────────────────────
 function goPg(id) {
-  document.querySelectorAll('.pg').forEach(p=>p.classList.remove('on'));
-  document.querySelectorAll('.ntab').forEach(t=>t.classList.remove('on'));
-  $('pg-'+id).classList.add('on');
-  $('nt-'+id).classList.add('on');
-  $('scr').scrollTop=0;
-  if (id==='home') renderHome();
-  if (id==='entry') renderTodayBanner();
-  if (id==='records') { $('f-month').value=monthStr(); renderRecords(); }
-  if (id==='report') { $('rpt-month').value=monthStr(); renderReport(); }
+  document.querySelectorAll(".pg").forEach(p=>p.classList.remove("on"));
+  document.querySelectorAll(".ntab").forEach(t=>t.classList.remove("on"));
+  $("pg-"+id).classList.add("on");
+  $("nt-"+id).classList.add("on");
+  $("scr").scrollTop = 0;
+  if (id==="home")    renderHome();
+  if (id==="entry")   renderTodayBanner();
+  if (id==="records") { $("f-month").value=monthStr(); resetRecords(); }
+  if (id==="report")  { $("rpt-month").value=monthStr(); renderReport(); }
 }
 
-// --- Category -------------------------------------------------
+// ─── category select ──────────────────────────────────────────
 function selCat(el) {
-  document.querySelectorAll('.cb').forEach(b=>b.classList.remove('on'));
-  el.classList.add('on');
+  document.querySelectorAll(".cb").forEach(b=>b.classList.remove("on"));
+  el.classList.add("on");
 }
 function getCat() {
-  const s = document.querySelector('.cb.on');
-  return s ? s.dataset.cat : 'food';
+  const s = document.querySelector(".cb.on");
+  return s ? s.dataset.cat : "food";
 }
 
-function editCatName(e, catKey) {
-  e.stopPropagation();
-  $('mcn-key').value = catKey;
-  $('mcn-val').value = _catNames[catKey] || DEFAULT_CATS[catKey];
-  openMov('m-catname');
-}
-async function saveCatName() {
-  const key = $('mcn-key').value;
-  const val = $('mcn-val').value.trim();
-  if (!val) return;
-  _catNames[key] = val;
-  const el = $('cn-'+key); if (el) el.textContent = val;
-  updateCatSelects();
-  closeMov('m-catname');
-  toast('✅ 分類名稱已更新');
-  try { await FB.setDoc(mDoc(), { catNames: _catNames }, { merge:true }); } catch(e) {}
-}
-
-// --- Shop title -----------------------------------------------
+// ─── shop title ───────────────────────────────────────────────
 function openTitleModal() {
-  $('title-inp').value = $('shop-title').textContent;
-  openMov('m-title');
+  $("title-inp").value = $("shop-title").textContent;
+  openMov("m-title");
 }
 async function saveTitleModal() {
-  const val = $('title-inp').value.trim(); if (!val) return;
-  $('shop-title').textContent = val; $('auth-title').textContent = val;
-  closeMov('m-title'); toast('✅ 店名已更新');
+  const val = $("title-inp").value.trim(); if (!val) return;
+  $("shop-title").textContent = val; $("auth-title").textContent = val;
+  closeMov("m-title"); toast("Shop name updated");
   try { await FB.setDoc(mDoc(), { shopTitle:val }, { merge:true }); } catch(e) {}
 }
 
-// --- Revenue --------------------------------------------------
+// ─── revenue CRUD ─────────────────────────────────────────────
 async function saveRev() {
-  const date=$('rev-date').value, amt=parseFloat($('rev-amt').value), note=$('rev-note').value.trim();
-  if (!date||isNaN(amt)||amt<0) { toast('請填寫日期與金額',true); return; }
-  const ex = C.revs ? C.revs.find(r=>r.date===date) : null;
-  if (ex && !confirm(date+' 已有記錄 ('+fmt(ex.amount)+' 元)，確定覆蓋？')) return;
+  const cat  = $("rev-cat").value;
+  const date = $("rev-date").value;
+  const amt  = parseFloat($("rev-amt").value);
+  const note = $("rev-note").value.trim();
+  if (!date || isNaN(amt) || amt<0) { toast("Please fill in date and amount", true); return; }
+  const ex = C.revs.find(r => r.date===date && r.revCat===cat);
+  if (ex && !confirm(date+" already has a "+catLabel(cat)+" entry ("+fmt(ex.amount)+" NTD). Overwrite?")) return;
+  const btn = $("save-rev-btn");
+  btn.disabled = true;
   try {
-    const id = ex ? ex.id : 'rev_'+date+'_'+UID.slice(-6);
-    await FB.setDoc(FB.doc(rCol(),id), {date,amount:amt,note,uid:UID});
-    bust(); await load(true);
-    $('rev-amt').value=''; $('rev-note').value='';
-    toast('✅ '+date+' 營業額 $'+fmt(amt));
-    renderTodayBanner();
-  } catch(e) { toast('❌ 儲存失敗',true); }
+    const id = ex ? ex.id : "rev_"+cat+"_"+date+"_"+UID.slice(-6);
+    await FB.setDoc(FB.doc(rCol(), id), { date, revCat:cat, amount:amt, note, uid:UID });
+    $("rev-amt").value=""; $("rev-note").value="";
+    toast("Saved: "+catLabel(cat)+" $"+fmt(amt));
+    // listener will trigger renderTodayBanner automatically
+  } catch(e) { toast("Save failed", true); }
+  finally { btn.disabled = false; }
 }
 
 function openRevEdit(r) {
-  $('mr-id').value=r.id; $('mr-date').value=r.date;
-  $('mr-amt').value=r.amount; $('mr-note').value=r.note||'';
-  openMov('m-rev');
+  $("mr-id").value   = r.id;
+  $("mr-cat").value  = r.revCat || "pos";
+  $("mr-date").value = r.date;
+  $("mr-amt").value  = r.amount;
+  $("mr-note").value = r.note || "";
+  openMov("m-rev");
 }
 async function saveRevEdit() {
-  const id=$('mr-id').value, date=$('mr-date').value;
-  const amt=parseFloat($('mr-amt').value), note=$('mr-note').value.trim();
-  if (!date||isNaN(amt)) { toast('資料不完整',true); return; }
+  const id   = $("mr-id").value;
+  const cat  = $("mr-cat").value;
+  const date = $("mr-date").value;
+  const amt  = parseFloat($("mr-amt").value);
+  const note = $("mr-note").value.trim();
+  if (!date||isNaN(amt)) { toast("Incomplete data",true); return; }
   try {
-    await FB.setDoc(FB.doc(rCol(),id), {date,amount:amt,note,uid:UID});
-    bust(); await load(true); closeMov('m-rev');
-    toast('✅ 已更新'); renderTodayBanner();
-    if ($('pg-records').classList.contains('on')) renderRecords();
-  } catch(e) { toast('❌ 更新失敗',true); }
+    await FB.setDoc(FB.doc(rCol(),id), { date, revCat:cat, amount:amt, note, uid:UID });
+    closeMov("m-rev"); toast("Updated");
+  } catch(e) { toast("Update failed",true); }
 }
-async function deleteRev(id, cb) {
-  if (!confirm('刪除此筆營業額記錄？')) return;
-  try {
-    await FB.deleteDoc(FB.doc(rCol(),id));
-    bust(); await load(true); toast('已刪除'); if(cb) cb();
-  } catch(e) { toast('❌ 刪除失敗',true); }
+async function deleteRev(id) {
+  if (!confirm("Delete this revenue record?")) return;
+  try { await FB.deleteDoc(FB.doc(rCol(),id)); toast("Deleted"); }
+  catch(e) { toast("Delete failed",true); }
 }
 
-// --- Expense --------------------------------------------------
+// ─── expense CRUD ─────────────────────────────────────────────
 async function saveExp() {
-  const date=$('exp-date').value, cat=getCat();
-  const name=$('exp-name').value.trim();
-  const amt=parseFloat($('exp-amt').value), note=$('exp-note').value.trim();
-  if (!date||!name||isNaN(amt)||amt<0) { toast('請填寫完整支出資訊',true); return; }
+  const date = $("exp-date").value;
+  const cat  = getCat();
+  const name = $("exp-name").value.trim();
+  const amt  = parseFloat($("exp-amt").value);
+  const note = $("exp-note").value.trim();
+  if (!date||!name||isNaN(amt)||amt<0) { toast("Please fill in all expense fields",true); return; }
+  const btn = $("save-exp-btn");
+  btn.disabled = true;
   try {
-    const id='exp_'+Date.now()+'_'+UID.slice(-6);
-    await FB.setDoc(FB.doc(eCol(),id), {date,category:cat,name,amount:amt,note,uid:UID});
-    bust(); await load(true);
-    $('exp-name').value=''; $('exp-amt').value=''; $('exp-note').value='';
-    toast('✅ '+catLabel(cat)+' $'+fmt(amt));
-    renderTodayBanner();
-  } catch(e) { toast('❌ 儲存失敗',true); }
+    const id = "exp_"+Date.now()+"_"+UID.slice(-6);
+    await FB.setDoc(FB.doc(eCol(),id), { date, category:cat, name, amount:amt, note, uid:UID });
+    $("exp-name").value=""; $("exp-amt").value=""; $("exp-note").value="";
+    toast("Added: "+catLabel(cat)+" $"+fmt(amt));
+  } catch(e) { toast("Save failed",true); }
+  finally { btn.disabled = false; }
 }
 
 function openExpEdit(e) {
-  $('me-id').value=e.id; $('me-date').value=e.date;
-  $('me-cat').value=e.category; $('me-name').value=e.name;
-  $('me-amt').value=e.amount; $('me-note').value=e.note||'';
-  openMov('m-exp');
+  $("me-id").value   = e.id;
+  $("me-date").value = e.date;
+  $("me-cat").value  = e.category;
+  $("me-name").value = e.name;
+  $("me-amt").value  = e.amount;
+  $("me-note").value = e.note||"";
+  openMov("m-exp");
 }
 async function saveExpEdit() {
-  const id=$('me-id').value, date=$('me-date').value;
-  const cat=$('me-cat').value, name=$('me-name').value.trim();
-  const amt=parseFloat($('me-amt').value), note=$('me-note').value.trim();
-  if (!date||!name||isNaN(amt)) { toast('資料不完整',true); return; }
+  const id   = $("me-id").value;
+  const date = $("me-date").value;
+  const cat  = $("me-cat").value;
+  const name = $("me-name").value.trim();
+  const amt  = parseFloat($("me-amt").value);
+  const note = $("me-note").value.trim();
+  if (!date||!name||isNaN(amt)) { toast("Incomplete data",true); return; }
   try {
-    await FB.setDoc(FB.doc(eCol(),id), {date,category:cat,name,amount:amt,note,uid:UID});
-    bust(); await load(true); closeMov('m-exp');
-    toast('✅ 已更新'); renderTodayBanner();
-    if ($('pg-records').classList.contains('on')) renderRecords();
-  } catch(e) { toast('❌ 更新失敗',true); }
+    await FB.setDoc(FB.doc(eCol(),id), { date, category:cat, name, amount:amt, note, uid:UID });
+    closeMov("m-exp"); toast("Updated");
+  } catch(e) { toast("Update failed",true); }
 }
-async function deleteExp(id, cb) {
-  if (!confirm('刪除此筆支出？')) return;
-  try {
-    await FB.deleteDoc(FB.doc(eCol(),id));
-    bust(); await load(true); toast('已刪除'); if(cb) cb();
-  } catch(e) { toast('❌ 刪除失敗',true); }
+async function deleteExp(id) {
+  if (!confirm("Delete this expense record?")) return;
+  try { await FB.deleteDoc(FB.doc(eCol(),id)); toast("Deleted"); }
+  catch(e) { toast("Delete failed",true); }
 }
 
-// --- Password gate --------------------------------------------
-let _pwQ = null; // queued action after pw check
-
+// ─── password gate ────────────────────────────────────────────
+let _pwQ = null;
 function requirePw(action) {
   _pwQ = action;
-  $('pw-inp').value=''; $('pw-err').style.display='none';
-  openMov('m-pw');
+  $("pw-inp").value = "";
+  $("pw-err").style.display = "none";
+  openMov("m-pw");
 }
 function checkPw() {
-  if ($('pw-inp').value !== EDIT_PW) {
-    $('pw-err').textContent='密碼錯誤'; $('pw-err').style.display='block';
-    $('pw-inp').value=''; return;
+  if ($("pw-inp").value !== EDIT_PW) {
+    $("pw-err").textContent = "Incorrect password";
+    $("pw-err").style.display = "block";
+    $("pw-inp").value = ""; return;
   }
-  closeMov('m-pw');
-  if (_pwQ) { _pwQ(); _pwQ=null; }
+  closeMov("m-pw");
+  if (_pwQ) { _pwQ(); _pwQ = null; }
 }
 
-// --- Render: Today banner -------------------------------------
-async function renderTodayBanner() {
-  const d=todayStr(), data=await load();
-  const r=data.revs.find(x=>x.date===d);
-  const exps=data.exps.filter(x=>x.date===d);
-  const totE=exps.reduce((s,e)=>s+e.amount,0);
-  const rev=r?r.amount:null, pnl=rev!==null?rev-totE:null;
-  const tbR=$('tb-rev');
-  tbR.textContent=rev!==null?'$'+fmt(rev):'未記錄';
-  tbR.style.color=rev!==null?'var(--ac)':'var(--tx3)';
-  $('tb-exp').textContent='$'+fmt(totE);
-  const tbP=$('tb-pnl');
-  if (pnl!==null){tbP.textContent='$'+fmt(pnl);tbP.style.color=pnl>=0?'var(--ac)':'var(--rd)';}
-  else{tbP.textContent='—';tbP.style.color='var(--tx3)';}
-  const list=$('today-list');
-  if (!exps.length){list.innerHTML='<div class="empty">今日尚無支出</div>';return;}
-  list.innerHTML=exps.map(e=>expHTML(e,'renderTodayBanner')).join('');
+// ─── today banner (entry page) ────────────────────────────────
+function renderTodayBanner() {
+  const d    = todayStr();
+  const revs = C.revs.filter(x=>x.date===d);
+  const exps = C.exps.filter(x=>x.date===d);
+  const totR = revs.reduce((s,r)=>s+r.amount,0);
+  const totE = exps.reduce((s,e)=>s+e.amount,0);
+  const hasRev = revs.length>0;
+  const pnl  = hasRev ? totR-totE : null;
+
+  const tbR = $("tb-rev");
+  tbR.textContent = hasRev ? "$"+fmt(totR) : "--";
+  tbR.style.color = hasRev ? "var(--ac)" : "var(--tx3)";
+  $("tb-exp").textContent = "$"+fmt(totE);
+  const tbP = $("tb-pnl");
+  if (pnl!==null){ tbP.textContent="$"+fmt(pnl); tbP.style.color=pnl>=0?"var(--ac)":"var(--rd)"; }
+  else { tbP.textContent="--"; tbP.style.color="var(--tx3)"; }
+
+  // today expense list -- display only, no edit/delete buttons
+  const list = $("today-list");
+  if (!exps.length) { list.innerHTML="<div class=\"empty\">No expenses today</div>"; return; }
+  list.innerHTML = exps.map(e =>
+    "<div class=\"ei\"><div class=\"ei-top\">" +
+    "<span class=\"eico\">"+catIcon(e.category)+"</span>" +
+    "<div class=\"einf\">" +
+      "<div class=\"ename\">"+e.name+"</div>" +
+      "<div class=\"emeta\">"+catLabel(e.category)+(e.note?" - "+e.note:"")+"</div>" +
+    "</div>" +
+    "<span class=\"eamt\" style=\"color:var(--rd)\">-$"+fmt(e.amount)+"</span>" +
+    "</div></div>"
+  ).join("");
 }
 
-function expHTML(e, cbName) {
-  const eid = e.id.replace(/'/g,"\\'");
-  return '<div class="ei">' +
-    '<div class="ei-top">' +
-      '<span class="eico">'+catIcon(e.category)+'</span>' +
-      '<div class="einf">' +
-        '<div class="ename">'+e.name+'</div>' +
-        '<div class="emeta">'+catLabel(e.category)+(e.note?' · '+e.note:'')+'</div>' +
-      '</div>' +
-      '<span class="eamt" style="color:var(--rd)">-$'+fmt(e.amount)+'</span>' +
-      '<div class="eact">' +
-        '<button class="ab ab-e" onclick="requirePw(function(){openExpEdit(C.exps.find(x=>x.id===\''+eid+'\'))})">修改</button>' +
-        '<button class="ab ab-d" onclick="requirePw(function(){deleteExp(\''+eid+'\','+cbName+')})">刪除</button>' +
-      '</div>' +
-    '</div>' +
-  '</div>';
-}
-
-// --- Render: Home ---------------------------------------------
+// ─── home page ────────────────────────────────────────────────
 let tChart=null, pChart=null;
 
-async function renderHome() {
+function renderHome() {
   const now=new Date(), m=monthStr();
-  $('h-month').textContent=m;
-  const data=await load();
-  const revs=data.revs.filter(r=>r.date.startsWith(m));
-  const exps=data.exps.filter(e=>e.date.startsWith(m));
-  const totR=revs.reduce((s,r)=>s+r.amount,0);
-  const totE=exps.reduce((s,e)=>s+e.amount,0);
-  const pnl=totR-totE, mg=totR>0?((pnl/totR)*100).toFixed(1):0;
+  $("h-month").textContent = m;
+  const revs = C.revs.filter(r=>r.date.startsWith(m));
+  const exps = C.exps.filter(e=>e.date.startsWith(m));
+  const totR = revs.reduce((s,r)=>s+r.amount,0);
+  const totE = exps.reduce((s,e)=>s+e.amount,0);
+  const pnl  = totR-totE;
+  const mg   = totR>0 ? ((pnl/totR)*100).toFixed(1) : 0;
 
-  const hp=$('h-profit');
-  hp.textContent='$'+fmt(pnl); hp.className='pv '+(pnl>=0?'g':'r');
-  $('h-margin').textContent='毛利率 '+mg+'%';
-  $('h-rev').textContent='$'+fmt(totR); $('h-revd').textContent=revs.length+' 天';
-  $('h-exp').textContent='$'+fmt(totE); $('h-expi').textContent=exps.length+' 筆';
+  const hp = $("h-profit");
+  hp.textContent = "$"+fmt(pnl); hp.className = "pv "+(pnl>=0?"g":"r");
+  $("h-margin").textContent = "Margin "+mg+"%";
+  $("h-rev").textContent    = "$"+fmt(totR); $("h-revd").textContent = revs.length+" days";
+  $("h-exp").textContent    = "$"+fmt(totE); $("h-expi").textContent = exps.length+" items";
 
-  // Trend chart
-  const dim=new Date(now.getFullYear(),now.getMonth()+1,0).getDate();
-  const lbs=[],rArr=[],eArr=[];
-  for(let d=1;d<=dim;d++){
-    const ds=m+'-'+String(d).padStart(2,'0');
+  // trend chart
+  const dim = new Date(now.getFullYear(), now.getMonth()+1, 0).getDate();
+  const lbs=[], rArr=[], eArr=[];
+  for (let d=1; d<=dim; d++) {
+    const ds = m+"-"+String(d).padStart(2,"0");
     lbs.push(d);
-    const rv=data.revs.find(x=>x.date===ds);
-    const ex=data.exps.filter(x=>x.date===ds).reduce((s,x)=>s+x.amount,0);
-    rArr.push(rv?rv.amount:null); eArr.push(ex>0?ex:null);
+    const rv = C.revs.filter(x=>x.date===ds).reduce((s,x)=>s+x.amount,0);
+    const ex = C.exps.filter(x=>x.date===ds).reduce((s,x)=>s+x.amount,0);
+    rArr.push(rv>0?rv:null); eArr.push(ex>0?ex:null);
   }
   if (tChart) { tChart.destroy(); tChart=null; }
-  const ctx1 = $('trend-chart').getContext('2d');
-  tChart = new Chart(ctx1,{
-    type:'line',
-    data:{labels:lbs,datasets:[
-      {label:'收入',data:rArr,borderColor:'#5ee7c8',backgroundColor:'rgba(94,231,200,.07)',tension:.3,spanGaps:true,pointRadius:2,borderWidth:2},
-      {label:'支出',data:eArr,borderColor:'#ff6b6b',backgroundColor:'rgba(255,107,107,.07)',tension:.3,spanGaps:true,pointRadius:2,borderWidth:2}
+  tChart = new Chart($("trend-chart").getContext("2d"), {
+    type:"line",
+    data:{ labels:lbs, datasets:[
+      { label:"Revenue", data:rArr, borderColor:"#5ee7c8", backgroundColor:"rgba(94,231,200,.07)", tension:.3, spanGaps:true, pointRadius:2, borderWidth:2 },
+      { label:"Expense", data:eArr, borderColor:"#ff6b6b", backgroundColor:"rgba(255,107,107,.07)", tension:.3, spanGaps:true, pointRadius:2, borderWidth:2 }
     ]},
-    options:{responsive:true,maintainAspectRatio:false,
-      plugins:{legend:{labels:{color:'#8b90a7',font:{size:10},boxWidth:10,padding:10}}},
+    options:{ responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{ labels:{ color:"#8b90a7", font:{size:10}, boxWidth:10, padding:10 } } },
       scales:{
-        x:{ticks:{color:'#4e5470',font:{size:9},maxTicksLimit:8},grid:{color:'rgba(42,48,80,.4)'}},
-        y:{ticks:{color:'#4e5470',font:{size:9},callback:v=>'$'+fmt(v)},grid:{color:'rgba(42,48,80,.4)'}}
+        x:{ ticks:{ color:"#4e5470", font:{size:9}, maxTicksLimit:8 }, grid:{ color:"rgba(42,48,80,.4)" } },
+        y:{ ticks:{ color:"#4e5470", font:{size:9}, callback:v=>"$"+fmt(v) }, grid:{ color:"rgba(42,48,80,.4)" } }
       }
     }
   });
 
-  // Pie chart
-  const cats=['food','staff','utility','rent','supply','other'];
-  const colors=['#5ee7c8','#a29bfe','#ffd93d','#ff6b6b','#74b9ff','#8b90a7'];
-  const tots=cats.map(c=>exps.filter(e=>e.category===c).reduce((s,e)=>s+e.amount,0));
+  // pie chart
+  const cats   = ["food","staff","utility","rent","supply","other"];
+  const colors = ["#5ee7c8","#a29bfe","#ffd93d","#ff6b6b","#74b9ff","#8b90a7"];
+  const tots   = cats.map(c => exps.filter(e=>e.category===c).reduce((s,e)=>s+e.amount,0));
   if (pChart) { pChart.destroy(); pChart=null; }
-  const ctx2 = $('pie-chart').getContext('2d');
-  pChart = new Chart(ctx2,{
-    type:'doughnut',
-    data:{labels:cats.map(catLabel),datasets:[{data:tots,backgroundColor:colors.map(c=>c+'bb'),borderColor:colors,borderWidth:1.5}]},
-    options:{responsive:true,maintainAspectRatio:false,
+  pChart = new Chart($("pie-chart").getContext("2d"), {
+    type:"doughnut",
+    data:{ labels:cats.map(catLabel), datasets:[{ data:tots, backgroundColor:colors.map(c=>c+"bb"), borderColor:colors, borderWidth:1.5 }] },
+    options:{ responsive:true, maintainAspectRatio:false,
       plugins:{
-        legend:{position:'right',labels:{color:'#8b90a7',font:{size:10},boxWidth:10,padding:5}},
-        tooltip:{callbacks:{label:ctx=>' '+ctx.label+': $'+fmt(ctx.raw)}}
+        legend:{ position:"right", labels:{ color:"#8b90a7", font:{size:10}, boxWidth:10, padding:5 } },
+        tooltip:{ callbacks:{ label: ctx=>" "+ctx.label+": $"+fmt(ctx.raw) } }
       }
     }
   });
 
-  // Recent 7 days
-  const ds=new Set([...data.revs.map(r=>r.date),...data.exps.map(e=>e.date)]);
-  const recent=[...ds].sort().reverse().slice(0,7);
-  const rl=$('h-recent');
-  if(!recent.length){rl.innerHTML='<div class="empty">尚無資料</div>';return;}
-  rl.innerHTML=recent.map(d=>{
-    const r=data.revs.find(x=>x.date===d);
-    const e=data.exps.filter(x=>x.date===d).reduce((s,x)=>s+x.amount,0);
-    const rv=r?r.amount:0, p=rv-e, mm=d.slice(5,7)+'/'+d.slice(8,10);
-    return '<div class="dr"><div><div class="dd">'+mm+'</div><div style="font-size:11px;color:var(--tx3);margin-top:2px">'+(r?'收$'+fmt(rv):'無收入')+(e>0?' · 支$'+fmt(e):'')+'</div></div><div class="dpnl" style="color:'+(r||e>0?(p>=0?'var(--ac)':'var(--rd)'):'var(--tx3)')+'">'+(r||e>0?'$'+fmt(p):'—')+'</div></div>';
-  }).join('');
+  // last 7 days
+  const ds = new Set([...C.revs.map(r=>r.date), ...C.exps.map(e=>e.date)]);
+  const recent = [...ds].sort().reverse().slice(0,7);
+  const rl = $("h-recent");
+  if (!recent.length) { rl.innerHTML="<div class=\"empty\">No data yet</div>"; return; }
+  rl.innerHTML = recent.map(d => {
+    const rv = C.revs.filter(x=>x.date===d).reduce((s,x)=>s+x.amount,0);
+    const ex = C.exps.filter(x=>x.date===d).reduce((s,x)=>s+x.amount,0);
+    const p  = rv-ex, mm=d.slice(5,7)+"/"+d.slice(8,10);
+    const hasR = C.revs.some(x=>x.date===d);
+    return "<div class=\"dr\">" +
+      "<div><div class=\"dd\">"+mm+"</div><div style=\"font-size:11px;color:var(--tx3);margin-top:2px\">"+(hasR?"Rev $"+fmt(rv):"No revenue")+(ex>0?" / Exp $"+fmt(ex):"")+"</div></div>" +
+      "<div class=\"dpnl\" style=\"color:"+(hasR||ex>0?(p>=0?"var(--ac)":"var(--rd)"):"var(--tx3)")+"\">"+((hasR||ex>0)?"$"+fmt(p):"--")+"</div>" +
+      "</div>";
+  }).join("");
 }
 
-// --- Render: Records ------------------------------------------
-async function renderRecords() {
-  const m=$('f-month').value, cat=$('f-cat').value;
-  const data=await load();
-  let rows=[];
-  if (cat==='all'||cat==='revenue')
-    data.revs.filter(r=>r.date.startsWith(m)).forEach(r=>rows.push({...r,type:'rev'}));
-  if (cat!=='revenue')
-    data.exps.filter(e=>e.date.startsWith(m)&&(cat==='all'||e.category===cat)).forEach(e=>rows.push({...e,type:'exp'}));
-  rows.sort((a,b)=>b.date.localeCompare(a.date));
-  const el=$('rec-list');
-  if (!rows.length){el.innerHTML='<div class="empty">此月份無資料</div>';return;}
-  el.innerHTML=rows.map(r=>{
-    const mm=r.date.slice(5,7)+'/'+r.date.slice(8,10);
-    if (r.type==='rev') {
-      const rid=r.id.replace(/'/g,"\\'");
-      return '<div class="ei"><div class="ei-top"><span class="eico">💰</span><div class="einf"><div class="ename">POS 營業額</div><div class="emeta">'+mm+' · <span class="badge brev">收入</span>'+(r.note?' · '+r.note:'')+'</div></div><span class="eamt" style="color:var(--ac)">+$'+fmt(r.amount)+'</span><div class="eact"><button class="ab ab-e" onclick="requirePw(function(){openRevEdit(C.revs.find(x=>x.id===\''+rid+'\'))})">修改</button><button class="ab ab-d" onclick="requirePw(function(){deleteRev(\''+rid+'\',renderRecords)})">刪除</button></div></div></div>';
+// ─── records (paginated) ──────────────────────────────────────
+let _recRows   = [];  // all merged rows for current filter (rebuilt on filter change)
+let _recCursor = 0;   // how many rows already rendered
+
+function resetRecords() {
+  _recRows   = [];
+  _recCursor = 0;
+  $("rec-list").innerHTML = "";
+  $("load-more-btn").style.display = "none";
+  renderRecordsPage(true);
+}
+
+function renderRecordsPage(firstLoad=false) {
+  const m   = $("f-month").value;
+  const cat = $("f-cat").value;
+
+  // rebuild full list if first load
+  if (firstLoad) {
+    _recRows = [];
+    if (cat==="all" || cat==="revenue")
+      C.revs.filter(r=>r.date.startsWith(m)).forEach(r=>_recRows.push({...r, _type:"rev"}));
+    if (cat!=="revenue")
+      C.exps.filter(e=>e.date.startsWith(m)&&(cat==="all"||e.category===cat)).forEach(e=>_recRows.push({...e, _type:"exp"}));
+    _recRows.sort((a,b)=>b.date.localeCompare(a.date));
+    _recCursor = 0;
+    $("rec-list").innerHTML = "";
+  }
+
+  if (!_recRows.length) {
+    $("rec-list").innerHTML = "<div class=\"empty\">No records this month</div>";
+    $("load-more-btn").style.display = "none";
+    return;
+  }
+
+  const page = _recRows.slice(_recCursor, _recCursor + PAGE_SIZE);
+  const el   = $("rec-list");
+  page.forEach(r => {
+    const mm = r.date.slice(5,7)+"/"+r.date.slice(8,10);
+    const div = document.createElement("div");
+    div.className = "ei";
+    if (r._type==="rev") {
+      const icon  = catIcon(r.revCat||"pos");
+      const label = catLabel(r.revCat||"pos");
+      const rid   = r.id;
+      div.innerHTML =
+        "<div class=\"ei-top\">" +
+        "<span class=\"eico\">"+icon+"</span>" +
+        "<div class=\"einf\">" +
+          "<div class=\"ename\">"+label+"</div>" +
+          "<div class=\"emeta\">"+mm+" <span class=\"badge brev\">Revenue</span>"+(r.note?" - "+r.note:"")+"</div>" +
+        "</div>" +
+        "<span class=\"eamt\" style=\"color:var(--ac)\">+$"+fmt(r.amount)+"</span>" +
+        "<div class=\"eact\">" +
+          "<button class=\"ab ab-e\">Edit</button>" +
+          "<button class=\"ab ab-d\">Delete</button>" +
+        "</div>" +
+        "</div>";
+      div.querySelector(".ab-e").onclick = () => requirePw(() => openRevEdit(C.revs.find(x=>x.id===rid)||r));
+      div.querySelector(".ab-d").onclick = () => requirePw(() => deleteRev(rid));
     } else {
-      const eid=r.id.replace(/'/g,"\\'");
-      return '<div class="ei"><div class="ei-top"><span class="eico">'+catIcon(r.category)+'</span><div class="einf"><div class="ename">'+r.name+'</div><div class="emeta">'+mm+' · <span class="badge '+catBadgeCls(r.category)+'">'+catLabel(r.category)+'</span>'+(r.note?' · '+r.note:'')+'</div></div><span class="eamt" style="color:var(--rd)">-$'+fmt(r.amount)+'</span><div class="eact"><button class="ab ab-e" onclick="requirePw(function(){openExpEdit(C.exps.find(x=>x.id===\''+eid+'\'))})">修改</button><button class="ab ab-d" onclick="requirePw(function(){deleteExp(\''+eid+'\',renderRecords)})">刪除</button></div></div></div>';
+      const eid = r.id;
+      div.innerHTML =
+        "<div class=\"ei-top\">" +
+        "<span class=\"eico\">"+catIcon(r.category)+"</span>" +
+        "<div class=\"einf\">" +
+          "<div class=\"ename\">"+r.name+"</div>" +
+          "<div class=\"emeta\">"+mm+" <span class=\"badge "+catBadge(r.category)+"\">"+catLabel(r.category)+"</span>"+(r.note?" - "+r.note:"")+"</div>" +
+        "</div>" +
+        "<span class=\"eamt\" style=\"color:var(--rd)\">-$"+fmt(r.amount)+"</span>" +
+        "<div class=\"eact\">" +
+          "<button class=\"ab ab-e\">Edit</button>" +
+          "<button class=\"ab ab-d\">Delete</button>" +
+        "</div>" +
+        "</div>";
+      div.querySelector(".ab-e").onclick = () => requirePw(() => openExpEdit(C.exps.find(x=>x.id===eid)||r));
+      div.querySelector(".ab-d").onclick = () => requirePw(() => deleteExp(eid));
     }
-  }).join('');
+    el.appendChild(div);
+  });
+
+  _recCursor += page.length;
+  const btn = $("load-more-btn");
+  if (_recCursor < _recRows.length) {
+    btn.style.display   = "block";
+    btn.disabled        = false;
+    btn.textContent     = "Load More (" + (_recRows.length - _recCursor) + " remaining)";
+  } else {
+    btn.style.display = "none";
+  }
 }
 
-// --- Render: Report -------------------------------------------
-async function renderReport() {
-  const m=$('rpt-month').value;
-  const data=await load();
-  const revs=data.revs.filter(r=>r.date.startsWith(m));
-  const exps=data.exps.filter(e=>e.date.startsWith(m));
-  const totR=revs.reduce((s,r)=>s+r.amount,0);
-  const totE=exps.reduce((s,e)=>s+e.amount,0);
-  const pnl=totR-totE, mg=totR>0?((pnl/totR)*100).toFixed(1):0;
-  const days=revs.length, avg=days>0?Math.round(totR/days):0;
+function loadMoreRecords() {
+  renderRecordsPage(false);
+}
 
-  const cats=['food','staff','utility','rent','supply','other'];
-  const catBreak=cats.map(c=>({
+function renderRecords() { resetRecords(); }
+
+// ─── report ───────────────────────────────────────────────────
+function renderReport() {
+  const m    = $("rpt-month").value;
+  const revs = C.revs.filter(r=>r.date.startsWith(m));
+  const exps = C.exps.filter(e=>e.date.startsWith(m));
+  const totR = revs.reduce((s,r)=>s+r.amount,0);
+  const totE = exps.reduce((s,e)=>s+e.amount,0);
+  const pnl  = totR-totE;
+  const mg   = totR>0 ? ((pnl/totR)*100).toFixed(1) : 0;
+  const days = [...new Set(revs.map(r=>r.date))].length;
+  const avg  = days>0 ? Math.round(totR/days) : 0;
+
+  const cats     = ["food","staff","utility","rent","supply","other"];
+  const catBreak = cats.map(c=>({
     key:c, label:catLabel(c), icon:catIcon(c),
-    amount:exps.filter(e=>e.category===c).reduce((s,e)=>s+e.amount,0),
-    items:exps.filter(e=>e.category===c)
+    amount: exps.filter(e=>e.category===c).reduce((s,e)=>s+e.amount,0),
+    items:  exps.filter(e=>e.category===c)
   })).filter(c=>c.amount>0).sort((a,b)=>b.amount-a.amount);
 
-  let html=
-    '<div class="sg">'+
-      '<div class="sc"><div class="sl">總收入</div><div class="sv g">$'+fmt(totR)+'</div><div class="ss">均$'+fmt(avg)+'/天 · '+days+'天</div></div>'+
-      '<div class="sc"><div class="sl">總支出</div><div class="sv r">$'+fmt(totE)+'</div><div class="ss">'+exps.length+' 筆</div></div>'+
-    '</div>'+
-    '<div class="pcard"><div><div class="pl">淨損益</div><div class="pv '+(pnl>=0?'g':'r')+'">$'+fmt(pnl)+'</div></div><div class="mbadge">毛利率 '+mg+'%</div></div>'+
-    '<div class="card"><div class="ch">支出分類明細</div>';
+  let html =
+    "<div class=\"sg\">" +
+      "<div class=\"sc\"><div class=\"sl\">Total Revenue</div><div class=\"sv g\">$"+fmt(totR)+"</div><div class=\"ss\">Avg $"+fmt(avg)+"/day - "+days+" days</div></div>" +
+      "<div class=\"sc\"><div class=\"sl\">Total Expense</div><div class=\"sv r\">$"+fmt(totE)+"</div><div class=\"ss\">"+exps.length+" items</div></div>" +
+    "</div>" +
+    "<div class=\"pcard\"><div><div class=\"pl\">Net P&L</div><div class=\"pv "+(pnl>=0?"g":"r")+"\">$"+fmt(pnl)+"</div></div><div class=\"mbadge\">Margin "+mg+"%</div></div>" +
+    "<div class=\"card\"><div class=\"ch\">Expense Breakdown</div>";
 
   if (!catBreak.length) {
-    html+='<div class="empty">本月無支出記錄</div>';
+    html += "<div class=\"empty\">No expenses this month</div>";
   } else {
-    catBreak.forEach(c=>{
-      const ep=totE>0?((c.amount/totE)*100).toFixed(1):0;
-      const rp=totR>0?((c.amount/totR)*100).toFixed(1):0;
-      html+=
-        '<div style="margin-bottom:16px">'+
-          '<div style="display:flex;justify-content:space-between;align-items:center">'+
-            '<span>'+c.icon+' <strong style="font-size:13px">'+c.label+'</strong></span>'+
-            '<span style="font-family:\'DM Mono\',monospace;color:var(--rd);font-size:13px">$'+fmt(c.amount)+'</span>'+
-          '</div>'+
-          '<div style="display:flex;justify-content:space-between;margin:4px 0">'+
-            '<span style="font-size:11px;color:var(--tx3)">佔支出 '+ep+'%</span>'+
-            '<span style="font-size:11px;color:var(--tx3)">成本率 '+rp+'%</span>'+
-          '</div>'+
-          '<div class="pb"><div class="pf" style="width:'+ep+'%"></div></div>'+
-          '<div style="margin-top:7px;padding-left:4px">'+
-            c.items.map(i=>'<div style="display:flex;justify-content:space-between;padding:3px 0;font-size:12px;border-bottom:1px solid rgba(42,48,80,.3)"><span style="color:var(--tx2)">'+i.name+'</span><span style="font-family:\'DM Mono\',monospace;color:var(--tx2)">$'+fmt(i.amount)+'</span></div>').join('')+
-          '</div>'+
-        '</div>';
+    catBreak.forEach(c => {
+      const ep = totE>0 ? ((c.amount/totE)*100).toFixed(1) : 0;
+      const rp = totR>0 ? ((c.amount/totR)*100).toFixed(1) : 0;
+      html +=
+        "<div style=\"margin-bottom:16px\">" +
+          "<div style=\"display:flex;justify-content:space-between;align-items:center\">" +
+            "<span>"+c.icon+" <strong style=\"font-size:13px\">"+c.label+"</strong></span>" +
+            "<span style=\"font-family:'DM Mono',monospace;color:var(--rd);font-size:13px\">$"+fmt(c.amount)+"</span>" +
+          "</div>" +
+          "<div style=\"display:flex;justify-content:space-between;margin:4px 0\">" +
+            "<span style=\"font-size:11px;color:var(--tx3)\">Of total exp: "+ep+"%</span>" +
+            "<span style=\"font-size:11px;color:var(--tx3)\">Cost ratio: "+rp+"%</span>" +
+          "</div>" +
+          "<div class=\"pb\"><div class=\"pf\" style=\"width:"+ep+"%\"></div></div>" +
+          "<div style=\"margin-top:7px\">" +
+            c.items.map(i=>"<div style=\"display:flex;justify-content:space-between;padding:3px 0;font-size:12px;border-bottom:1px solid rgba(42,48,80,.3)\"><span style=\"color:var(--tx2)\">"+i.name+"</span><span style=\"font-family:'DM Mono',monospace;color:var(--tx2)\">$"+fmt(i.amount)+"</span></div>").join("") +
+          "</div>" +
+        "</div>";
     });
   }
-  html+='</div>';
+  html += "</div>";
 
-  // Daily P&L
-  const dateSet=new Set([...revs.map(r=>r.date),...exps.map(e=>e.date)]);
-  html+='<div class="card"><div class="ch">每日損益</div>';
+  // daily P&L
+  const dateSet = new Set([...revs.map(r=>r.date), ...exps.map(e=>e.date)]);
+  html += "<div class=\"card\"><div class=\"ch\">Daily P&L</div>";
   if (!dateSet.size) {
-    html+='<div class="empty">本月無資料</div>';
+    html += "<div class=\"empty\">No data this month</div>";
   } else {
-    [...dateSet].sort().reverse().forEach(d=>{
-      const r=revs.find(x=>x.date===d);
-      const e=exps.filter(x=>x.date===d).reduce((s,x)=>s+x.amount,0);
-      const rv=r?r.amount:0, p=rv-e, mg2=rv>0?((p/rv)*100).toFixed(1):null;
-      const mm=d.slice(5,7)+'/'+d.slice(8,10);
-      html+='<div class="dr"><div><div class="dd">'+mm+'</div><div style="font-size:11px;color:var(--tx3);margin-top:2px">'+(r?'收$'+fmt(rv):'—')+(e>0?' · 支$'+fmt(e):'')+'</div></div><div style="text-align:right"><div class="dpnl" style="color:'+(r||e>0?(p>=0?'var(--ac)':'var(--rd)'):'var(--tx3)')+'">'+(r||e>0?'$'+fmt(p):'—')+'</div>'+(mg2!==null?'<div style="font-size:11px;color:var(--tx3)">'+mg2+'%</div>':'')+'</div></div>';
+    [...dateSet].sort().reverse().forEach(d => {
+      const rv  = revs.filter(x=>x.date===d).reduce((s,x)=>s+x.amount,0);
+      const ex  = exps.filter(x=>x.date===d).reduce((s,x)=>s+x.amount,0);
+      const p   = rv-ex;
+      const mg2 = rv>0 ? ((p/rv)*100).toFixed(1) : null;
+      const mm  = d.slice(5,7)+"/"+d.slice(8,10);
+      const hasR = revs.some(x=>x.date===d);
+      html +=
+        "<div class=\"dr\">" +
+          "<div><div class=\"dd\">"+mm+"</div><div style=\"font-size:11px;color:var(--tx3);margin-top:2px\">"+(hasR?"Rev $"+fmt(rv):"--")+(ex>0?" / Exp $"+fmt(ex):"")+"</div></div>" +
+          "<div style=\"text-align:right\">" +
+            "<div class=\"dpnl\" style=\"color:"+(hasR||ex>0?(p>=0?"var(--ac)":"var(--rd)"):"var(--tx3)")+"\">"+((hasR||ex>0)?"$"+fmt(p):"--")+"</div>" +
+            (mg2!==null?"<div style=\"font-size:11px;color:var(--tx3)\">"+mg2+"%</div>":"") +
+          "</div>" +
+        "</div>";
     });
   }
-  html+='</div>';
-  $('rpt-content').innerHTML=html;
+  html += "</div>";
+  $("rpt-content").innerHTML = html;
 }
 
-// --- Export CSV -----------------------------------------------
+// ─── CSV export ───────────────────────────────────────────────
 async function exportCSV() {
-  const from=$('csv-from').value, to=$('csv-to').value;
-  if (!from||!to){toast('請選擇起始和結束日期',true);return;}
-  if (from>to){toast('起始日期不能晚於結束日期',true);return;}
-  const data=await load(true);
-  let rows=[['日期','類型','分類','項目名稱/明細','金額','備註']];
-  data.revs.filter(r=>r.date>=from&&r.date<=to).forEach(r=>rows.push([r.date,'收入','—','POS營業額',r.amount,r.note||'']));
-  data.exps.filter(e=>e.date>=from&&e.date<=to).forEach(e=>rows.push([e.date,'支出',catLabel(e.category),e.name,e.amount,e.note||'']));
+  const from = $("csv-from").value, to = $("csv-to").value;
+  if (!from||!to)   { toast("Please select date range",true); return; }
+  if (from>to)      { toast("Start date must be before end date",true); return; }
+
+  // CSV title row first, then header, then data
+  const shopName = $("shop-title").textContent;
+  const titleRow = ['"'+shopName+' - Accounting Export"','','','','',''];
+  const rangeRow = ['"Period: '+from+' to '+to+'"','','','','',''];
+  const header   = ["Date","Type","Category","Item/Detail","Amount(NTD)","Note"];
+
+  let rows = [];
+  C.revs
+    .filter(r=>r.date>=from && r.date<=to)
+    .forEach(r => rows.push([r.date,"Revenue",catLabel(r.revCat||"pos"),catLabel(r.revCat||"pos"),r.amount,r.note||""]));
+  C.exps
+    .filter(e=>e.date>=from && e.date<=to)
+    .forEach(e => rows.push([e.date,"Expense",catLabel(e.category),e.name,e.amount,e.note||""]));
   rows.sort((a,b)=>a[0].localeCompare(b[0]));
-  const csv='\uFEFF'+rows.map(r=>r.map(c=>'"'+String(c).replace(/"/g,'""')+'"').join(',')).join('\n');
-  const blob=new Blob([csv],{type:'text/csv;charset=utf-8'});
-  const url=URL.createObjectURL(blob);
-  const a=document.createElement('a');
-  a.href=url; a.download='冰店帳務_'+from+'_至_'+to+'.csv';
+
+  const toCSVRow = arr => arr.map(c => '"'+String(c).replace(/"/g,'""')+'"').join(",");
+  const csv = "\uFEFF" + [titleRow,rangeRow,header,...rows].map(toCSVRow).join("\n");
+
+  const blob = new Blob([csv], { type:"text/csv;charset=utf-8" });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement("a");
+  a.href = url; a.download = "ice-shop_"+from+"_to_"+to+".csv";
   document.body.appendChild(a); a.click();
   document.body.removeChild(a);
-  setTimeout(()=>URL.revokeObjectURL(url),1000);
-  toast('✅ CSV 已下載 ('+from+' ~ '+to+')');
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+  toast("CSV downloaded ("+from+" to "+to+")");
 }
 </script>
 
