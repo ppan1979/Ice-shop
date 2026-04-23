@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+
 <html lang="zh-TW">
 <head>
 <meta charset="UTF-8">
@@ -19,12 +20,12 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const cfg = {
-  apiKey: "AIzaSyBVp9cEW4maC1oLdJGnduD8Gnpct2FvIaY",
-  authDomain: "ice-shop-account.firebaseapp.com",
-  projectId: "ice-shop-account",
-  storageBucket: "ice-shop-account.firebasestorage.app",
-  messagingSenderId: "115443037159",
-  appId: "1:115443037159:web:3748852558c426e7acc342"
+apiKey: "AIzaSyBVp9cEW4maC1oLdJGnduD8Gnpct2FvIaY",
+authDomain: "ice-shop-account.firebaseapp.com",
+projectId: "ice-shop-account",
+storageBucket: "ice-shop-account.firebasestorage.app",
+messagingSenderId: "115443037159",
+appId: "1:115443037159:web:3748852558c426e7acc342"
 };
 
 const fbApp  = initializeApp(cfg);
@@ -32,30 +33,30 @@ const fbAuth = getAuth(fbApp);
 const fbDb   = getFirestore(fbApp);
 
 window.FB = {
-  auth: fbAuth, db: fbDb,
-  createUser: createUserWithEmailAndPassword,
-  signIn:     signInWithEmailAndPassword,
-  resetPw:    sendPasswordResetEmail,
-  signOut,
-  col: collection, doc, setDoc, getDoc,
-  deleteDoc, onSnapshot
+auth: fbAuth, db: fbDb,
+createUser: createUserWithEmailAndPassword,
+signIn:     signInWithEmailAndPassword,
+resetPw:    sendPasswordResetEmail,
+signOut,
+col: collection, doc, setDoc, getDoc,
+deleteDoc, onSnapshot
 };
 
 onAuthStateChanged(fbAuth, user => {
-  if (user) {
-    window.UID = user.uid;
-    document.getElementById("loading-wrap").style.display = "none";
-    document.getElementById("auth-wrap").style.display   = "none";
-    document.getElementById("app-wrap").style.display    = "flex";
-    document.getElementById("hdr-email").textContent     = user.email;
-    window.appBoot();
-  } else {
-    window.UID = null;
-    document.getElementById("loading-wrap").style.display = "none";
-    document.getElementById("auth-wrap").style.display    = "flex";
-    document.getElementById("app-wrap").style.display     = "none";
-    if (window.stopListeners) window.stopListeners();
-  }
+if (user) {
+window.UID = user.uid;
+document.getElementById("loading-wrap").style.display = "none";
+document.getElementById("auth-wrap").style.display   = "none";
+document.getElementById("app-wrap").style.display    = "flex";
+document.getElementById("hdr-email").textContent     = user.email;
+window.appBoot();
+} else {
+window.UID = null;
+document.getElementById("loading-wrap").style.display = "none";
+document.getElementById("auth-wrap").style.display    = "flex";
+document.getElementById("app-wrap").style.display     = "none";
+if (window.stopListeners) window.stopListeners();
+}
 });
 </script>
 
@@ -166,6 +167,7 @@ input:focus,select:focus{border-color:var(--ac)}
   width:auto;background:transparent;border:none;border-radius:0;
   padding:14px 0;box-shadow:none
 }
+.a-iw input[type=email]:focus,.a-iw input[type=password]:focus{border-color:transparent}
 select{
   background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%235a5f78' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
   background-repeat:no-repeat;background-position:right 13px center;padding-right:34px
@@ -186,7 +188,7 @@ select option{background:#141824}
 .cb.on{border-color:var(--ac);background:rgba(94,231,200,.1)}
 .cb.on .cn{color:var(--ac)}
 
-/* items */
+/* expense list items */
 .ei{padding:10px 0;border-bottom:1px solid rgba(42,48,80,.5)}
 .ei:last-child{border-bottom:none}
 .ei-top{display:flex;align-items:center;gap:6px;flex-wrap:nowrap}
@@ -201,6 +203,7 @@ select option{background:#141824}
 .ab-d{color:var(--rd);border-color:var(--rd);background:transparent}
 .ab:active{opacity:.6}
 
+/* day row */
 .dr{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid rgba(42,48,80,.4)}
 .dr:last-child{border-bottom:none}
 .dd{font-size:13px;color:var(--tx2);font-weight:500}
@@ -216,15 +219,20 @@ select option{background:#141824}
 .bo{background:rgba(139,144,167,.15);color:var(--tx2)}
 .brev{background:rgba(94,231,200,.15);color:var(--ac)}
 
+/* chart */
 .cw{position:relative;height:185px;margin:5px 0}
+
+/* filter row */
 .fr{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap}
 .fr>div{flex:1;min-width:100px}
 .fl{font-size:11px;color:var(--tx2);display:block;margin-bottom:3px;font-weight:500}
 .fr input[type=month],.fr select{font-size:14px;padding:10px 11px}
 
+/* progress */
 .pb{height:5px;background:var(--sf2);border-radius:3px;margin-top:4px;overflow:hidden}
 .pf{height:100%;border-radius:3px;background:var(--pu)}
 
+/* today banner */
 .tbanner{background:var(--sf);border:1px solid var(--bd);border-radius:14px;padding:13px 15px;margin-bottom:12px;display:flex}
 .tbanner .tc{flex:1;text-align:center}
 .tbanner .tc+.tc{border-left:1px solid var(--bd)}
@@ -240,14 +248,19 @@ select option{background:#141824}
 .mbtns{display:flex;gap:9px;margin-top:16px}
 .mbtns .btn{flex:1}
 
+/* section title */
 .stitle{font-size:12px;font-weight:600;color:var(--tx3);text-transform:uppercase;letter-spacing:1px;margin:16px 0 7px}
+
+/* load more */
 .load-more-btn{width:100%;padding:12px;margin-top:10px;border-radius:10px;border:1px solid var(--bd);background:var(--sf2);color:var(--tx2);font-family:inherit;font-size:14px;font-weight:500;cursor:pointer;transition:all .15s}
 .load-more-btn:active{opacity:.7}
 .load-more-btn:disabled{opacity:.4;cursor:default}
 
+/* toast */
 .toast{position:fixed;bottom:calc(var(--nh) + var(--sb) + 11px);left:50%;transform:translateX(-50%) translateY(10px);background:var(--ac);color:#0b0e18;padding:9px 18px;border-radius:20px;font-size:13px;font-weight:600;white-space:nowrap;opacity:0;transition:all .25s;z-index:999;pointer-events:none;box-shadow:0 4px 20px rgba(0,0,0,.5)}
 .toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
 .toast.err{background:var(--rd);color:#fff}
+
 .empty{text-align:center;padding:28px 14px;color:var(--tx2);font-size:13px}
 ::-webkit-scrollbar{width:3px}
 ::-webkit-scrollbar-thumb{background:var(--bd);border-radius:2px}
@@ -364,15 +377,15 @@ select option{background:#141824}
         <div class="fg">
           <label>支出分類</label>
           <div class="cg">
-            <button class="cb on" data-cat="food" onclick="selCat(this)"><span class="ci">🥭</span><span class="cn">食材原料</span></button>
-            <button class="cb" data-cat="staff" onclick="selCat(this)"><span class="ci">👥</span><span class="cn">人事支出/<br>孝親費</span></button>
-            <button class="cb" data-cat="utility" onclick="selCat(this)"><span class="ci">💡</span><span class="cn">水電費/<br>網路電話</span></button>
-            <button class="cb" data-cat="rent" onclick="selCat(this)"><span class="ci">🔧</span><span class="cn">設備採買<br>或維修</span></button>
-            <button class="cb" data-cat="supply" onclick="selCat(this)"><span class="ci">📦</span><span class="cn">耗材包材</span></button>
-            <button class="cb" data-cat="other" onclick="selCat(this)"><span class="ci">📌</span><span class="cn">其他雜費</span></button>
+            <button class="cb on" data-cat="food"    onclick="selCat(this)"><span class="ci">🥭</span><span class="cn">食材原料</span></button>
+            <button class="cb"    data-cat="staff"   onclick="selCat(this)"><span class="ci">👥</span><span class="cn">人事支出/<br>孝親費</span></button>
+            <button class="cb"    data-cat="utility" onclick="selCat(this)"><span class="ci">💡</span><span class="cn">水電費/<br>網路電話</span></button>
+            <button class="cb"    data-cat="rent"    onclick="selCat(this)"><span class="ci">🔧</span><span class="cn">設備採買<br>或維修</span></button>
+            <button class="cb"    data-cat="supply"  onclick="selCat(this)"><span class="ci">📦</span><span class="cn">耗材包材</span></button>
+            <button class="cb"    data-cat="other"   onclick="selCat(this)"><span class="ci">📌</span><span class="cn">其他雜費</span></button>
           </div>
         </div>
-        <div class="fg"><label>項目名稱 / 明細說明</label><input type="text" id="exp-name" placeholder="例：芒果補貨"></div>
+        <div class="fg"><label>項目名稱 / 明細說明</label><input type="text" id="exp-name" placeholder="例：芒果補貨；員工3人x5000"></div>
         <div class="fg"><label>金額（元）</label><input type="number" id="exp-amt" inputmode="numeric" placeholder="例：15000"></div>
         <div class="fg"><label>備註（選填）</label><input type="text" id="exp-note" placeholder="例：向OO廠商採購"></div>
         <button class="btn btn-p" id="save-exp-btn" onclick="saveExp()">新增支出</button>
@@ -384,9 +397,10 @@ select option{background:#141824}
     </div>
 
     <div id="pg-records" class="pg">
-      <div class="fr">
-        <div><span class="fl">月份</span><input type="month" id="f-month" onchange="resetRecords()"></div>
-        <div><span class="fl">類別</span>
+      <div id="rec-diag" style="font-size:11px;color:var(--ac);margin-bottom:8px;padding:4px 8px;background:rgba(94,231,200,.08);border-radius:6px;text-align:center"></div>
+      <div style="display:flex;gap:8px;margin-bottom:12px;align-items:flex-end">
+        <div style="flex:1"><span class="fl">月份</span><input type="month" id="f-month" onchange="resetRecords()"></div>
+        <div style="flex:1"><span class="fl">類別</span>
           <select id="f-cat" onchange="resetRecords()">
             <option value="all">全部</option>
             <option value="revenue">營收</option>
@@ -398,6 +412,7 @@ select option{background:#141824}
             <option value="other">其他雜費</option>
           </select>
         </div>
+        <button onclick="resetRecords()" style="flex-shrink:0;padding:10px 12px;background:var(--sf2);border:1px solid var(--bd);border-radius:10px;color:var(--tx2);font-family:inherit;font-size:13px;cursor:pointer">重整</button>
       </div>
       <div class="card" id="rec-list"></div>
       <button class="load-more-btn" id="load-more-btn" onclick="loadMoreRecords()" style="display:none">載入更多</button>
@@ -416,17 +431,17 @@ select option{background:#141824}
       <div class="card">
         <div class="fg"><label>起始日期</label><input type="date" id="csv-from"></div>
         <div class="fg"><label>結束日期</label><input type="date" id="csv-to"></div>
-        <button class="btn btn-p" onclick="exportCSV()">📥 下載 CSV</button>
+        <button class="btn btn-p" onclick="exportCSV()">📥 下載 CSV（可用 Excel 開啟）</button>
       </div>
     </div>
   </div>
 
   <nav class="bnav">
-    <div class="ntab on" id="nt-home" onclick="goPg('home')"> <span class="ni">📊</span>總覽</div>
-    <div class="ntab" id="nt-entry" onclick="goPg('entry')"> <span class="ni">✏️</span>記帳</div>
-    <div class="ntab" id="nt-records" onclick="goPg('records')"><span class="ni">📋</span>明細</div>
-    <div class="ntab" id="nt-report" onclick="goPg('report')"> <span class="ni">📈</span>報表</div>
-    <div class="ntab" id="nt-more" onclick="goPg('more')"> <span class="ni">⚙️</span>更多</div>
+    <div class="ntab on" id="nt-home"    onclick="goPg('home')">   <span class="ni">📊</span>總覽</div>
+    <div class="ntab"    id="nt-entry"   onclick="goPg('entry')">  <span class="ni">✏️</span>記帳</div>
+    <div class="ntab"    id="nt-records" onclick="goPg('records')"><span class="ni">📋</span>明細</div>
+    <div class="ntab"    id="nt-report"  onclick="goPg('report')"> <span class="ni">📈</span>報表</div>
+    <div class="ntab"    id="nt-more"    onclick="goPg('more')">   <span class="ni">⚙️</span>更多</div>
   </nav>
 </div>
 
@@ -446,8 +461,8 @@ select option{background:#141824}
         <option value="other">📌 其他雜費</option>
       </select>
     </div>
-    <div class="fg"><label>項目名稱</label><input type="text" id="me-name"></div>
-    <div class="fg"><label>金額</label><input type="number" id="me-amt" inputmode="numeric"></div>
+    <div class="fg"><label>項目名稱 / 明細說明</label><input type="text" id="me-name"></div>
+    <div class="fg"><label>金額（元）</label><input type="number" id="me-amt" inputmode="numeric"></div>
     <div class="fg"><label>備註</label><input type="text" id="me-note"></div>
     <div class="mbtns">
       <button class="btn btn-s" onclick="closeMov('m-exp')">取消</button>
@@ -461,7 +476,7 @@ select option{background:#141824}
     <div class="mhd"></div>
     <div class="mt">✏️ 修改營收</div>
     <input type="hidden" id="mr-id">
-    <div class="fg"><label>營收類別</label>
+    <div class="fg"><label>營營類別</label>
       <select id="mr-cat">
         <option value="pos">POS 收款</option>
         <option value="delivery">外送平台</option>
@@ -469,7 +484,7 @@ select option{background:#141824}
       </select>
     </div>
     <div class="fg"><label>日期</label><input type="date" id="mr-date"></div>
-    <div class="fg"><label>金額</label><input type="number" id="mr-amt" inputmode="numeric"></div>
+    <div class="fg"><label>金額（元）</label><input type="number" id="mr-amt" inputmode="numeric"></div>
     <div class="fg"><label>備註</label><input type="text" id="mr-note"></div>
     <div class="mbtns">
       <button class="btn btn-s" onclick="closeMov('m-rev')">取消</button>
@@ -482,7 +497,7 @@ select option{background:#141824}
   <div class="msh">
     <div class="mhd"></div>
     <div class="mt">✏️ 修改店名</div>
-    <div class="fg"><label>店名</label><input type="text" id="title-inp"></div>
+    <div class="fg"><label>店名（可加 emoji）</label><input type="text" id="title-inp" placeholder="例：我的冰店"></div>
     <div class="mbtns">
       <button class="btn btn-s" onclick="closeMov('m-title')">取消</button>
       <button class="btn btn-p" onclick="saveTitleModal()">儲存</button>
@@ -494,7 +509,8 @@ select option{background:#141824}
   <div class="msh">
     <div class="mhd"></div>
     <div class="mt">🔐 請輸入編輯密碼</div>
-    <div class="fg"><input type="password" id="pw-inp" inputmode="numeric" maxlength="10"></div>
+    <p style="font-size:13px;color:var(--tx2);margin-bottom:13px">修改與刪除需要密碼驗證。</p>
+    <div class="fg"><input type="password" id="pw-inp" inputmode="numeric" placeholder="請輸入密碼" maxlength="10"></div>
     <div class="a-err" id="pw-err"></div>
     <div class="mbtns">
       <button class="btn btn-s" onclick="closeMov('m-pw')">取消</button>
@@ -521,8 +537,13 @@ const CAT_LABEL = {
 };
 const REV_LABEL = { pos:"POS 收款", delivery:"外送平台", other_rev:"其他收入" };
 const catLabel = c => CAT_LABEL[c] || REV_LABEL[c] || c;
-const catIcon  = c => ({food:"🥭",staff:"👥",utility:"💡",rent:"🔧",supply:"📦",other:"📌",pos:"💰",delivery:"🛵",other_rev:"💵"})[c] || "💰";
-const catBadge = c => ({food:"bf",staff:"bs",utility:"bu",rent:"br",supply:"bp",other:"bo"})[c] || "brev";
+const catIcon  = c => (
+  {food:"🥭",staff:"👥",utility:"💡",rent:"🔧",supply:"📦",other:"📌",
+   pos:"💰",delivery:"🛵",other_rev:"💵"}
+)[c] || "💰";
+const catBadge = c => (
+  {food:"bf",staff:"bs",utility:"bu",rent:"br",supply:"bp",other:"bo"}
+)[c] || "brev";
 
 function toast(msg, err=false) {
   const t = $("toast");
@@ -532,46 +553,74 @@ function toast(msg, err=false) {
   t._t = setTimeout(() => { t.className = "toast" + (err ? " err" : ""); }, 2600);
 }
 
-function openMov(id) { $(id).classList.add("on"); }
+function openMov(id)  { $(id).classList.add("on"); }
 function closeMov(id) { $(id).classList.remove("on"); }
 document.querySelectorAll(".mov").forEach(m => {
   m.addEventListener("click", e => { if (e.target === m) m.classList.remove("on"); });
 });
 
 function authTab(tab) {
-  ["login","register","reset"].forEach(t => { $("af-"+t).classList.toggle("on", t===tab); });
+  ["login","register","reset"].forEach(t => {
+    $("af-"+t).classList.toggle("on", t===tab);
+  });
   document.querySelectorAll(".a-tab").forEach((el,i) => {
-    el.classList.toggle("on", (i===0 && tab==="login") || (i===1 && (tab==="register"||tab==="reset")));
+    el.classList.toggle("on",
+      (i===0 && tab==="login") || (i===1 && (tab==="register"||tab==="reset"))
+    );
   });
 }
 function authLd(id, on) { $(id).classList.toggle("ld", on); }
 
 function fbErr(code) {
-  return ({"auth/user-not-found":"找不到帳號","auth/wrong-password":"密碼錯誤","auth/email-already-in-use":"郵件已被使用"})[code] || "失敗 (" + code + ")";
+  return ({
+    "auth/user-not-found":        "找不到此帳號",
+    "auth/wrong-password":        "密碼錯誤",
+    "auth/email-already-in-use":  "此電子郵件已被使用",
+    "auth/invalid-email":         "電子郵件格式不正確",
+    "auth/weak-password":         "密碼強度不足（至少 6 位）",
+    "auth/too-many-requests":     "嘗試次數過多，請稍後再試",
+    "auth/invalid-credential":    "帳號或密碼錯誤",
+    "auth/network-request-failed":"網路連線失敗，請重試"
+  })[code] || ("登入失敗 (" + code + ")");
 }
 
 async function doLogin() {
   const email=$("l-email").value.trim(), pw=$("l-pw").value;
   const err=$("lerr"); err.style.display="none";
-  if (!email||!pw) return;
+  if (!email||!pw) { err.textContent="請填寫電子郵件和密碼"; err.style.display="block"; return; }
   authLd("l-btn",true);
-  try { await FB.signIn(FB.auth,email,pw); } catch(e) { err.textContent=fbErr(e.code); err.style.display="block"; authLd("l-btn",false); }
+  try { await FB.signIn(FB.auth,email,pw); }
+  catch(e) { err.textContent=fbErr(e.code); err.style.display="block"; authLd("l-btn",false); }
 }
 
 async function doRegister() {
   const email=$("r-email").value.trim(), pw=$("r-pw").value, pw2=$("r-pw2").value;
   const err=$("rerr"); err.style.display="none";
-  if (pw!==pw2) { err.textContent="密碼不一致"; err.style.display="block"; return; }
+  if (!email||!pw)  { err.textContent="請填寫所有欄位";     err.style.display="block"; return; }
+  if (pw!==pw2)     { err.textContent="兩次密碼不一致";     err.style.display="block"; return; }
+  if (pw.length<6)  { err.textContent="密碼至少需要 6 個字元"; err.style.display="block"; return; }
   authLd("r-btn",true);
-  try { await FB.createUser(FB.auth,email,pw); } catch(e) { err.textContent=fbErr(e.code); err.style.display="block"; authLd("r-btn",false); }
+  try { await FB.createUser(FB.auth,email,pw); }
+  catch(e) { err.textContent=fbErr(e.code); err.style.display="block"; authLd("r-btn",false); }
 }
 
 async function doReset() {
   const email=$("pw-email").value.trim();
-  try { await FB.resetPw(FB.auth,email); $("pwok").textContent="郵件已發送"; $("pwok").style.display="block"; } catch(e) {}
+  const err=$("pwerr"), ok=$("pwok");
+  err.style.display="none"; ok.style.display="none";
+  if (!email) { err.textContent="請輸入電子郵件"; err.style.display="block"; return; }
+  authLd("pw-btn",true);
+  try {
+    await FB.resetPw(FB.auth,email);
+    ok.textContent="重設郵件已發送，請查收收件匣"; ok.style.display="block";
+  } catch(e) { err.textContent=fbErr(e.code); err.style.display="block"; }
+  authLd("pw-btn",false);
 }
 
-async function doLogout() { if (confirm("確定登出？")) await FB.signOut(FB.auth); }
+async function doLogout() {
+  if (!confirm("確定要登出？")) return;
+  await FB.signOut(FB.auth);
+}
 
 const rCol = () => FB.col(FB.db,"users",UID,"revenues");
 const eCol = () => FB.col(FB.db,"users",UID,"expenses");
@@ -581,26 +630,55 @@ let C = { revs:[], exps:[] };
 let _bootDone = false;
 let _unsub = [];
 
-window.stopListeners = function() { _unsub.forEach(fn => fn()); _unsub = []; C = { revs:[], exps:[] }; _bootDone = false; };
+window.stopListeners = function() {
+  _unsub.forEach(fn => fn());
+  _unsub = [];
+  C = { revs:[], exps:[] };
+  _bootDone = false;
+};
 
 function startListeners() {
-  let rR = false, eR = false, _t = null;
-  const sched = () => {
-    clearTimeout(_t);
-    _t = setTimeout(() => { if (!rR || !eR) return; if (!_bootDone) { _bootDone=true; renderHome(); renderTodayBanner(); } else onCacheUpdate(); }, 150);
-  };
-  _unsub = [
-    FB.onSnapshot(rCol(), s => { C.revs = s.docs.map(d => ({ id:d.id, ...d.data() })); rR=true; sched(); }),
-    FB.onSnapshot(eCol(), s => { C.exps = s.docs.map(d => ({ id:d.id, ...d.data() })); eR=true; sched(); })
-  ];
+  let revReady = false, expReady = false;
+  let _debTimer = null;
+
+  function scheduleRender() {
+    clearTimeout(_debTimer);
+    _debTimer = setTimeout(() => {
+      if (!_bootDone) {
+        _bootDone = true;
+        renderHome();
+        renderTodayBanner();
+      } else {
+        onCacheUpdate();
+      }
+    }, 200);
+  }
+
+  const unsub1 = FB.onSnapshot(rCol(), snap => {
+    C.revs = snap.docs.map(d => ({ id:d.id, ...d.data() }));
+    revReady = true;
+    scheduleRender();
+  }, err => {
+    toast("營收讀取失敗: "+err.code, true);
+  });
+
+  const unsub2 = FB.onSnapshot(eCol(), snap => {
+    C.exps = snap.docs.map(d => ({ id:d.id, ...d.data() }));
+    expReady = true;
+    scheduleRender();
+  }, err => {
+    toast("支出讀取失敗: "+err.code, true);
+  });
+
+  _unsub = [unsub1, unsub2];
 }
 
 function onCacheUpdate() {
   const active = document.querySelector(".pg.on");
   if (!active) return;
   const id = active.id.replace("pg-","");
-  if (id==="home") renderHome();
-  if (id==="entry") renderTodayBanner();
+  if (id==="home")    renderHome();
+  if (id==="entry")   renderTodayBanner();
   if (id==="records") resetRecords();
 }
 
@@ -609,114 +687,475 @@ window.appBoot = async function() {
   const t=todayStr(), m=monthStr();
   $("rev-date").value=t; $("exp-date").value=t;
   $("f-month").value=m; $("rpt-month").value=m;
-  try { const s = await FB.getDoc(mDoc()); if (s.exists() && s.data().shopTitle) $("shop-title").textContent=s.data().shopTitle; } catch(e) {}
+  $("csv-from").value=m+"-01"; $("csv-to").value=t;
+
+  try {
+    const snap = await FB.getDoc(mDoc());
+    if (snap.exists()) {
+      const d = snap.data();
+      if (d.shopTitle) {
+        $("shop-title").textContent=d.shopTitle;
+      }
+    }
+  } catch(e) {}
+
   startListeners();
 };
 
 function goPg(id) {
   document.querySelectorAll(".pg").forEach(p=>p.classList.remove("on"));
   document.querySelectorAll(".ntab").forEach(t=>t.classList.remove("on"));
-  $("pg-"+id).classList.add("on"); $("nt-"+id).classList.add("on");
+  $("pg-"+id).classList.add("on");
+  $("nt-"+id).classList.add("on");
   $("scr").scrollTop=0;
-  if (id==="home") renderHome();
-  if (id==="entry") renderTodayBanner();
-  if (id==="records") resetRecords();
-  if (id==="report") renderReport();
+  if (id==="home")    renderHome();
+  if (id==="entry")   renderTodayBanner();
+  if (id==="records") { $("f-month").value=monthStr(); resetRecords(); }
+  if (id==="report")  { $("rpt-month").value=monthStr(); renderReport(); }
 }
 
-function selCat(el) { document.querySelectorAll(".cb").forEach(b=>b.classList.remove("on")); el.classList.add("on"); }
-function getCat() { const s = document.querySelector(".cb.on"); return s ? s.dataset.cat : "food"; }
+function selCat(el) {
+  document.querySelectorAll(".cb").forEach(b=>b.classList.remove("on"));
+  el.classList.add("on");
+}
+function getCat() {
+  const s = document.querySelector(".cb.on");
+  return s ? s.dataset.cat : "food";
+}
 
-function openTitleModal() { $("title-inp").value = $("shop-title").textContent; openMov("m-title"); }
+function openTitleModal() {
+  $("title-inp").value = $("shop-title").textContent;
+  openMov("m-title");
+}
 async function saveTitleModal() {
-  const v=$("title-inp").value.trim(); if (!v) return;
-  $("shop-title").textContent=v; closeMov("m-title");
-  try { await FB.setDoc(mDoc(),{shopTitle:v},{merge:true}); } catch(e) {}
+  const val=$("title-inp").value.trim(); if (!val) return;
+  $("shop-title").textContent=val;
+  closeMov("m-title"); toast("店名已更新");
+  try { await FB.setDoc(mDoc(),{shopTitle:val},{merge:true}); } catch(e) {}
 }
 
 async function saveRev() {
-  const cat=$("rev-cat").value, date=$("rev-date").value, amt=parseFloat($("rev-amt").value);
-  if (!date||isNaN(amt)) return;
+  const cat  = $("rev-cat").value;
+  const date = $("rev-date").value;
+  const amt  = parseFloat($("rev-amt").value);
+  const note = $("rev-note").value.trim();
+  if (!date||isNaN(amt)||amt<0) { toast("請填寫日期與金額",true); return; }
   const ex = C.revs.find(r=>r.date===date && (r.revCat||"pos")===cat);
-  if (ex && !confirm("已存在記錄，確定覆蓋？")) return;
+  if (ex && !confirm(date+" 已有 "+catLabel(cat)+" 記錄（"+fmt(ex.amount)+" 元），確定覆蓋？")) return;
+  const btn=$("save-rev-btn"); btn.disabled=true;
   try {
     const id = ex ? ex.id : "rev_"+cat+"_"+date+"_"+UID.slice(-6);
-    await FB.setDoc(FB.doc(rCol(),id),{date,revCat:cat,amount:amt,note:$("rev-note").value,uid:UID});
-    $("rev-amt").value=""; toast("已儲存");
-  } catch(e) {}
+    await FB.setDoc(FB.doc(rCol(),id),{date,revCat:cat,amount:amt,note,uid:UID});
+    $("rev-amt").value=""; $("rev-note").value="";
+    toast("已儲存 "+catLabel(cat)+" $"+fmt(amt));
+  } catch(e) { toast("儲存失敗",true); }
+  finally { btn.disabled=false; }
 }
 
-async function saveRevEdit() {
-  const id=$("mr-id").value, amt=parseFloat($("mr-amt").value);
-  try { await FB.setDoc(FB.doc(rCol(),id),{date:$("mr-date").value,revCat:$("mr-cat").value,amount:amt,note:$("mr-note").value,uid:UID}); closeMov("m-rev"); } catch(e) {}
+function openRevEdit(r) {
+  $("mr-id").value   = r.id;
+  $("mr-cat").value  = r.revCat||"pos";
+  $("mr-date").value = r.date;
+  $("mr-amt").value  = r.amount;
+  $("mr-note").value = r.note||"";
+  openMov("m-rev");
 }
-async function deleteRev(id) { if (confirm("確定刪除？")) await FB.deleteDoc(FB.doc(rCol(),id)); }
+async function saveRevEdit() {
+  const id=  $("mr-id").value;
+  const cat= $("mr-cat").value;
+  const date=$("mr-date").value;
+  const amt= parseFloat($("mr-amt").value);
+  const note=$("mr-note").value.trim();
+  if (!date||isNaN(amt)) { toast("資料不完整",true); return; }
+  try {
+    await FB.setDoc(FB.doc(rCol(),id),{date,revCat:cat,amount:amt,note,uid:UID});
+    closeMov("m-rev"); toast("已更新");
+  } catch(e) { toast("更新失敗",true); }
+}
+async function deleteRev(id) {
+  if (!confirm("確定刪除此筆營收記錄？")) return;
+  try { await FB.deleteDoc(FB.doc(rCol(),id)); toast("已刪除"); }
+  catch(e) { toast("刪除失敗",true); }
+}
 
 async function saveExp() {
-  const date=$("exp-date").value, amt=parseFloat($("exp-amt").value), name=$("exp-name").value.trim();
-  if (!date||!name||isNaN(amt)) return;
+  const date=$("exp-date").value;
+  const cat= getCat();
+  const name=$("exp-name").value.trim();
+  const amt= parseFloat($("exp-amt").value);
+  const note=$("exp-note").value.trim();
+  if (!date||!name||isNaN(amt)||amt<0) { toast("請填寫完整支出資訊",true); return; }
+  const btn=$("save-exp-btn"); btn.disabled=true;
   try {
-    const id="exp_"+Date.now();
-    await FB.setDoc(FB.doc(eCol(),id),{date,category:getCat(),name,amount:amt,note:$("exp-note").value,uid:UID});
-    $("exp-name").value=""; $("exp-amt").value=""; toast("已新增");
-  } catch(e) {}
+    const id="exp_"+Date.now()+"_"+UID.slice(-6);
+    await FB.setDoc(FB.doc(eCol(),id),{date,category:cat,name,amount:amt,note,uid:UID});
+    $("exp-name").value=""; $("exp-amt").value=""; $("exp-note").value="";
+    toast("已新增 "+catLabel(cat)+" $"+fmt(amt));
+  } catch(e) { toast("儲存失敗",true); }
+  finally { btn.disabled=false; }
 }
 
-async function saveExpEdit() {
-  const id=$("me-id").value;
-  try { await FB.setDoc(FB.doc(eCol(),id),{date:$("me-date").value,category:$("me-cat").value,name:$("me-name").value,amount:parseFloat($("me-amt").value),note:$("me-note").value,uid:UID}); closeMov("m-exp"); } catch(e) {}
+function openExpEdit(e) {
+  $("me-id").value   = e.id;
+  $("me-date").value = e.date;
+  $("me-cat").value  = e.category;
+  $("me-name").value = e.name;
+  $("me-amt").value  = e.amount;
+  $("me-note").value = e.note||"";
+  openMov("m-exp");
 }
-async function deleteExp(id) { if (confirm("確定刪除？")) await FB.deleteDoc(FB.doc(eCol(),id)); }
+async function saveExpEdit() {
+  const id=  $("me-id").value;
+  const date=$("me-date").value;
+  const cat= $("me-cat").value;
+  const name=$("me-name").value.trim();
+  const amt= parseFloat($("me-amt").value);
+  const note=$("me-note").value.trim();
+  if (!date||!name||isNaN(amt)) { toast("資料不完整",true); return; }
+  try {
+    await FB.setDoc(FB.doc(eCol(),id),{date,category:cat,name,amount:amt,note,uid:UID});
+    closeMov("m-exp"); toast("已更新");
+  } catch(e) { toast("更新失敗",true); }
+}
+async function deleteExp(id) {
+  if (!confirm("確定刪除此筆支出？")) return;
+  try { await FB.deleteDoc(FB.doc(eCol(),id)); toast("已刪除"); }
+  catch(e) { toast("刪除失敗",true); }
+}
 
 let _pwQ = null;
-function requirePw(a) { _pwQ = a; $("pw-inp").value=""; $("pw-err").style.display="none"; openMov("m-pw"); }
+function requirePw(action) {
+  _pwQ = action;
+  $("pw-inp").value=""; $("pw-err").style.display="none";
+  openMov("m-pw");
+}
 function checkPw() {
-  if ($("pw-inp").value !== EDIT_PW) { $("pw-err").textContent="錯誤"; $("pw-err").style.display="block"; return; }
-  closeMov("m-pw"); if (_pwQ) _pwQ(); _pwQ=null;
+  if ($("pw-inp").value !== EDIT_PW) {
+    $("pw-err").textContent="密碼錯誤"; $("pw-err").style.display="block";
+    $("pw-inp").value=""; return;
+  }
+  closeMov("m-pw");
+  if (_pwQ) { _pwQ(); _pwQ=null; }
 }
 
 function renderTodayBanner() {
-  const d=todayStr(), revs=C.revs.filter(x=>x.date===d), exps=C.exps.filter(x=>x.date===d);
-  const tR=revs.reduce((s,r)=>s+r.amount,0), tE=exps.reduce((s,e)=>s+e.amount,0);
-  $("tb-rev").textContent=revs.length?"$"+fmt(tR):"--"; $("tb-exp").textContent="$"+fmt(tE);
-  $("tb-pnl").textContent=revs.length?"$"+fmt(tR-tE):"--";
+  const d    = todayStr();
+  const revs = C.revs.filter(x=>x.date===d);
+  const exps = C.exps.filter(x=>x.date===d);
+  const totR = revs.reduce((s,r)=>s+r.amount,0);
+  const totE = exps.reduce((s,e)=>s+e.amount,0);
+  const hasRev = revs.length>0;
+  const pnl  = hasRev ? totR-totE : null;
+
+  const tbR=$("tb-rev");
+  tbR.textContent = hasRev ? "$"+fmt(totR) : "--";
+  tbR.style.color = hasRev ? "var(--ac)" : "var(--tx2)";
+  $("tb-exp").textContent="$"+fmt(totE);
+  const tbP=$("tb-pnl");
+  if (pnl!==null) { tbP.textContent="$"+fmt(pnl); tbP.style.color=pnl>=0?"var(--ac)":"var(--rd)"; }
+  else { tbP.textContent="--"; tbP.style.color="var(--tx2)"; }
+
+  const list=$("today-list");
+  if (!exps.length) { list.innerHTML="<div class=\"empty\">今日尚無支出</div>"; return; }
+  list.innerHTML = exps.map(e =>
+    "<div class=\"ei\"><div class=\"ei-top\">" +
+    "<span class=\"eico\">"+catIcon(e.category)+"</span>" +
+    "<div class=\"einf\">" +
+      "<div class=\"ename\">"+e.name+"</div>" +
+      "<div class=\"emeta\">"+catLabel(e.category)+(e.note?" - "+e.note:"")+"</div>" +
+    "</div>" +
+    "<span class=\"eamt\" style=\"color:var(--rd)\">-$"+fmt(e.amount)+"</span>" +
+    "</div></div>"
+  ).join("");
 }
 
 let tChart=null, pChart=null;
+
 function renderHome() {
-  const m=monthStr(), revs=C.revs.filter(r=>r.date.startsWith(m)), exps=C.exps.filter(e=>e.date.startsWith(m));
-  const tR=revs.reduce((s,r)=>s+r.amount,0), tE=exps.reduce((s,e)=>s+e.amount,0);
-  $("h-profit").textContent="$"+fmt(tR-tE); $("h-rev").textContent="$"+fmt(tR); $("h-exp").textContent="$"+fmt(tE);
-  // 此處省略 Chart 初始化程式碼以維持簡潔，邏輯與原版一致
+  const now=new Date(), m=monthStr();
+  $("h-month").textContent=m;
+  const revs=C.revs.filter(r=>r.date.startsWith(m));
+  const exps=C.exps.filter(e=>e.date.startsWith(m));
+  const totR=revs.reduce((s,r)=>s+r.amount,0);
+  const totE=exps.reduce((s,e)=>s+e.amount,0);
+  const pnl=totR-totE, mg=totR>0?((pnl/totR)*100).toFixed(1):0;
+
+  const hp=$("h-profit");
+  hp.textContent="$"+fmt(pnl); hp.className="pv "+(pnl>=0?"g":"r");
+  $("h-margin").textContent="毛利率 "+mg+"%";
+  $("h-rev").textContent="$"+fmt(totR); $("h-revd").textContent=revs.length+" 天";
+  $("h-exp").textContent="$"+fmt(totE); $("h-expi").textContent=exps.length+" 筆";
+
+  const dim=new Date(now.getFullYear(),now.getMonth()+1,0).getDate();
+  const lbs=[],rArr=[],eArr=[];
+  for (let d=1;d<=dim;d++) {
+    const ds=m+"-"+String(d).padStart(2,"0");
+    lbs.push(d);
+    const rv=C.revs.filter(x=>x.date===ds).reduce((s,x)=>s+x.amount,0);
+    const ex=C.exps.filter(x=>x.date===ds).reduce((s,x)=>s+x.amount,0);
+    rArr.push(rv>0?rv:null); eArr.push(ex>0?ex:null);
+  }
+  if (tChart) { tChart.destroy(); tChart=null; }
+  tChart = new Chart($("trend-chart").getContext("2d"),{
+    type:"line",
+    data:{labels:lbs,datasets:[
+      {label:"營收",data:rArr,borderColor:"#5ee7c8",backgroundColor:"rgba(94,231,200,.07)",tension:.3,spanGaps:true,pointRadius:2,borderWidth:2},
+      {label:"支出",data:eArr,borderColor:"#ff6b6b",backgroundColor:"rgba(255,107,107,.07)",tension:.3,spanGaps:true,pointRadius:2,borderWidth:2}
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{labels:{color:"#8b90a7",font:{size:10},boxWidth:10,padding:10}}},
+      scales:{
+        x:{ticks:{color:"#4e5470",font:{size:9},maxTicksLimit:8},grid:{color:"rgba(42,48,80,.4)"}},
+        y:{ticks:{color:"#4e5470",font:{size:9},callback:v=>"$"+fmt(v)},grid:{color:"rgba(42,48,80,.4)"}}
+      }
+    }
+  });
+
+  const cats  =["food","staff","utility","rent","supply","other"];
+  const colors=["#5ee7c8","#a29bfe","#ffd93d","#ff6b6b","#74b9ff","#8b90a7"];
+  const tots  =cats.map(c=>exps.filter(e=>e.category===c).reduce((s,e)=>s+e.amount,0));
+  if (pChart) { pChart.destroy(); pChart=null; }
+  pChart = new Chart($("pie-chart").getContext("2d"),{
+    type:"doughnut",
+    data:{labels:cats.map(catLabel),datasets:[{data:tots,backgroundColor:colors.map(c=>c+"bb"),borderColor:colors,borderWidth:1.5}]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{
+        legend:{position:"right",labels:{color:"#8b90a7",font:{size:10},boxWidth:10,padding:5}},
+        tooltip:{callbacks:{label:ctx=>" "+ctx.label+": $"+fmt(ctx.raw)}}
+      }
+    }
+  });
+
+  const ds=new Set([...C.revs.map(r=>r.date),...C.exps.map(e=>e.date)]);
+  const recent=[...ds].sort().reverse().slice(0,7);
+  const rl=$("h-recent");
+  if (!recent.length) { rl.innerHTML="<div class=\"empty\">尚無資料</div>"; return; }
+  rl.innerHTML=recent.map(d=>{
+    const rv=C.revs.filter(x=>x.date===d).reduce((s,x)=>s+x.amount,0);
+    const ex=C.exps.filter(x=>x.date===d).reduce((s,x)=>s+x.amount,0);
+    const p=rv-ex, mm=d.slice(5,7)+"/"+d.slice(8,10);
+    const hasR=C.revs.some(x=>x.date===d);
+    return "<div class=\"dr\">" +
+      "<div><div class=\"dd\">"+mm+"</div>" +
+      "<div style=\"font-size:11px;color:var(--tx2);margin-top:2px\">"+(hasR?"收 $"+fmt(rv):"無營收")+(ex>0?" / 支 $"+fmt(ex):"")+"</div></div>" +
+      "<div class=\"dpnl\" style=\"color:"+(hasR||ex>0?(p>=0?"var(--ac)":"var(--rd)"):"var(--tx2)")+"\">"+((hasR||ex>0)?"$"+fmt(p):"--")+"</div>" +
+      "</div>";
+  }).join("");
 }
 
-let _recRows = [], _recCursor = 0;
-function resetRecords() { _recRows=[]; _recCursor=0; $("rec-list").innerHTML=""; buildRecordsRows(); renderRecordsPage(); }
+let _recRows  = [];
+let _recCursor = 0;
+
+function resetRecords() {
+  _recRows   = [];
+  _recCursor = 0;
+  $("rec-list").innerHTML="";
+  $("load-more-btn").style.display="none";
+  buildRecordsRows();
+  renderRecordsPage();
+}
+
 function buildRecordsRows() {
-  const m=$("f-month").value, cat=$("f-cat").value;
-  if (cat==="all"||cat==="revenue") C.revs.filter(r=>r.date.startsWith(m)).forEach(r=>_recRows.push({...r,_type:"rev"}));
-  if (cat!=="revenue") C.exps.filter(e=>e.date.startsWith(m) && (cat==="all"||e.category===cat)).forEach(e=>_recRows.push({...e,_type:"exp"}));
+  const m  =$("f-month").value;
+  const cat=$("f-cat").value;
+  _recRows=[];
+
+  const diagEl = $("rec-diag");
+  if (diagEl) {
+    diagEl.textContent = "快取：營收 "+C.revs.length+" 筆 / 支出 "+C.exps.length+" 筆";
+  }
+
+  if (cat==="all"||cat==="revenue") {
+    C.revs.filter(r=>r.date.startsWith(m)).forEach(r=>_recRows.push({...r,_type:"rev"}));
+  }
+  if (cat!=="revenue") {
+    C.exps
+      .filter(e=>e.date.startsWith(m) && (cat==="all"||e.category===cat))
+      .forEach(e=>_recRows.push({...e,_type:"exp"}));
+  }
   _recRows.sort((a,b)=>b.date.localeCompare(a.date));
 }
+
 function renderRecordsPage() {
+  if (!_recRows.length) {
+    $("rec-list").innerHTML="<div class=\"empty\">此月份無資料</div>";
+    $("load-more-btn").style.display="none";
+    return;
+  }
   const page=_recRows.slice(_recCursor,_recCursor+PAGE_SIZE);
-  const list=$("rec-list");
-  if (!page.length && _recCursor===0) { list.innerHTML="<div class='empty'>無資料</div>"; return; }
-  page.forEach(r => {
-    const d=document.createElement("div"); d.className="ei";
-    d.innerHTML = `<div class='ei-top'><span class='eico'>${catIcon(r._type==="rev"?(r.revCat||"pos"):r.category)}</span><div class='einf'><div class='ename'>${r._type==="rev"?"營收":r.name}</div><div class='emeta'>${r.date.slice(5)}</div></div><span class='eamt' style='color:${r._type==="rev"?"var(--ac)":"var(--rd)"}'>${r._type==="rev"?"+":"-"}$${fmt(r.amount)}</span></div>`;
-    list.appendChild(d);
+  const el=$("rec-list");
+
+  page.forEach(r=>{
+    const mm=r.date.slice(5,7)+"/"+r.date.slice(8,10);
+    const div=document.createElement("div");
+    div.className="ei";
+
+    if (r._type==="rev") {
+      const icon  =catIcon(r.revCat||"pos");
+      const label =catLabel(r.revCat||"pos");
+      const rid   =r.id;
+      div.innerHTML=
+        "<div class=\"ei-top\">" +
+        "<span class=\"eico\">"+icon+"</span>" +
+        "<div class=\"einf\">" +
+          "<div class=\"ename\">"+label+"</div>" +
+          "<div class=\"emeta\">"+mm+" <span class=\"badge brev\">營收</span>"+(r.note?" - "+r.note:"")+"</div>" +
+        "</div>" +
+        "<span class=\"eamt\" style=\"color:var(--ac)\">+$"+fmt(r.amount)+"</span>" +
+        "<div class=\"eact\">" +
+          "<button class=\"ab ab-e\">修改</button>" +
+          "<button class=\"ab ab-d\">刪除</button>" +
+        "</div></div>";
+      div.querySelector(".ab-e").onclick=()=>requirePw(()=>openRevEdit(C.revs.find(x=>x.id===rid)||r));
+      div.querySelector(".ab-d").onclick=()=>requirePw(()=>deleteRev(rid));
+
+    } else {
+      const eid=r.id;
+      div.innerHTML=
+        "<div class=\"ei-top\">" +
+        "<span class=\"eico\">"+icon+"</span>" +
+        "<div class=\"einf\">" +
+          "<div class=\"ename\">"+r.name+"</div>" +
+          "<div class=\"emeta\">"+mm+" <span class=\"badge "+catBadge(r.category)+"\">"+catLabel(r.category)+"</span>"+(r.note?" - "+r.note:"")+"</div>" +
+        "</div>" +
+        "<span class=\"eamt\" style=\"color:var(--rd)\">-$"+fmt(r.amount)+"</span>" +
+        "<div class=\"eact\">" +
+          "<button class=\"ab ab-e\">修改</button>" +
+          "<button class=\"ab ab-d\">刪除</button>" +
+        "</div></div>";
+      div.querySelector(".ab-e").onclick=()=>requirePw(()=>openExpEdit(C.exps.find(x=>x.id===eid)||r));
+      div.querySelector(".ab-d").onclick=()=>requirePw(()=>deleteExp(eid));
+    }
+    el.appendChild(div);
   });
-  _recCursor += page.length;
+
+  _recCursor+=page.length;
+  const btn=$("load-more-btn");
+  if (_recCursor<_recRows.length) {
+    btn.style.display="block";
+    btn.disabled=false;
+    btn.textContent="載入更多（剩餘 "+(_recRows.length-_recCursor)+" 筆）";
+  } else {
+    btn.style.display="none";
+  }
 }
+
+function loadMoreRecords() { renderRecordsPage(); }
+function renderRecords() { resetRecords(); }
 
 function renderReport() {
-  const m=$("rpt-month").value;
-  // 報表生成邏輯...
-  $("rpt-content").innerHTML = `<div class='card'>報表生成中... (月份: ${m})</div>`;
+  const m   =$("rpt-month").value;
+  const revs=C.revs.filter(r=>r.date.startsWith(m));
+  const exps=C.exps.filter(e=>e.date.startsWith(m));
+  const totR=revs.reduce((s,r)=>s+r.amount,0);
+  const totE=exps.reduce((s,e)=>s+e.amount,0);
+  const pnl =totR-totE;
+  const mg  =totR>0?((pnl/totR)*100).toFixed(1):0;
+  const days=[...new Set(revs.map(r=>r.date))].length;
+  const avg =days>0?Math.round(totR/days):0;
+
+  const cats    =["food","staff","utility","rent","supply","other"];
+  const catBreak=cats.map(c=>({
+    key:c, label:catLabel(c), icon:catIcon(c),
+    amount:exps.filter(e=>e.category===c).reduce((s,e)=>s+e.amount,0),
+    items: exps.filter(e=>e.category===c)
+  })).filter(c=>c.amount>0).sort((a,b)=>b.amount-a.amount);
+
+  let html=
+    "<div class=\"sg\">" +
+      "<div class=\"sc\"><div class=\"sl\">總營收</div><div class=\"sv g\">$"+fmt(totR)+"</div><div class=\"ss\">均 $"+fmt(avg)+"/天，共 "+days+" 天</div></div>" +
+      "<div class=\"sc\"><div class=\"sl\">總支出</div><div class=\"sv r\">$"+fmt(totE)+"</div><div class=\"ss\">"+exps.length+" 筆</div></div>" +
+    "</div>" +
+    "<div class=\"pcard\"><div><div class=\"pl\">淨損益</div><div class=\"pv "+(pnl>=0?"g":"r")+"\">$"+fmt(pnl)+"</div></div><div class=\"mbadge\">毛利率 "+mg+"%</div></div>" +
+    "<div class=\"card\"><div class=\"ch\">支出分類明細</div>";
+
+  if (!catBreak.length) {
+    html+="<div class=\"empty\">本月無支出記錄</div>";
+  } else {
+    catBreak.forEach(c=>{
+      const ep=totE>0?((c.amount/totE)*100).toFixed(1):0;
+      const rp=totR>0?((c.amount/totR)*100).toFixed(1):0;
+      html+=
+        "<div style=\"margin-bottom:16px\">" +
+          "<div style=\"display:flex;justify-content:space-between;align-items:center\">" +
+            "<span>"+c.icon+" <strong style=\"font-size:13px\">"+c.label+"</strong></span>" +
+            "<span style=\"font-family:'DM Mono',monospace;color:var(--rd);font-size:13px\">$"+fmt(c.amount)+"</span>" +
+          "</div>" +
+          "<div style=\"display:flex;justify-content:space-between;margin:4px 0\">" +
+            "<span style=\"font-size:11px;color:var(--tx2)\">佔支出 "+ep+"%</span>" +
+            "<span style=\"font-size:11px;color:var(--tx2)\">成本率 "+rp+"%</span>" +
+          "</div>" +
+          "<div class=\"pb\"><div class=\"pf\" style=\"width:"+ep+"%\"></div></div>" +
+          "<div style=\"margin-top:7px\">" +
+            c.items.map(i=>
+              "<div style=\"display:flex;justify-content:space-between;padding:3px 0;font-size:12px;border-bottom:1px solid rgba(42,48,80,.3)\">" +
+              "<span style=\"color:var(--tx2)\">"+i.name+"</span>" +
+              "<span style=\"font-family:'DM Mono',monospace;color:var(--tx2)\">$"+fmt(i.amount)+"</span>" +
+              "</div>"
+            ).join("") +
+          "</div>" +
+        "</div>";
+    });
+  }
+  html+="</div>";
+
+  const dateSet=new Set([...revs.map(r=>r.date),...exps.map(e=>e.date)]);
+  html+="<div class=\"card\"><div class=\"ch\">每日損益</div>";
+  if (!dateSet.size) {
+    html+="<div class=\"empty\">本月無資料</div>";
+  } else {
+    [...dateSet].sort().reverse().forEach(d=>{
+      const rv=revs.filter(x=>x.date===d).reduce((s,x)=>s+x.amount,0);
+      const ex=exps.filter(x=>x.date===d).reduce((s,x)=>s+x.amount,0);
+      const p=rv-ex, mg2=rv>0?((p/rv)*100).toFixed(1):null;
+      const mm=d.slice(5,7)+"/"+d.slice(8,10);
+      const hasR=revs.some(x=>x.date===d);
+      html+=
+        "<div class=\"dr\">" +
+          "<div><div class=\"dd\">"+mm+"</div>" +
+          "<div style=\"font-size:11px;color:var(--tx2);margin-top:2px\">"+(hasR?"收 $"+fmt(rv):"--")+(ex>0?" / 支 $"+fmt(ex):"")+"</div></div>" +
+          "<div style=\"text-align:right\">" +
+            "<div class=\"dpnl\" style=\"color:"+(hasR||ex>0?(p>=0?"var(--ac)":"var(--rd)"):"var(--tx2)")+"\">"+((hasR||ex>0)?"$"+fmt(p):"--")+"</div>" +
+            (mg2!==null?"<div style=\"font-size:11px;color:var(--tx2)\">"+mg2+"%</div>":"") +
+          "</div>" +
+        "</div>";
+    });
+  }
+  html+="</div>";
+  $("rpt-content").innerHTML=html;
 }
 
-async function exportCSV() { toast("匯出中..."); }
+async function exportCSV() {
+  const from=$("csv-from").value, to=$("csv-to").value;
+  if (!from||!to)  { toast("請選擇起始和結束日期",true); return; }
+  if (from>to)     { toast("起始日期不能晚於結束日期",true); return; }
+
+  const shopName=$("shop-title").textContent;
+  const titleRow=['"'+shopName+' - 帳務匯出"','','','','',''];
+  const rangeRow=['"期間：'+from+' 至 '+to+'"','','','','',''];
+  const header  =["日期","類型","分類","項目名稱/明細","金額（元）","備註"];
+
+  let rows=[];
+  C.revs
+    .filter(r=>r.date>=from&&r.date<=to)
+    .forEach(r=>rows.push([r.date,"營收",catLabel(r.revCat||"pos"),catLabel(r.revCat||"pos"),r.amount,r.note||""]));
+  C.exps
+    .filter(e=>e.date>=from&&e.date<=to)
+    .forEach(e=>rows.push([e.date,"支出",catLabel(e.category),e.name,e.amount,e.note||""]));
+  rows.sort((a,b)=>a[0].localeCompare(b[0]));
+
+  const toRow=arr=>arr.map(c=>'"'+String(c).replace(/"/g,'""')+'"').join(",");
+  const csv="\uFEFF"+[titleRow,rangeRow,header,...rows].map(toRow).join("\n");
+
+  const blob=new Blob([csv],{type:"text/csv;charset=utf-8"});
+  const url =URL.createObjectURL(blob);
+  const a   =document.createElement("a");
+  a.href=url; a.download="冰店帳務_"+from+"_至_"+to+".csv";
+  document.body.appendChild(a); a.click();
+  document.body.removeChild(a);
+  setTimeout(()=>URL.revokeObjectURL(url),1000);
+  toast("CSV 已下載（"+from+" ~ "+to+"）");
+}
 </script>
 
 </body>
