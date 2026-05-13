@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-
 <html lang="zh-TW">
 <head>
 <meta charset="UTF-8">
@@ -20,12 +19,12 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const cfg = {
-apiKey: "AIzaSyBVp9cEW4maC1oLdJGnduD8Gnpct2FvIaY",
-authDomain: "ice-shop-account.firebaseapp.com",
-projectId: "ice-shop-account",
-storageBucket: "ice-shop-account.firebasestorage.app",
-messagingSenderId: "115443037159",
-appId: "1:115443037159:web:3748852558c426e7acc342"
+  apiKey: "AIzaSyBVp9cEW4maC1oLdJGnduD8Gnpct2FvIaY",
+  authDomain: "ice-shop-account.firebaseapp.com",
+  projectId: "ice-shop-account",
+  storageBucket: "ice-shop-account.firebasestorage.app",
+  messagingSenderId: "115443037159",
+  appId: "1:115443037159:web:3748852558c426e7acc342"
 };
 
 const fbApp  = initializeApp(cfg);
@@ -33,33 +32,32 @@ const fbAuth = getAuth(fbApp);
 const fbDb   = getFirestore(fbApp);
 
 window.FB = {
-auth: fbAuth, db: fbDb,
-createUser: createUserWithEmailAndPassword,
-signIn:     signInWithEmailAndPassword,
-resetPw:    sendPasswordResetEmail,
-signOut,
-col: collection, doc, setDoc, getDoc,
-deleteDoc, onSnapshot
+  auth: fbAuth, db: fbDb,
+  createUser: createUserWithEmailAndPassword,
+  signIn:     signInWithEmailAndPassword,
+  resetPw:    sendPasswordResetEmail,
+  signOut,
+  col: collection, doc, setDoc, getDoc,
+  deleteDoc, onSnapshot
 };
 
 onAuthStateChanged(fbAuth, user => {
-if (user) {
-window.UID = user.uid;
-document.getElementById("loading-wrap").style.display = "none";
-document.getElementById("auth-wrap").style.display   = "none";
-document.getElementById("app-wrap").style.display    = "flex";
-document.getElementById("hdr-email").textContent     = user.email;
-window.appBoot();
-} else {
-window.UID = null;
-document.getElementById("loading-wrap").style.display = "none";
-document.getElementById("auth-wrap").style.display    = "flex";
-document.getElementById("app-wrap").style.display     = "none";
-if (window.stopListeners) window.stopListeners();
-}
+  if (user) {
+    window.UID = user.uid;
+    document.getElementById("loading-wrap").style.display = "none";
+    document.getElementById("auth-wrap").style.display   = "none";
+    document.getElementById("app-wrap").style.display    = "flex";
+    document.getElementById("hdr-email").textContent     = user.email;
+    window.appBoot();
+  } else {
+    window.UID = null;
+    document.getElementById("loading-wrap").style.display = "none";
+    document.getElementById("auth-wrap").style.display    = "flex";
+    document.getElementById("app-wrap").style.display     = "none";
+    if (window.stopListeners) window.stopListeners();
+  }
 });
 </script>
-
 <style>
 @import url("https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=DM+Mono:wght@400;500&display=swap");
 
@@ -68,6 +66,7 @@ if (window.stopListeners) window.stopListeners();
   --ac:#5ee7c8; --rd:#ff6b6b; --wn:#ffd93d; --pu:#a29bfe; --bl:#74b9ff;
   --tx:#e8eaf0; --tx2:#b0b8d0; --tx3:#7a849e;
   --nh:64px; --sb:env(safe-area-inset-bottom,0px); --st:env(safe-area-inset-top,0px);
+  --ot:#ff9f43;
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 html,body{height:100%;overflow:hidden;font-family:"Noto Sans TC",sans-serif;background:var(--bg);color:var(--tx);font-size:15px}
@@ -77,20 +76,12 @@ html,body{height:100%;overflow:hidden;font-family:"Noto Sans TC",sans-serif;back
 .spin{width:36px;height:36px;border:3px solid var(--bd);border-top-color:var(--ac);border-radius:50%;animation:spin .8s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
 
-/* auth - simple top-down flow, no centering that causes overlap */
+/* auth */
 #auth-wrap{
-  display:none;
-  flex-direction:column;
-  align-items:center;
-  width:100%;
-  min-height:100%;
-  overflow-y:auto;
-  -webkit-overflow-scrolling:touch;
-  padding:56px 20px 48px;
-  gap:0;
-  background:var(--bg);
-  background-image:
-    radial-gradient(ellipse at 20% 20%,rgba(94,231,200,.08) 0%,transparent 60%),
+  display:none;flex-direction:column;align-items:center;
+  width:100%;min-height:100%;overflow-y:auto;-webkit-overflow-scrolling:touch;
+  padding:56px 20px 48px;gap:0;background:var(--bg);
+  background-image:radial-gradient(ellipse at 20% 20%,rgba(94,231,200,.08) 0%,transparent 60%),
     radial-gradient(ellipse at 80% 80%,rgba(162,155,254,.07) 0%,transparent 60%);
 }
 .a-logo{text-align:center;margin-bottom:28px;flex-shrink:0;width:100%}
@@ -103,7 +94,6 @@ html,body{height:100%;overflow:hidden;font-family:"Noto Sans TC",sans-serif;back
 .a-tab.on{background:var(--ac);color:#0b0e18}
 .a-form{display:none}
 .a-form.on{display:block}
-/* auth input wrapper - flexbox, no absolute positioning */
 .a-iw{display:flex;align-items:center;gap:10px;background:var(--sf2);border:1px solid var(--bd);border-radius:11px;padding:0 14px;margin-bottom:12px;transition:border-color .15s}
 .a-iw:focus-within{border-color:var(--ac)}
 .a-iw .ico{font-size:17px;flex-shrink:0;line-height:1;display:flex;align-items:center}
@@ -131,7 +121,7 @@ html,body{height:100%;overflow:hidden;font-family:"Noto Sans TC",sans-serif;back
 .bnav{height:calc(var(--nh) + var(--sb));padding-bottom:var(--sb);background:var(--sf);border-top:1px solid var(--bd);display:flex;flex-shrink:0;z-index:50}
 .ntab{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;cursor:pointer;color:var(--tx2);font-size:10px;font-weight:500;transition:color .15s;padding-top:2px;user-select:none}
 .ntab.on{color:var(--ac)}
-.ntab .ni{font-size:22px;line-height:1}
+.ntab .ni{font-size:20px;line-height:1}
 
 /* pages */
 .pg{display:none}
@@ -164,10 +154,8 @@ input[type=password],input[type=email],select,textarea{
   outline:none;transition:border-color .15s;-webkit-appearance:none;appearance:none
 }
 input:focus,select:focus{border-color:var(--ac)}
-/* auth inputs inside flex wrapper - override global styles */
 .a-iw input[type=email],.a-iw input[type=password]{
-  width:auto;background:transparent;border:none;border-radius:0;
-  padding:14px 0;box-shadow:none
+  width:auto;background:transparent;border:none;border-radius:0;padding:14px 0;box-shadow:none
 }
 .a-iw input[type=email]:focus,.a-iw input[type=password]:focus{border-color:transparent}
 select{
@@ -266,16 +254,76 @@ select option{background:#141824}
 .empty{text-align:center;padding:28px 14px;color:var(--tx2);font-size:13px}
 ::-webkit-scrollbar{width:3px}
 ::-webkit-scrollbar-thumb{background:var(--bd);border-radius:2px}
-</style>
 
+/* ── 天氣頁專屬樣式 ────────────────────────────────────────── */
+
+/* 今日天氣大卡 */
+.wx-today{
+  background:linear-gradient(135deg,#1a2540 0%,#0f1c32 100%);
+  border:1px solid rgba(94,231,200,.2);
+  border-radius:18px;padding:18px 16px;margin-bottom:12px;
+  position:relative;overflow:hidden;
+}
+.wx-today::before{
+  content:"";position:absolute;inset:0;
+  background:radial-gradient(ellipse at 80% 20%,rgba(116,185,255,.08) 0%,transparent 60%);
+  pointer-events:none;
+}
+.wx-loc{font-size:11px;color:var(--tx3);font-weight:500;letter-spacing:.8px;text-transform:uppercase;margin-bottom:6px}
+.wx-main{display:flex;align-items:flex-start;justify-content:space-between}
+.wx-temp-big{font-family:"DM Mono",monospace;font-size:52px;font-weight:500;line-height:1;color:var(--tx)}
+.wx-temp-big span{font-size:22px;color:var(--tx2);vertical-align:top;margin-top:6px;display:inline-block}
+.wx-desc{font-size:13px;color:var(--tx2);margin-top:4px}
+.wx-icon-big{font-size:52px;line-height:1;filter:drop-shadow(0 2px 8px rgba(0,0,0,.4))}
+.wx-grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:14px;padding-top:14px;border-top:1px solid rgba(42,48,80,.6)}
+.wx-g4{text-align:center}
+.wx-g4-l{font-size:10px;color:var(--tx3);margin-bottom:3px;font-weight:500}
+.wx-g4-v{font-family:"DM Mono",monospace;font-size:13px;font-weight:500;color:var(--tx)}
+
+/* 7 天預報 */
+.wx7-row{display:flex;align-items:center;gap:0;padding:10px 0;border-bottom:1px solid rgba(42,48,80,.4)}
+.wx7-row:last-child{border-bottom:none}
+.wx7-day{width:38px;font-size:12px;color:var(--tx2);font-weight:500;flex-shrink:0}
+.wx7-ico{font-size:20px;width:30px;text-align:center;flex-shrink:0}
+.wx7-desc{flex:1;font-size:11px;color:var(--tx3);padding:0 6px}
+.wx7-rain{font-size:11px;color:var(--bl);width:36px;text-align:right;flex-shrink:0}
+.wx7-temps{display:flex;gap:6px;align-items:center;width:72px;justify-content:flex-end;flex-shrink:0}
+.wx7-hi{font-family:"DM Mono",monospace;font-size:13px;color:var(--ot);font-weight:500}
+.wx7-lo{font-family:"DM Mono",monospace;font-size:13px;color:var(--bl)}
+
+/* 相關分析卡 */
+.wx-corr-row{display:flex;align-items:center;gap:8px;padding:9px 0;border-bottom:1px solid rgba(42,48,80,.35)}
+.wx-corr-row:last-child{border-bottom:none}
+.wx-corr-ico{font-size:18px;width:26px;flex-shrink:0;text-align:center}
+.wx-corr-info{flex:1;min-width:0}
+.wx-corr-label{font-size:12px;color:var(--tx2)}
+.wx-corr-sub{font-size:11px;color:var(--tx3);margin-top:2px}
+.wx-corr-val{font-family:"DM Mono",monospace;font-size:13px;font-weight:600;flex-shrink:0;text-align:right}
+
+/* 氣溫段比較表 */
+.temp-tier{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:4px}
+.tt-cell{background:var(--sf2);border-radius:10px;padding:10px 8px;text-align:center}
+.tt-range{font-size:10px;color:var(--tx3);margin-bottom:4px}
+.tt-val{font-family:"DM Mono",monospace;font-size:15px;font-weight:600;color:var(--ac)}
+.tt-days{font-size:10px;color:var(--tx3);margin-top:2px}
+
+/* 天氣相關性圖表 */
+.cw-tall{position:relative;height:200px;margin:5px 0}
+
+/* loading skeleton inside weather */
+.wx-loading{text-align:center;padding:28px;color:var(--tx3);font-size:13px}
+.wx-loading .spin{margin:0 auto 10px}
+</style>
 </head>
 <body>
 
+<!-- 載入畫面 -->
 <div id="loading-wrap">
   <div class="spin"></div>
   <div style="margin-top:13px;font-size:13px;color:var(--tx2)">載入中...</div>
 </div>
 
+<!-- 登入畫面 -->
 <div id="auth-wrap">
   <div class="a-logo">
     <span class="em">🍧</span>
@@ -313,6 +361,7 @@ select option{background:#141824}
   </div>
 </div>
 
+<!-- 主應用 -->
 <div id="app-wrap">
   <div class="hdr">
     <div class="hdr-inner">
@@ -327,120 +376,128 @@ select option{background:#141824}
 
   <div class="scr" id="scr">
 
-<div id="pg-home" class="pg on">
-  <div class="pcard">
-    <div>
-      <div class="pl">本月損益</div>
-      <div class="pv g" id="h-profit">$0</div>
-      <div class="ss" id="h-margin">毛利率 0%</div>
-    </div>
-    <div class="mbadge" id="h-month"></div>
-  </div>
-  <div class="sg">
-    <div class="sc"><div class="sl">本月營收</div><div class="sv g" id="h-rev">$0</div><div class="ss" id="h-revd"></div></div>
-    <div class="sc"><div class="sl">本月支出</div><div class="sv r" id="h-exp">$0</div><div class="ss" id="h-expi"></div></div>
-  </div>
-  <div class="card">
-    <div class="ch">收支趨勢（本月）</div>
-    <div class="cw"><canvas id="trend-chart"></canvas></div>
-  </div>
-  <div class="card">
-    <div class="ch">支出分類（本月）</div>
-    <div class="cw" style="height:175px"><canvas id="pie-chart"></canvas></div>
-  </div>
-  <div class="card">
-    <div class="ch">最近 7 天</div>
-    <div id="h-recent"></div>
-  </div>
-</div>
-
-<div id="pg-entry" class="pg">
-  <div class="tbanner">
-    <div class="tc"><div class="tcl">今日營收</div><div class="tcv" id="tb-rev" style="color:var(--tx2)">--</div></div>
-    <div class="tc"><div class="tcl">今日支出</div><div class="tcv" style="color:var(--rd)" id="tb-exp">$0</div></div>
-    <div class="tc"><div class="tcl">今日損益</div><div class="tcv" id="tb-pnl" style="color:var(--tx2)">--</div></div>
-  </div>
-
-  <div class="card">
-    <div class="ch">📟 輸入營收</div>
-    <div class="fg"><label>營收類別</label>
-      <select id="rev-cat">
-        <option value="pos">POS 收款</option>
-        <option value="delivery">外送平台</option>
-        <option value="other_rev">其他收入</option>
-      </select>
-    </div>
-    <div class="fg"><label>日期</label><input type="date" id="rev-date"></div>
-    <div class="fg"><label>金額（元）</label><input type="number" id="rev-amt" inputmode="numeric" placeholder="例：8500"></div>
-    <div class="fg"><label>備註（選填）</label><input type="text" id="rev-note" placeholder="例：假日、活動..."></div>
-    <button class="btn btn-p" id="save-rev-btn" onclick="saveRev()">儲存營收</button>
-  </div>
-
-  <div class="card">
-    <div class="ch">💸 新增支出</div>
-    <div class="fg"><label>日期</label><input type="date" id="exp-date"></div>
-    <div class="fg">
-      <label>支出分類</label>
-      <div class="cg">
-        <button class="cb on" data-cat="food"    onclick="selCat(this)"><span class="ci">🥭</span><span class="cn">食材原料</span></button>
-        <button class="cb"    data-cat="staff"   onclick="selCat(this)"><span class="ci">👥</span><span class="cn">人事支出/<br>孝親費</span></button>
-        <button class="cb"    data-cat="utility" onclick="selCat(this)"><span class="ci">💡</span><span class="cn">水電費/<br>網路電話</span></button>
-        <button class="cb"    data-cat="rent"    onclick="selCat(this)"><span class="ci">🔧</span><span class="cn">設備採買<br>或維修</span></button>
-        <button class="cb"    data-cat="supply"  onclick="selCat(this)"><span class="ci">📦</span><span class="cn">耗材包材</span></button>
-        <button class="cb"    data-cat="other"   onclick="selCat(this)"><span class="ci">📌</span><span class="cn">其他雜費</span></button>
+    <!-- 總覽 -->
+    <div id="pg-home" class="pg on">
+      <div class="pcard">
+        <div>
+          <div class="pl">本月損益</div>
+          <div class="pv g" id="h-profit">$0</div>
+          <div class="ss" id="h-margin">毛利率 0%</div>
+        </div>
+        <div class="mbadge" id="h-month"></div>
+      </div>
+      <div class="sg">
+        <div class="sc"><div class="sl">本月營收</div><div class="sv g" id="h-rev">$0</div><div class="ss" id="h-revd"></div></div>
+        <div class="sc"><div class="sl">本月支出</div><div class="sv r" id="h-exp">$0</div><div class="ss" id="h-expi"></div></div>
+      </div>
+      <div class="card">
+        <div class="ch">收支趨勢（本月）</div>
+        <div class="cw"><canvas id="trend-chart"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="ch">支出分類（本月）</div>
+        <div class="cw" style="height:175px"><canvas id="pie-chart"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="ch">最近 7 天</div>
+        <div id="h-recent"></div>
       </div>
     </div>
-    <div class="fg"><label>項目名稱 / 明細說明</label><input type="text" id="exp-name" placeholder="例：芒果補貨；員工3人x5000"></div>
-    <div class="fg"><label>金額（元）</label><input type="number" id="exp-amt" inputmode="numeric" placeholder="例：15000"></div>
-    <div class="fg"><label>備註（選填）</label><input type="text" id="exp-note" placeholder="例：向OO廠商採購"></div>
-    <button class="btn btn-p" id="save-exp-btn" onclick="saveExp()">新增支出</button>
-  </div>
 
-  <div class="card">
-    <div class="ch">今日支出明細</div>
-    <div id="today-list"></div>
-  </div>
-</div>
-
-<div id="pg-records" class="pg">
-  <div id="rec-diag" style="font-size:11px;color:var(--ac);margin-bottom:8px;padding:4px 8px;background:rgba(94,231,200,.08);border-radius:6px;text-align:center"></div>
-  <div style="display:flex;gap:8px;margin-bottom:12px;align-items:flex-end">
-    <div style="flex:1"><span class="fl">月份</span><input type="month" id="f-month" onchange="resetRecords()"></div>
-    <div style="flex:1"><span class="fl">類別</span>
-      <select id="f-cat" onchange="resetRecords()">
-        <option value="all">全部</option>
-        <option value="revenue">營收</option>
-        <option value="food">食材原料</option>
-        <option value="staff">人事支出/孝親費</option>
-        <option value="utility">水電費/網路電話</option>
-        <option value="rent">設備採買或維修</option>
-        <option value="supply">耗材包材</option>
-        <option value="other">其他雜費</option>
-      </select>
+    <!-- 記帳 -->
+    <div id="pg-entry" class="pg">
+      <div class="tbanner">
+        <div class="tc"><div class="tcl">今日營收</div><div class="tcv" id="tb-rev" style="color:var(--tx2)">--</div></div>
+        <div class="tc"><div class="tcl">今日支出</div><div class="tcv" style="color:var(--rd)" id="tb-exp">$0</div></div>
+        <div class="tc"><div class="tcl">今日損益</div><div class="tcv" id="tb-pnl" style="color:var(--tx2)">--</div></div>
+      </div>
+      <div class="card">
+        <div class="ch">📟 輸入營收</div>
+        <div class="fg"><label>營收類別</label>
+          <select id="rev-cat">
+            <option value="pos">POS 收款</option>
+            <option value="delivery">外送平台</option>
+            <option value="other_rev">其他收入</option>
+          </select>
+        </div>
+        <div class="fg"><label>日期</label><input type="date" id="rev-date"></div>
+        <div class="fg"><label>金額（元）</label><input type="number" id="rev-amt" inputmode="numeric" placeholder="例：8500"></div>
+        <div class="fg"><label>備註（選填）</label><input type="text" id="rev-note" placeholder="例：假日、活動..."></div>
+        <button class="btn btn-p" id="save-rev-btn" onclick="saveRev()">儲存營收</button>
+      </div>
+      <div class="card">
+        <div class="ch">💸 新增支出</div>
+        <div class="fg"><label>日期</label><input type="date" id="exp-date"></div>
+        <div class="fg">
+          <label>支出分類</label>
+          <div class="cg">
+            <button class="cb on" data-cat="food"    onclick="selCat(this)"><span class="ci">🥭</span><span class="cn">食材原料</span></button>
+            <button class="cb"    data-cat="staff"   onclick="selCat(this)"><span class="ci">👥</span><span class="cn">人事支出/<br>孝親費</span></button>
+            <button class="cb"    data-cat="utility" onclick="selCat(this)"><span class="ci">💡</span><span class="cn">水電費/<br>網路電話</span></button>
+            <button class="cb"    data-cat="rent"    onclick="selCat(this)"><span class="ci">🔧</span><span class="cn">設備採買<br>或維修</span></button>
+            <button class="cb"    data-cat="supply"  onclick="selCat(this)"><span class="ci">📦</span><span class="cn">耗材包材</span></button>
+            <button class="cb"    data-cat="other"   onclick="selCat(this)"><span class="ci">📌</span><span class="cn">其他雜費</span></button>
+          </div>
+        </div>
+        <div class="fg"><label>項目名稱 / 明細說明</label><input type="text" id="exp-name" placeholder="例：芒果補貨；員工3人x5000"></div>
+        <div class="fg"><label>金額（元）</label><input type="number" id="exp-amt" inputmode="numeric" placeholder="例：15000"></div>
+        <div class="fg"><label>備註（選填）</label><input type="text" id="exp-note" placeholder="例：向OO廠商採購"></div>
+        <button class="btn btn-p" id="save-exp-btn" onclick="saveExp()">新增支出</button>
+      </div>
+      <div class="card">
+        <div class="ch">今日支出明細</div>
+        <div id="today-list"></div>
+      </div>
     </div>
-    <button onclick="resetRecords()" style="flex-shrink:0;padding:10px 12px;background:var(--sf2);border:1px solid var(--bd);border-radius:10px;color:var(--tx2);font-family:inherit;font-size:13px;cursor:pointer">重整</button>
-  </div>
-  <div class="card" id="rec-list"></div>
-  <button class="load-more-btn" id="load-more-btn" onclick="loadMoreRecords()" style="display:none">載入更多</button>
-</div>
 
-<div id="pg-report" class="pg">
-  <div class="fr" style="flex-wrap:nowrap">
-    <input type="month" id="rpt-month" style="flex:1;font-size:14px;padding:10px 11px">
-    <button class="btn btn-p" style="width:auto;padding:10px 16px;font-size:13px;flex-shrink:0" onclick="renderReport()">產生報表</button>
-  </div>
-  <div id="rpt-content"></div>
-</div>
+    <!-- 明細 -->
+    <div id="pg-records" class="pg">
+      <div id="rec-diag" style="font-size:11px;color:var(--ac);margin-bottom:8px;padding:4px 8px;background:rgba(94,231,200,.08);border-radius:6px;text-align:center"></div>
+      <div style="display:flex;gap:8px;margin-bottom:12px;align-items:flex-end">
+        <div style="flex:1"><span class="fl">月份</span><input type="month" id="f-month" onchange="resetRecords()"></div>
+        <div style="flex:1"><span class="fl">類別</span>
+          <select id="f-cat" onchange="resetRecords()">
+            <option value="all">全部</option>
+            <option value="revenue">營收</option>
+            <option value="food">食材原料</option>
+            <option value="staff">人事支出/孝親費</option>
+            <option value="utility">水電費/網路電話</option>
+            <option value="rent">設備採買或維修</option>
+            <option value="supply">耗材包材</option>
+            <option value="other">其他雜費</option>
+          </select>
+        </div>
+        <button onclick="resetRecords()" style="flex-shrink:0;padding:10px 12px;background:var(--sf2);border:1px solid var(--bd);border-radius:10px;color:var(--tx2);font-family:inherit;font-size:13px;cursor:pointer">重整</button>
+      </div>
+      <div class="card" id="rec-list"></div>
+      <button class="load-more-btn" id="load-more-btn" onclick="loadMoreRecords()" style="display:none">載入更多</button>
+    </div>
 
-<div id="pg-more" class="pg">
-  <div class="stitle">匯出 CSV</div>
-  <div class="card">
-    <div class="fg"><label>起始日期</label><input type="date" id="csv-from"></div>
-    <div class="fg"><label>結束日期</label><input type="date" id="csv-to"></div>
-    <button class="btn btn-p" onclick="exportCSV()">📥 下載 CSV（可用 Excel 開啟）</button>
-  </div>
-</div>
+    <!-- 報表 -->
+    <div id="pg-report" class="pg">
+      <div class="fr" style="flex-wrap:nowrap">
+        <input type="month" id="rpt-month" style="flex:1;font-size:14px;padding:10px 11px">
+        <button class="btn btn-p" style="width:auto;padding:10px 16px;font-size:13px;flex-shrink:0" onclick="renderReport()">產生報表</button>
+      </div>
+      <div id="rpt-content"></div>
+    </div>
 
+    <!-- 🌤 天氣 -->
+    <div id="pg-weather" class="pg">
+      <div id="wx-wrap">
+        <div class="wx-loading"><div class="spin"></div>載入天氣資料中...</div>
+      </div>
+    </div>
+
+    <!-- 更多 -->
+    <div id="pg-more" class="pg">
+      <div class="stitle">匯出 CSV</div>
+      <div class="card">
+        <div class="fg"><label>起始日期</label><input type="date" id="csv-from"></div>
+        <div class="fg"><label>結束日期</label><input type="date" id="csv-to"></div>
+        <button class="btn btn-p" onclick="exportCSV()">📥 下載 CSV（可用 Excel 開啟）</button>
+      </div>
+    </div>
   </div>
 
   <nav class="bnav">
@@ -448,10 +505,12 @@ select option{background:#141824}
     <div class="ntab"    id="nt-entry"   onclick="goPg('entry')">  <span class="ni">✏️</span>記帳</div>
     <div class="ntab"    id="nt-records" onclick="goPg('records')"><span class="ni">📋</span>明細</div>
     <div class="ntab"    id="nt-report"  onclick="goPg('report')"> <span class="ni">📈</span>報表</div>
+    <div class="ntab"    id="nt-weather" onclick="goPg('weather')"><span class="ni">🌤</span>天氣</div>
     <div class="ntab"    id="nt-more"    onclick="goPg('more')">   <span class="ni">⚙️</span>更多</div>
   </nav>
 </div>
 
+<!-- 編輯支出 modal -->
 <div class="mov" id="m-exp">
   <div class="msh">
     <div class="mhd"></div>
@@ -478,6 +537,7 @@ select option{background:#141824}
   </div>
 </div>
 
+<!-- 編輯營收 modal -->
 <div class="mov" id="m-rev">
   <div class="msh">
     <div class="mhd"></div>
@@ -500,6 +560,7 @@ select option{background:#141824}
   </div>
 </div>
 
+<!-- 店名 modal -->
 <div class="mov" id="m-title">
   <div class="msh">
     <div class="mhd"></div>
@@ -512,6 +573,7 @@ select option{background:#141824}
   </div>
 </div>
 
+<!-- 密碼驗證 modal -->
 <div class="mov" id="m-pw">
   <div class="msh">
     <div class="mhd"></div>
@@ -533,13 +595,17 @@ select option{background:#141824}
 const EDIT_PW  = "9527";
 const PAGE_SIZE = 30;
 
+// 高雄旗山座標
+const WX_LAT  = 23.14;
+const WX_LNG  = 120.48;
+const WX_NAME = "高雄旗山";
+
 // ─── 工具函式 ─────────────────────────────────────────────────
 const $       = id => document.getElementById(id);
 const fmt     = n  => Number(n).toLocaleString("zh-TW");
 const todayStr  = () => new Date().toISOString().slice(0,10);
 const monthStr  = () => new Date().toISOString().slice(0,7);
 
-// 分類標籤
 const CAT_LABEL = {
   food:"食材原料", staff:"人事支出/孝親費",
   utility:"水電費/網路電話", rent:"設備採買或維修",
@@ -639,7 +705,7 @@ const rCol = () => FB.col(FB.db,"users",UID,"revenues");
 const eCol = () => FB.col(FB.db,"users",UID,"expenses");
 const mDoc = () => FB.doc(FB.db,"users",UID,"meta","settings");
 
-// ─── 本地快取（由 onSnapshot 即時填入） ──────────────────────
+// ─── 本地快取 ─────────────────────────────────────────────────
 let C = { revs:[], exps:[] };
 let _bootDone = false;
 let _unsub = [];
@@ -652,42 +718,25 @@ window.stopListeners = function() {
 };
 
 function startListeners() {
-  let revReady = false, expReady = false;
   let _debTimer = null;
-
   function scheduleRender() {
     clearTimeout(_debTimer);
     _debTimer = setTimeout(() => {
-      if (!_bootDone) {
-        _bootDone = true;
-        renderHome();
-        renderTodayBanner();
-      } else {
-        onCacheUpdate();
-      }
+      if (!_bootDone) { _bootDone = true; renderHome(); renderTodayBanner(); }
+      else { onCacheUpdate(); }
     }, 200);
   }
-
   const unsub1 = FB.onSnapshot(rCol(), snap => {
     C.revs = snap.docs.map(d => ({ id:d.id, ...d.data() }));
-    revReady = true;
     scheduleRender();
-  }, err => {
-    toast("營收讀取失敗: "+err.code, true);
-  });
-
+  }, err => { toast("營收讀取失敗: "+err.code, true); });
   const unsub2 = FB.onSnapshot(eCol(), snap => {
     C.exps = snap.docs.map(d => ({ id:d.id, ...d.data() }));
-    expReady = true;
     scheduleRender();
-  }, err => {
-    toast("支出讀取失敗: "+err.code, true);
-  });
-
+  }, err => { toast("支出讀取失敗: "+err.code, true); });
   _unsub = [unsub1, unsub2];
 }
 
-// Called after both listeners have settled (via debounce in startListeners)
 function onCacheUpdate() {
   const active = document.querySelector(".pg.on");
   if (!active) return;
@@ -696,6 +745,7 @@ function onCacheUpdate() {
   if (id==="entry")   renderTodayBanner();
   if (id==="records") resetRecords();
   if (id==="report")  renderReport();
+  if (id==="weather") renderWeather();
 }
 
 // ─── App Boot ─────────────────────────────────────────────────
@@ -705,19 +755,13 @@ window.appBoot = async function() {
   $("rev-date").value=t; $("exp-date").value=t;
   $("f-month").value=m; $("rpt-month").value=m;
   $("csv-from").value=m+"-01"; $("csv-to").value=t;
-
-  // load meta（店名）
   try {
     const snap = await FB.getDoc(mDoc());
     if (snap.exists()) {
       const d = snap.data();
-      if (d.shopTitle) {
-        $("shop-title").textContent=d.shopTitle;
-      }
+      if (d.shopTitle) $("shop-title").textContent=d.shopTitle;
     }
   } catch(e) {}
-
-  // 啟動即時監聽，資料到齊後自動觸發 onDataReady()
   startListeners();
 };
 
@@ -732,6 +776,7 @@ function goPg(id) {
   if (id==="entry")   renderTodayBanner();
   if (id==="records") { $("f-month").value=monthStr(); resetRecords(); }
   if (id==="report")  { $("rpt-month").value=monthStr(); renderReport(); }
+  if (id==="weather") renderWeather();
 }
 
 // ─── 分類選擇 ─────────────────────────────────────────────────
@@ -763,7 +808,6 @@ async function saveRev() {
   const amt  = parseFloat($("rev-amt").value);
   const note = $("rev-note").value.trim();
   if (!date||isNaN(amt)||amt<0) { toast("請填寫日期與金額",true); return; }
-  // find existing entry same date+cat
   const ex = C.revs.find(r=>r.date===date && (r.revCat||"pos")===cat);
   if (ex && !confirm(date+" 已有 "+catLabel(cat)+" 記錄（"+fmt(ex.amount)+" 元），確定覆蓋？")) return;
   const btn=$("save-rev-btn"); btn.disabled=true;
@@ -777,19 +821,13 @@ async function saveRev() {
 }
 
 function openRevEdit(r) {
-  $("mr-id").value   = r.id;
-  $("mr-cat").value  = r.revCat||"pos";
-  $("mr-date").value = r.date;
-  $("mr-amt").value  = r.amount;
-  $("mr-note").value = r.note||"";
+  $("mr-id").value=r.id; $("mr-cat").value=r.revCat||"pos";
+  $("mr-date").value=r.date; $("mr-amt").value=r.amount; $("mr-note").value=r.note||"";
   openMov("m-rev");
 }
 async function saveRevEdit() {
-  const id=  $("mr-id").value;
-  const cat= $("mr-cat").value;
-  const date=$("mr-date").value;
-  const amt= parseFloat($("mr-amt").value);
-  const note=$("mr-note").value.trim();
+  const id=$("mr-id").value, cat=$("mr-cat").value, date=$("mr-date").value;
+  const amt=parseFloat($("mr-amt").value), note=$("mr-note").value.trim();
   if (!date||isNaN(amt)) { toast("資料不完整",true); return; }
   try {
     await FB.setDoc(FB.doc(rCol(),id),{date,revCat:cat,amount:amt,note,uid:UID});
@@ -804,11 +842,9 @@ async function deleteRev(id) {
 
 // ─── 支出 CRUD ────────────────────────────────────────────────
 async function saveExp() {
-  const date=$("exp-date").value;
-  const cat= getCat();
+  const date=$("exp-date").value, cat=getCat();
   const name=$("exp-name").value.trim();
-  const amt= parseFloat($("exp-amt").value);
-  const note=$("exp-note").value.trim();
+  const amt=parseFloat($("exp-amt").value), note=$("exp-note").value.trim();
   if (!date||!name||isNaN(amt)||amt<0) { toast("請填寫完整支出資訊",true); return; }
   const btn=$("save-exp-btn"); btn.disabled=true;
   try {
@@ -821,21 +857,13 @@ async function saveExp() {
 }
 
 function openExpEdit(e) {
-  $("me-id").value   = e.id;
-  $("me-date").value = e.date;
-  $("me-cat").value  = e.category;
-  $("me-name").value = e.name;
-  $("me-amt").value  = e.amount;
-  $("me-note").value = e.note||"";
+  $("me-id").value=e.id; $("me-date").value=e.date; $("me-cat").value=e.category;
+  $("me-name").value=e.name; $("me-amt").value=e.amount; $("me-note").value=e.note||"";
   openMov("m-exp");
 }
 async function saveExpEdit() {
-  const id=  $("me-id").value;
-  const date=$("me-date").value;
-  const cat= $("me-cat").value;
-  const name=$("me-name").value.trim();
-  const amt= parseFloat($("me-amt").value);
-  const note=$("me-note").value.trim();
+  const id=$("me-id").value, date=$("me-date").value, cat=$("me-cat").value;
+  const name=$("me-name").value.trim(), amt=parseFloat($("me-amt").value), note=$("me-note").value.trim();
   if (!date||!name||isNaN(amt)) { toast("資料不完整",true); return; }
   try {
     await FB.setDoc(FB.doc(eCol(),id),{date,category:cat,name,amount:amt,note,uid:UID});
@@ -866,26 +894,23 @@ function checkPw() {
 
 // ─── 今日記帳 banner ──────────────────────────────────────────
 function renderTodayBanner() {
-  const d    = todayStr();
-  const revs = C.revs.filter(x=>x.date===d);
-  const exps = C.exps.filter(x=>x.date===d);
-  const totR = revs.reduce((s,r)=>s+r.amount,0);
-  const totE = exps.reduce((s,e)=>s+e.amount,0);
-  const hasRev = revs.length>0;
-  const pnl  = hasRev ? totR-totE : null;
-
+  const d=todayStr();
+  const revs=C.revs.filter(x=>x.date===d);
+  const exps=C.exps.filter(x=>x.date===d);
+  const totR=revs.reduce((s,r)=>s+r.amount,0);
+  const totE=exps.reduce((s,e)=>s+e.amount,0);
+  const hasRev=revs.length>0;
+  const pnl=hasRev?totR-totE:null;
   const tbR=$("tb-rev");
-  tbR.textContent = hasRev ? "$"+fmt(totR) : "--";
-  tbR.style.color = hasRev ? "var(--ac)" : "var(--tx2)";
+  tbR.textContent=hasRev?"$"+fmt(totR):"--";
+  tbR.style.color=hasRev?"var(--ac)":"var(--tx2)";
   $("tb-exp").textContent="$"+fmt(totE);
   const tbP=$("tb-pnl");
   if (pnl!==null) { tbP.textContent="$"+fmt(pnl); tbP.style.color=pnl>=0?"var(--ac)":"var(--rd)"; }
   else { tbP.textContent="--"; tbP.style.color="var(--tx2)"; }
-
-  // 今日支出清單（僅顯示，無修改/刪除按鈕）
   const list=$("today-list");
   if (!exps.length) { list.innerHTML="<div class=\"empty\">今日尚無支出</div>"; return; }
-  list.innerHTML = exps.map(e =>
+  list.innerHTML=exps.map(e=>
     "<div class=\"ei\"><div class=\"ei-top\">" +
     "<span class=\"eico\">"+catIcon(e.category)+"</span>" +
     "<div class=\"einf\">" +
@@ -901,21 +926,20 @@ function renderTodayBanner() {
 let tChart=null, pChart=null;
 
 function renderHome() {
-  const now=new Date(), m=monthStr();
+  const m=monthStr();
   $("h-month").textContent=m;
   const revs=C.revs.filter(r=>r.date.startsWith(m));
   const exps=C.exps.filter(e=>e.date.startsWith(m));
   const totR=revs.reduce((s,r)=>s+r.amount,0);
   const totE=exps.reduce((s,e)=>s+e.amount,0);
   const pnl=totR-totE, mg=totR>0?((pnl/totR)*100).toFixed(1):0;
-
   const hp=$("h-profit");
   hp.textContent="$"+fmt(pnl); hp.className="pv "+(pnl>=0?"g":"r");
   $("h-margin").textContent="毛利率 "+mg+"%";
   $("h-rev").textContent="$"+fmt(totR); $("h-revd").textContent=revs.length+" 天";
   $("h-exp").textContent="$"+fmt(totE); $("h-expi").textContent=exps.length+" 筆";
-
   // 趨勢折線圖
+  const now=new Date();
   const dim=new Date(now.getFullYear(),now.getMonth()+1,0).getDate();
   const lbs=[],rArr=[],eArr=[];
   for (let d=1;d<=dim;d++) {
@@ -925,14 +949,11 @@ function renderHome() {
     const ex=C.exps.filter(x=>x.date===ds).reduce((s,x)=>s+x.amount,0);
     rArr.push(rv>0?rv:null); eArr.push(ex>0?ex:null);
   }
-  // 趨勢折線圖 - replace canvas to avoid stale context on iOS
   if (tChart) { tChart.destroy(); tChart=null; }
-  const tCanvas = $("trend-chart");
-  const tParent = tCanvas.parentNode;
-  const tNew = document.createElement("canvas");
-  tNew.id = "trend-chart";
-  tParent.replaceChild(tNew, tCanvas);
-  tChart = new Chart(tNew.getContext("2d"),{
+  const tCanvas=$("trend-chart"), tParent=tCanvas.parentNode;
+  const tNew=document.createElement("canvas"); tNew.id="trend-chart";
+  tParent.replaceChild(tNew,tCanvas);
+  tChart=new Chart(tNew.getContext("2d"),{
     type:"line",
     data:{labels:lbs,datasets:[
       {label:"營收",data:rArr,borderColor:"#5ee7c8",backgroundColor:"rgba(94,231,200,.07)",tension:.3,spanGaps:true,pointRadius:2,borderWidth:2},
@@ -946,19 +967,15 @@ function renderHome() {
       }
     }
   });
-
   // 支出圓餅圖
-  const cats  =["food","staff","utility","rent","supply","other"];
+  const cats=["food","staff","utility","rent","supply","other"];
   const colors=["#5ee7c8","#a29bfe","#ffd93d","#ff6b6b","#74b9ff","#8b90a7"];
-  const tots  =cats.map(c=>exps.filter(e=>e.category===c).reduce((s,e)=>s+e.amount,0));
-  // 支出圓餅圖 - replace canvas to avoid stale context on iOS
+  const tots=cats.map(c=>exps.filter(e=>e.category===c).reduce((s,e)=>s+e.amount,0));
   if (pChart) { pChart.destroy(); pChart=null; }
-  const pCanvas = $("pie-chart");
-  const pParent = pCanvas.parentNode;
-  const pNew = document.createElement("canvas");
-  pNew.id = "pie-chart";
-  pParent.replaceChild(pNew, pCanvas);
-  pChart = new Chart(pNew.getContext("2d"),{
+  const pCanvas=$("pie-chart"), pParent=pCanvas.parentNode;
+  const pNew=document.createElement("canvas"); pNew.id="pie-chart";
+  pParent.replaceChild(pNew,pCanvas);
+  pChart=new Chart(pNew.getContext("2d"),{
     type:"doughnut",
     data:{labels:cats.map(catLabel),datasets:[{data:tots,backgroundColor:colors.map(c=>c+"bb"),borderColor:colors,borderWidth:1.5}]},
     options:{responsive:true,maintainAspectRatio:false,
@@ -968,7 +985,6 @@ function renderHome() {
       }
     }
   });
-
   // 最近 7 天
   const ds=new Set([...C.revs.map(r=>r.date),...C.exps.map(e=>e.date)]);
   const recent=[...ds].sort().reverse().slice(0,7);
@@ -988,12 +1004,10 @@ function renderHome() {
 }
 
 // ─── 明細（分頁） ─────────────────────────────────────────────
-let _recRows  = [];
-let _recCursor = 0;
+let _recRows=[], _recCursor=0;
 
 function resetRecords() {
-  _recRows   = [];
-  _recCursor = 0;
+  _recRows=[]; _recCursor=0;
   $("rec-list").innerHTML="";
   $("load-more-btn").style.display="none";
   buildRecordsRows();
@@ -1001,75 +1015,49 @@ function resetRecords() {
 }
 
 function buildRecordsRows() {
-  // Safely get month string in YYYY-MM format regardless of browser locale
-  const rawM = $("f-month").value;
-  // input[type=month] should give "2026-04" but some browsers give localized strings.
-  // Normalize: extract 4-digit year and 2-digit month.
-  let m = rawM;
-  const isoMatch = rawM.match(/(\d{4})-(\d{2})/);
-  if (isoMatch) {
-    m = isoMatch[1]+"-"+isoMatch[2];
-  } else {
-    // Fallback: use current month
-    m = monthStr();
-    $("f-month").value = m;
-  }
-
-  const cat = $("f-cat").value;
-  _recRows = [];
-
-  // Update diagnostic bar - show actual dates of ALL expenses in cache
-  const diagEl = $("rec-diag");
+  const rawM=$("f-month").value;
+  let m=rawM;
+  const isoMatch=rawM.match(/(\d{4})-(\d{2})/);
+  if (isoMatch) { m=isoMatch[1]+"-"+isoMatch[2]; }
+  else { m=monthStr(); $("f-month").value=m; }
+  const cat=$("f-cat").value;
+  _recRows=[];
+  const diagEl=$("rec-diag");
   if (diagEl) {
-    const mRevs = C.revs.filter(r=>r.date && r.date.startsWith(m));
-    const mExps = C.exps.filter(e=>e.date && e.date.startsWith(m));
-    const sampleDates = C.exps.slice(0,3).map(e=>e.date||"NO_DATE").join(",");
-    diagEl.textContent = "解析月份:"+m+" | 本月營收:"+mRevs.length+" 支出:"+mExps.length+" | 支出日期範例:"+sampleDates;
+    const mRevs=C.revs.filter(r=>r.date&&r.date.startsWith(m));
+    const mExps=C.exps.filter(e=>e.date&&e.date.startsWith(m));
+    const sampleDates=C.exps.slice(0,3).map(e=>e.date||"NO_DATE").join(",");
+    diagEl.textContent="解析月份:"+m+" | 本月營收:"+mRevs.length+" 支出:"+mExps.length+" | 支出日期範例:"+sampleDates;
   }
-
-  // Add revenues
-  if (cat==="all" || cat==="revenue") {
-    C.revs
-      .filter(r => r.date && r.date.startsWith(m))
-      .forEach(r => _recRows.push({...r, _type:"rev"}));
+  if (cat==="all"||cat==="revenue") {
+    C.revs.filter(r=>r.date&&r.date.startsWith(m)).forEach(r=>_recRows.push({...r,_type:"rev"}));
   }
-  // Add expenses
-  if (cat !== "revenue") {
-    C.exps
-      .filter(e => e.date && e.date.startsWith(m) && (cat==="all" || e.category===cat))
-      .forEach(e => _recRows.push({...e, _type:"exp"}));
+  if (cat!=="revenue") {
+    C.exps.filter(e=>e.date&&e.date.startsWith(m)&&(cat==="all"||e.category===cat))
+      .forEach(e=>_recRows.push({...e,_type:"exp"}));
   }
-  _recRows.sort((a,b) => b.date.localeCompare(a.date));
+  _recRows.sort((a,b)=>b.date.localeCompare(a.date));
 }
 
 function renderRecordsPage() {
-  // Update diag with _recRows count
-  const diagEl = $("rec-diag");
-  if (diagEl && _recRows.length>0) {
-    diagEl.textContent += " | _recRows:"+_recRows.length+" cursor:"+_recCursor;
-  }
+  const diagEl=$("rec-diag");
+  if (diagEl&&_recRows.length>0) diagEl.textContent+=" | _recRows:"+_recRows.length+" cursor:"+_recCursor;
   if (!_recRows.length) {
     $("rec-list").innerHTML="<div class=\"empty\">此月份無資料</div>";
-    $("load-more-btn").style.display="none";
-    return;
+    $("load-more-btn").style.display="none"; return;
   }
   const page=_recRows.slice(_recCursor,_recCursor+PAGE_SIZE);
   const el=$("rec-list");
-
   page.forEach(r=>{
     const mm=r.date.slice(5,7)+"/"+r.date.slice(8,10);
-    const div=document.createElement("div");
-    div.className="ei";
-
+    const div=document.createElement("div"); div.className="ei";
     if (r._type==="rev") {
-      const icon  =catIcon(r.revCat||"pos");
-      const label =catLabel(r.revCat||"pos");
-      const rid   =r.id;
+      const rid=r.id;
       div.innerHTML=
         "<div class=\"ei-top\">" +
-        "<span class=\"eico\">"+icon+"</span>" +
+        "<span class=\"eico\">"+catIcon(r.revCat||"pos")+"</span>" +
         "<div class=\"einf\">" +
-          "<div class=\"ename\">"+label+"</div>" +
+          "<div class=\"ename\">"+catLabel(r.revCat||"pos")+"</div>" +
           "<div class=\"emeta\">"+mm+" <span class=\"badge brev\">營收</span>"+(r.note?" - "+r.note:"")+"</div>" +
         "</div>" +
         "<span class=\"eamt\" style=\"color:var(--ac)\">+$"+fmt(r.amount)+"</span>" +
@@ -1079,7 +1067,6 @@ function renderRecordsPage() {
         "</div></div>";
       div.querySelector(".ab-e").onclick=()=>requirePw(()=>openRevEdit(C.revs.find(x=>x.id===rid)||r));
       div.querySelector(".ab-d").onclick=()=>requirePw(()=>deleteRev(rid));
-
     } else {
       const eid=r.id;
       div.innerHTML=
@@ -1099,42 +1086,34 @@ function renderRecordsPage() {
     }
     el.appendChild(div);
   });
-
   _recCursor+=page.length;
   const btn=$("load-more-btn");
   if (_recCursor<_recRows.length) {
-    btn.style.display="block";
-    btn.disabled=false;
+    btn.style.display="block"; btn.disabled=false;
     btn.textContent="載入更多（剩餘 "+(_recRows.length-_recCursor)+" 筆）";
-  } else {
-    btn.style.display="none";
-  }
+  } else { btn.style.display="none"; }
 }
 
 function loadMoreRecords() { renderRecordsPage(); }
-function renderRecords() { resetRecords(); }
 
 // ─── 報表 ─────────────────────────────────────────────────────
 function renderReport() {
-  const rawM = $("rpt-month").value;
-  const isoMatch = rawM.match(/(\d{4})-(\d{2})/);
-  const m = isoMatch ? isoMatch[1]+"-"+isoMatch[2] : monthStr();
-  const revs=C.revs.filter(r=>r.date && r.date.startsWith(m));
-  const exps=C.exps.filter(e=>e.date && e.date.startsWith(m));
+  const rawM=$("rpt-month").value;
+  const isoMatch=rawM.match(/(\d{4})-(\d{2})/);
+  const m=isoMatch?isoMatch[1]+"-"+isoMatch[2]:monthStr();
+  const revs=C.revs.filter(r=>r.date&&r.date.startsWith(m));
+  const exps=C.exps.filter(e=>e.date&&e.date.startsWith(m));
   const totR=revs.reduce((s,r)=>s+r.amount,0);
   const totE=exps.reduce((s,e)=>s+e.amount,0);
-  const pnl =totR-totE;
-  const mg  =totR>0?((pnl/totR)*100).toFixed(1):0;
+  const pnl=totR-totE, mg=totR>0?((pnl/totR)*100).toFixed(1):0;
   const days=[...new Set(revs.map(r=>r.date))].length;
-  const avg =days>0?Math.round(totR/days):0;
-
-  const cats    =["food","staff","utility","rent","supply","other"];
+  const avg=days>0?Math.round(totR/days):0;
+  const cats=["food","staff","utility","rent","supply","other"];
   const catBreak=cats.map(c=>({
-    key:c, label:catLabel(c), icon:catIcon(c),
+    key:c,label:catLabel(c),icon:catIcon(c),
     amount:exps.filter(e=>e.category===c).reduce((s,e)=>s+e.amount,0),
-    items: exps.filter(e=>e.category===c)
+    items:exps.filter(e=>e.category===c)
   })).filter(c=>c.amount>0).sort((a,b)=>b.amount-a.amount);
-
   let html=
     "<div class=\"sg\">" +
       "<div class=\"sc\"><div class=\"sl\">總營收</div><div class=\"sv g\">$"+fmt(totR)+"</div><div class=\"ss\">均 $"+fmt(avg)+"/天，共 "+days+" 天</div></div>" +
@@ -1142,10 +1121,8 @@ function renderReport() {
     "</div>" +
     "<div class=\"pcard\"><div><div class=\"pl\">淨損益</div><div class=\"pv "+(pnl>=0?"g":"r")+"\">$"+fmt(pnl)+"</div></div><div class=\"mbadge\">毛利率 "+mg+"%</div></div>" +
     "<div class=\"card\"><div class=\"ch\">支出分類明細</div>";
-
-  if (!catBreak.length) {
-    html+="<div class=\"empty\">本月無支出記錄</div>";
-  } else {
+  if (!catBreak.length) { html+="<div class=\"empty\">本月無支出記錄</div>"; }
+  else {
     catBreak.forEach(c=>{
       const ep=totE>0?((c.amount/totE)*100).toFixed(1):0;
       const rp=totR>0?((c.amount/totR)*100).toFixed(1):0;
@@ -1172,13 +1149,10 @@ function renderReport() {
     });
   }
   html+="</div>";
-
-  // 每日損益
   const dateSet=new Set([...revs.map(r=>r.date),...exps.map(e=>e.date)]);
   html+="<div class=\"card\"><div class=\"ch\">每日損益</div>";
-  if (!dateSet.size) {
-    html+="<div class=\"empty\">本月無資料</div>";
-  } else {
+  if (!dateSet.size) { html+="<div class=\"empty\">本月無資料</div>"; }
+  else {
     [...dateSet].sort().reverse().forEach(d=>{
       const rv=revs.filter(x=>x.date===d).reduce((s,x)=>s+x.amount,0);
       const ex=exps.filter(x=>x.date===d).reduce((s,x)=>s+x.amount,0);
@@ -1205,35 +1179,378 @@ async function exportCSV() {
   const from=$("csv-from").value, to=$("csv-to").value;
   if (!from||!to)  { toast("請選擇起始和結束日期",true); return; }
   if (from>to)     { toast("起始日期不能晚於結束日期",true); return; }
-
   const shopName=$("shop-title").textContent;
-  // Title rows first, then column header, then data
   const titleRow=['"'+shopName+' - 帳務匯出"','','','','',''];
   const rangeRow=['"期間：'+from+' 至 '+to+'"','','','','',''];
-  const header  =["日期","類型","分類","項目名稱/明細","金額（元）","備註"];
-
+  const header=["日期","類型","分類","項目名稱/明細","金額（元）","備註"];
   let rows=[];
-  C.revs
-    .filter(r=>r.date>=from&&r.date<=to)
+  C.revs.filter(r=>r.date>=from&&r.date<=to)
     .forEach(r=>rows.push([r.date,"營收",catLabel(r.revCat||"pos"),catLabel(r.revCat||"pos"),r.amount,r.note||""]));
-  C.exps
-    .filter(e=>e.date>=from&&e.date<=to)
+  C.exps.filter(e=>e.date>=from&&e.date<=to)
     .forEach(e=>rows.push([e.date,"支出",catLabel(e.category),e.name,e.amount,e.note||""]));
   rows.sort((a,b)=>a[0].localeCompare(b[0]));
-
   const toRow=arr=>arr.map(c=>'"'+String(c).replace(/"/g,'""')+'"').join(",");
   const csv="\uFEFF"+[titleRow,rangeRow,header,...rows].map(toRow).join("\n");
-
   const blob=new Blob([csv],{type:"text/csv;charset=utf-8"});
-  const url =URL.createObjectURL(blob);
-  const a   =document.createElement("a");
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement("a");
   a.href=url; a.download="冰店帳務_"+from+"_至_"+to+".csv";
   document.body.appendChild(a); a.click();
   document.body.removeChild(a);
   setTimeout(()=>URL.revokeObjectURL(url),1000);
   toast("CSV 已下載（"+from+" ~ "+to+"）");
 }
-</script>
 
+// ═══════════════════════════════════════════════════════════════
+// 🌤 天氣模組  (Open-Meteo，免費，無需 API key)
+// 旗山座標：23.14N, 120.48E
+// ═══════════════════════════════════════════════════════════════
+
+// 天氣 code -> { icon, label }
+const WMO = {
+  0:{i:"☀️",l:"晴天"},
+  1:{i:"🌤",l:"大致晴朗"},2:{i:"⛅",l:"局部多雲"},3:{i:"☁️",l:"陰天"},
+  45:{i:"🌫",l:"有霧"},48:{i:"🌫",l:"有霧（霜霧）"},
+  51:{i:"🌦",l:"毛毛雨（小）"},53:{i:"🌦",l:"毛毛雨（中）"},55:{i:"🌧",l:"毛毛雨（大）"},
+  61:{i:"🌧",l:"小雨"},63:{i:"🌧",l:"中雨"},65:{i:"🌧",l:"大雨"},
+  71:{i:"🌨",l:"小雪"},73:{i:"🌨",l:"中雪"},75:{i:"❄️",l:"大雪"},
+  80:{i:"🌦",l:"陣雨（小）"},81:{i:"🌧",l:"陣雨（中）"},82:{i:"⛈",l:"陣雨（強）"},
+  95:{i:"⛈",l:"雷雨"},96:{i:"⛈",l:"雷雨夾冰雹"},99:{i:"⛈",l:"強雷雨夾冰雹"}
+};
+function wmoInfo(code) {
+  return WMO[code] || {i:"🌡",l:"未知"};
+}
+
+const DAYS_TW = ["日","一","二","三","四","五","六"];
+
+// 天氣快取（避免重複請求）
+let _wxCache = null;
+let _wxCacheTime = 0;
+let _wxChart = null;
+
+async function fetchWeather() {
+  const now = Date.now();
+  // 快取 30 分鐘
+  if (_wxCache && (now - _wxCacheTime) < 30 * 60 * 1000) return _wxCache;
+
+  // 今天往前 60 天（含歷史氣溫）+ 往後 7 天預報
+  const today = todayStr();
+  const d = new Date();
+  const pastDate = new Date(d); pastDate.setDate(d.getDate()-60);
+  const futDate  = new Date(d); futDate.setDate(d.getDate()+7);
+  const startDate = pastDate.toISOString().slice(0,10);
+  const endDate   = futDate.toISOString().slice(0,10);
+
+  // 一次 API 拿歷史+預報（Open-Meteo forecast API 支援 past_days）
+  const base = "https://api.open-meteo.com/v1/forecast";
+  const params = new URLSearchParams({
+    latitude:  WX_LAT,
+    longitude: WX_LNG,
+    daily: [
+      "weathercode","temperature_2m_max","temperature_2m_min",
+      "precipitation_sum","precipitation_probability_max",
+      "windspeed_10m_max","uv_index_max"
+    ].join(","),
+    hourly: "temperature_2m,relativehumidity_2m,apparent_temperature",
+    current_weather: "true",
+    past_days: 60,
+    forecast_days: 7,
+    timezone: "Asia/Taipei"
+  });
+
+  const resp = await fetch(base + "?" + params);
+  if (!resp.ok) throw new Error("HTTP "+resp.status);
+  const data = await resp.json();
+  _wxCache = data;
+  _wxCacheTime = now;
+  return data;
+}
+
+async function renderWeather() {
+  const wrap = $("wx-wrap");
+  wrap.innerHTML = "<div class=\"wx-loading\"><div class=\"spin\"></div>載入天氣資料中...</div>";
+
+  let data;
+  try { data = await fetchWeather(); }
+  catch(e) {
+    wrap.innerHTML = "<div class=\"card\"><div class=\"empty\">⚠️ 天氣資料載入失敗<br><small style=\"font-size:11px;margin-top:4px;display:block\">"+e.message+"</small></div></div>";
+    return;
+  }
+
+  const { current_weather: cw, daily, hourly } = data;
+  const today = todayStr();
+
+  // 找今天在 daily 陣列裡的 index
+  const todayIdx = daily.time.indexOf(today);
+
+  // ── 目前氣溫（用 hourly 找最近一筆） ──────────────────────
+  const nowHour = new Date().getHours();
+  // hourly.time 格式 "2025-05-01T00:00" 取到分鐘
+  const hIdx = hourly.time.findIndex(t => {
+    const d2 = t.slice(0,10), h2 = parseInt(t.slice(11,13));
+    return d2 === today && h2 >= nowHour;
+  });
+  const curTemp    = hIdx>=0 ? hourly.temperature_2m[hIdx]    : cw.temperature;
+  const curFeels   = hIdx>=0 ? hourly.apparent_temperature[hIdx] : cw.temperature;
+  const curHumid   = hIdx>=0 ? hourly.relativehumidity_2m[hIdx] : "--";
+  const curWmo     = wmoInfo(cw.weathercode);
+
+  const todayMax   = todayIdx>=0 ? daily.temperature_2m_max[todayIdx] : "--";
+  const todayMin   = todayIdx>=0 ? daily.temperature_2m_min[todayIdx] : "--";
+  const todayRain  = todayIdx>=0 ? daily.precipitation_probability_max[todayIdx] : "--";
+  const todayPrec  = todayIdx>=0 ? daily.precipitation_sum[todayIdx]  : "--";
+  const todayUV    = todayIdx>=0 ? daily.uv_index_max[todayIdx]       : "--";
+  const todayWind  = todayIdx>=0 ? daily.windspeed_10m_max[todayIdx]  : "--";
+
+  // ── 建構今日大卡 HTML ──────────────────────────────────────
+  let html = "";
+  html +=
+    "<div class=\"wx-today\">" +
+      "<div class=\"wx-loc\">📍 "+WX_NAME+" 今日天氣</div>" +
+      "<div class=\"wx-main\">" +
+        "<div>" +
+          "<div class=\"wx-temp-big\">"+Math.round(curTemp)+"<span>°C</span></div>" +
+          "<div class=\"wx-desc\">"+curWmo.l+"</div>" +
+        "</div>" +
+        "<div class=\"wx-icon-big\">"+curWmo.i+"</div>" +
+      "</div>" +
+      "<div class=\"wx-grid4\">" +
+        "<div class=\"wx-g4\"><div class=\"wx-g4-l\">體感</div><div class=\"wx-g4-v\">"+Math.round(curFeels)+"°</div></div>" +
+        "<div class=\"wx-g4\"><div class=\"wx-g4-l\">濕度</div><div class=\"wx-g4-v\">"+curHumid+"%</div></div>" +
+        "<div class=\"wx-g4\"><div class=\"wx-g4-l\">降雨率</div><div class=\"wx-g4-v\">"+todayRain+"%</div></div>" +
+        "<div class=\"wx-g4\"><div class=\"wx-g4-l\">UV</div><div class=\"wx-g4-v\">"+todayUV+"</div></div>" +
+      "</div>" +
+    "</div>";
+
+  // 今日最高/低 + 累積雨量 + 風速 小條
+  html +=
+    "<div class=\"sg\" style=\"margin-bottom:12px\">" +
+      "<div class=\"sc\">" +
+        "<div class=\"sl\">今日氣溫</div>" +
+        "<div style=\"display:flex;align-items:baseline;gap:6px\">" +
+          "<span style=\"font-family:'DM Mono',monospace;font-size:18px;color:#ff9f43\">"+todayMax+"°</span>" +
+          "<span style=\"font-size:13px;color:var(--tx3)\">/</span>" +
+          "<span style=\"font-family:'DM Mono',monospace;font-size:18px;color:var(--bl)\">"+todayMin+"°</span>" +
+        "</div>" +
+        "<div class=\"ss\">最高 / 最低 (°C)</div>" +
+      "</div>" +
+      "<div class=\"sc\">" +
+        "<div class=\"sl\">今日降雨</div>" +
+        "<div class=\"sv\" style=\"color:var(--bl)\">"+todayPrec+" mm</div>" +
+        "<div class=\"ss\">風速最大 "+todayWind+" km/h</div>" +
+      "</div>" +
+    "</div>";
+
+  // ── 7 天預報 ──────────────────────────────────────────────
+  html += "<div class=\"card\"><div class=\"ch\">未來 7 天預報</div>";
+  for (let i=0; i<7; i++) {
+    const idx = todayIdx + i;
+    if (idx < 0 || idx >= daily.time.length) continue;
+    const dStr  = daily.time[idx];
+    const dObj  = new Date(dStr+"T12:00:00+08:00");
+    const dow   = i===0 ? "今天" : i===1 ? "明天" : ("週"+DAYS_TW[dObj.getDay()]);
+    const wi    = wmoInfo(daily.weathercode[idx]);
+    const hi    = daily.temperature_2m_max[idx];
+    const lo    = daily.temperature_2m_min[idx];
+    const rp    = daily.precipitation_probability_max[idx];
+    html +=
+      "<div class=\"wx7-row\">" +
+        "<div class=\"wx7-day\">"+dow+"</div>" +
+        "<div class=\"wx7-ico\">"+wi.i+"</div>" +
+        "<div class=\"wx7-desc\">"+wi.l+"</div>" +
+        "<div class=\"wx7-rain\">"+rp+"%</div>" +
+        "<div class=\"wx7-temps\">" +
+          "<span class=\"wx7-hi\">"+Math.round(hi)+"°</span>" +
+          "<span style=\"color:var(--tx3);font-size:11px\">/</span>" +
+          "<span class=\"wx7-lo\">"+Math.round(lo)+"°</span>" +
+        "</div>" +
+      "</div>";
+  }
+  html += "</div>";
+
+  // ── 歷史氣溫 × 營收對照圖 (最近 30 天有營收資料) ─────────
+  // 找 daily 過去 60 天的資料，和 C.revs 對照
+  const past60 = daily.time.slice(0, todayIdx+1).slice(-60);
+  // 只取有營收記錄的日期（或最近 30 天）
+  const recentDates = past60.slice(-30);
+  const tempArr = [], revArr = [], labels = [];
+  let hasRevData = false;
+
+  recentDates.forEach(d => {
+    const di = daily.time.indexOf(d);
+    const avgT = di >= 0
+      ? ((daily.temperature_2m_max[di] + daily.temperature_2m_min[di]) / 2).toFixed(1)
+      : null;
+    const dayRevs = C.revs.filter(r => r.date === d);
+    const dayRev  = dayRevs.length > 0
+      ? dayRevs.reduce((s,r) => s+r.amount, 0)
+      : null;
+    if (dayRev !== null) hasRevData = true;
+    tempArr.push(avgT !== null ? parseFloat(avgT) : null);
+    revArr.push(dayRev);
+    labels.push(d.slice(5).replace("-","/"));
+  });
+
+  html += "<div class=\"card\"><div class=\"ch\">氣溫 × 營收對照（近 30 天）</div>";
+  if (!hasRevData) {
+    html += "<div class=\"empty\" style=\"padding:16px 0\">尚無營收資料可對照</div>";
+  } else {
+    html += "<div class=\"cw-tall\"><canvas id=\"wx-corr-chart\"></canvas></div>";
+    html += "<div style=\"display:flex;gap:14px;justify-content:center;margin-top:6px;font-size:10px;color:var(--tx3)\">" +
+      "<span>■ <span style=\"color:#ff9f43\">平均氣溫</span></span>" +
+      "<span>■ <span style=\"color:#5ee7c8\">營收</span></span>" +
+      "</div>";
+  }
+  html += "</div>";
+
+  // ── 氣溫區間 × 平均營收分析 ──────────────────────────────
+  // 把過去 60 天分：低溫(<25)、適溫(25-30)、高溫(>30)
+  const tiers = { lo:[], mid:[], hi:[] };
+  past60.forEach(d => {
+    const di = daily.time.indexOf(d);
+    if (di < 0) return;
+    const hi2 = daily.temperature_2m_max[di];
+    const lo2 = daily.temperature_2m_min[di];
+    const avg2 = (hi2+lo2)/2;
+    const dayRevs = C.revs.filter(r=>r.date===d);
+    if (!dayRevs.length) return;
+    const rev2 = dayRevs.reduce((s,r)=>s+r.amount,0);
+    if (avg2 < 25)      tiers.lo.push(rev2);
+    else if (avg2 < 31) tiers.mid.push(rev2);
+    else                tiers.hi.push(rev2);
+  });
+
+  const avgOf = arr => arr.length ? Math.round(arr.reduce((s,v)=>s+v,0)/arr.length) : null;
+  const loAvg = avgOf(tiers.lo), midAvg = avgOf(tiers.mid), hiAvg = avgOf(tiers.hi);
+  const hasTierData = loAvg!==null || midAvg!==null || hiAvg!==null;
+
+  html += "<div class=\"card\"><div class=\"ch\">氣溫區間平均營收</div>";
+  if (!hasTierData) {
+    html += "<div class=\"empty\" style=\"padding:10px 0\">尚無足夠資料</div>";
+  } else {
+    html += "<div class=\"temp-tier\">" +
+      "<div class=\"tt-cell\">" +
+        "<div class=\"tt-range\">🧊 低溫</div>" +
+        "<div style=\"font-size:10px;color:var(--bl);margin-bottom:4px\">&lt; 25°C</div>" +
+        "<div class=\"tt-val\" style=\"color:var(--bl)\">"+(loAvg!==null?"$"+fmt(loAvg):"--")+"</div>" +
+        "<div class=\"tt-days\">"+(loAvg!==null?tiers.lo.length+" 天":"無資料")+"</div>" +
+      "</div>" +
+      "<div class=\"tt-cell\">" +
+        "<div class=\"tt-range\">🌤 適溫</div>" +
+        "<div style=\"font-size:10px;color:var(--wn);margin-bottom:4px\">25–31°C</div>" +
+        "<div class=\"tt-val\" style=\"color:var(--wn)\">"+(midAvg!==null?"$"+fmt(midAvg):"--")+"</div>" +
+        "<div class=\"tt-days\">"+(midAvg!==null?tiers.mid.length+" 天":"無資料")+"</div>" +
+      "</div>" +
+      "<div class=\"tt-cell\">" +
+        "<div class=\"tt-range\">🔥 高溫</div>" +
+        "<div style=\"font-size:10px;color:var(--ot);margin-bottom:4px\">&gt; 31°C</div>" +
+        "<div class=\"tt-val\" style=\"color:var(--ot)\">"+(hiAvg!==null?"$"+fmt(hiAvg):"--")+"</div>" +
+        "<div class=\"tt-days\">"+(hiAvg!==null?tiers.hi.length+" 天":"無資料")+"</div>" +
+      "</div>" +
+    "</div>";
+  }
+  html += "</div>";
+
+  // ── 降雨 × 營收相關備註 ───────────────────────────────────
+  // 計算有雨(>=1mm) vs 無雨 平均營收
+  const rainDays=[], dryDays=[];
+  past60.forEach(d=>{
+    const di=daily.time.indexOf(d); if(di<0) return;
+    const prec=daily.precipitation_sum[di];
+    const dayRevs=C.revs.filter(r=>r.date===d); if(!dayRevs.length) return;
+    const rev2=dayRevs.reduce((s,r)=>s+r.amount,0);
+    if(prec>=1) rainDays.push(rev2); else dryDays.push(rev2);
+  });
+  const rainAvg=avgOf(rainDays), dryAvg=avgOf(dryDays);
+
+  if (rainAvg!==null||dryAvg!==null) {
+    html += "<div class=\"card\"><div class=\"ch\">晴雨對比平均營收</div>";
+    html += "<div style=\"display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:4px\">" +
+      "<div class=\"sc\">" +
+        "<div class=\"sl\" style=\"color:var(--wn)\">☀️ 無雨日</div>" +
+        "<div class=\"sv\" style=\"color:var(--ac)\">"+(dryAvg!==null?"$"+fmt(dryAvg):"--")+"</div>" +
+        "<div class=\"ss\">"+(dryAvg!==null?dryDays.length+" 天":"無資料")+"</div>" +
+      "</div>" +
+      "<div class=\"sc\">" +
+        "<div class=\"sl\" style=\"color:var(--bl)\">🌧 降雨日</div>" +
+        "<div class=\"sv\" style=\"color:var(--bl)\">"+(rainAvg!==null?"$"+fmt(rainAvg):"--")+"</div>" +
+        "<div class=\"ss\">"+(rainAvg!==null?rainDays.length+" 天":"無資料")+"</div>" +
+      "</div>" +
+    "</div>";
+    if (dryAvg!==null&&rainAvg!==null) {
+      const diff = dryAvg - rainAvg;
+      const pct  = rainAvg > 0 ? ((diff/rainAvg)*100).toFixed(0) : "--";
+      html += "<div style=\"margin-top:10px;font-size:12px;color:var(--tx2);background:var(--sf2);border-radius:8px;padding:9px 11px\">" +
+        (diff>0
+          ? "晴天平均比雨天多 $"+fmt(diff)+"（+"+pct+"%），天氣對來客有正面影響 ☀️"
+          : "降雨日平均比晴天多 $"+fmt(Math.abs(diff))+"，雨天仍有不錯業績 🌧"
+        ) +
+      "</div>";
+    }
+    html += "</div>";
+  }
+
+  // ── 資料來源標注 ─────────────────────────────────────────
+  html +=
+    "<div style=\"text-align:center;font-size:10px;color:var(--tx3);padding:4px 0 8px\">" +
+    "天氣資料來源：Open-Meteo · 高雄旗山 ("+WX_LAT+"N, "+WX_LNG+"E)<br>" +
+    "每 30 分鐘更新一次" +
+    "</div>";
+
+  wrap.innerHTML = html;
+
+  // ── 繪製氣溫×營收對照圖（DOM 已插入後才能取 canvas） ─────
+  if (hasRevData) {
+    const ctx = $("wx-corr-chart");
+    if (ctx) {
+      if (_wxChart) { _wxChart.destroy(); _wxChart=null; }
+      _wxChart = new Chart(ctx.getContext("2d"),{
+        type:"line",
+        data:{
+          labels,
+          datasets:[
+            {
+              label:"平均氣溫(°C)",
+              data:tempArr,
+              borderColor:"#ff9f43",
+              backgroundColor:"rgba(255,159,67,.07)",
+              tension:.3, spanGaps:true, pointRadius:2, borderWidth:2,
+              yAxisID:"yT"
+            },
+            {
+              label:"營收($)",
+              data:revArr,
+              borderColor:"#5ee7c8",
+              backgroundColor:"rgba(94,231,200,.07)",
+              tension:.3, spanGaps:true, pointRadius:3, borderWidth:2,
+              yAxisID:"yR"
+            }
+          ]
+        },
+        options:{
+          responsive:true, maintainAspectRatio:false,
+          interaction:{ mode:"index", intersect:false },
+          plugins:{
+            legend:{ display:false }
+          },
+          scales:{
+            x:{ ticks:{color:"#4e5470",font:{size:8},maxTicksLimit:10}, grid:{color:"rgba(42,48,80,.35)"} },
+            yT:{
+              position:"left",
+              ticks:{color:"#ff9f43",font:{size:9},callback:v=>v+"°"},
+              grid:{color:"rgba(42,48,80,.3)"}
+            },
+            yR:{
+              position:"right",
+              ticks:{color:"#5ee7c8",font:{size:9},callback:v=>"$"+fmt(v)},
+              grid:{drawOnChartArea:false}
+            }
+          }
+        }
+      });
+    }
+  }
+}
+</script>
 </body>
 </html>
