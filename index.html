@@ -1312,13 +1312,15 @@ async function renderWeather() {
           "<div class=\"wx-temp-big\">"+Math.round(curTemp)+"<span>°C</span></div>" +
           "<div class=\"wx-desc\">"+curWmo.l+"</div>" +
         "</div>" +
-        "<div class=\"wx-icon-big\">"+curWmo.i+"</div>" +
+        "<div style=\"text-align:center\">" +
+          "<div class=\"wx-icon-big\">"+curWmo.i+"</div>" +
+          "<div style=\"font-size:11px;color:var(--bl);margin-top:4px\">☂ "+todayRain+"%</div>" +
+        "</div>" +
       "</div>" +
       // 分隔線 + 6 格資訊
       "<div class=\"wx-grid4\" style=\"grid-template-columns:repeat(3,1fr);gap:10px 8px;margin-top:14px;padding-top:14px\">" +
         "<div class=\"wx-g4\"><div class=\"wx-g4-l\">體感</div><div class=\"wx-g4-v\">"+Math.round(curFeels)+"°C</div></div>" +
         "<div class=\"wx-g4\"><div class=\"wx-g4-l\">濕度</div><div class=\"wx-g4-v\">"+curHumid+"%</div></div>" +
-        "<div class=\"wx-g4\"><div class=\"wx-g4-l\">降雨率</div><div class=\"wx-g4-v\">"+todayRain+"%</div></div>" +
         "<div class=\"wx-g4\"><div class=\"wx-g4-l\">最高/最低</div><div class=\"wx-g4-v\" style=\"color:var(--ot)\">"+todayMax+"° <span style=\"color:var(--tx3);font-size:11px\">/</span> <span style=\"color:var(--bl)\">"+todayMin+"°</span></div></div>" +
         "<div class=\"wx-g4\"><div class=\"wx-g4-l\">累積雨量</div><div class=\"wx-g4-v\" style=\"color:var(--bl)\">"+todayPrec+"mm</div></div>" +
         "<div class=\"wx-g4\"><div class=\"wx-g4-l\">最大風速</div><div class=\"wx-g4-v\">"+todayWind+"km/h</div></div>" +
